@@ -14,6 +14,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
+
 Option Explicit
 '2025.04.25  加入 I:pagebreak 44 '設定第 x 小節強制換頁，小節數重 1 開始
 '2025.04.25  加入 I:linebreak 44 '設定第 x 小節強制換行

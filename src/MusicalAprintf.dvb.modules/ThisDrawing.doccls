@@ -874,8 +874,8 @@ Public Function GetDVBThis(DVBFileName As String) As String
     Dim i As Integer
     Dim strFileName As String
     
-    For i = 1 To ThisDrawing.Application.vbe.VBprojects.Count
-        strFileName = ThisDrawing.Application.vbe.VBprojects.item(i).fileName
+    For i = 1 To ThisDrawing.Application.vbe.VBProjects.Count
+        strFileName = ThisDrawing.Application.vbe.VBProjects.item(i).fileName
         If InStr(UCase(strFileName), UCase(DVBFileName)) > 0 Then
             GetDVBThis = strFileName
             Exit For
@@ -888,8 +888,8 @@ Public Function GetDVBPath(DVBFileName As String) As String
     Dim i As Integer
     Dim strFileName As String
     
-    For i = 1 To ThisDrawing.Application.vbe.VBprojects.Count
-        strFileName = ThisDrawing.Application.vbe.VBprojects.item(i).fileName
+    For i = 1 To ThisDrawing.Application.vbe.VBProjects.Count
+        strFileName = ThisDrawing.Application.vbe.VBProjects.item(i).fileName
         If InStr(UCase(strFileName), UCase(DVBFileName)) > 0 Then
             GetDVBPath = GetPath(strFileName)
             Exit For
