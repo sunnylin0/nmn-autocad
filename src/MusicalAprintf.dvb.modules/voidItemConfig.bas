@@ -99,6 +99,10 @@ End Function
     Dim i As Integer
     Dim mus As MusicItem
     Dim c As String
+    If s1 Is Nothing Then
+        Exit Function
+    End If
+    
     '找是否有升降記號
     For i = 0 To s1.notes.Count - 1
         c = s1.notes(i).mtone
@@ -107,6 +111,18 @@ End Function
             i = s1.notes.Count '離開迴圈
         End If
     Next
+    '計算 前墜字
+    If Not s1.extraObjs Is Nothing Then
+        s1.extraw = s1.extraw - (s1.extraObjs.Count * G.FONTSIZE * amt.extraScale * amt.wNote)
+    End If
+    
+    '計算 後墜字
+    
+    If Not s1.rightObjs Is Nothing Then
+        s1.w = s1.w + (s1.rightObjs.Count * G.FONTSIZE * amt.extraScale * amt.wNote)
+    End If
+
+
     calExtraw = s1.extraw
  End Function
    

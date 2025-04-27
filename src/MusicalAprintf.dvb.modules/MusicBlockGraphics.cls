@@ -23,6 +23,7 @@ Const MAINLAYER As String = "main"     '主要的圖層
 Dim gTextSize As Double
 Dim gAtPt As New point
 Dim MData As MusicItem
+Public nowPartLayer As String
 
 
 Dim MFS() As MusicFing
@@ -472,7 +473,7 @@ Public Function drawBlockItem(blockName As String, x As Double, y As Double, Opt
     
     If checkBlockName(blockName) Then
         Set drawBlockItem = ThisDrawing.ModelSpace.InsertBlock(aligPoint, blockName, size * scX, size * scY, size * scZ, 0)
-        drawBlockItem.Layer = MAINLAYER
+        drawBlockItem.Layer = nowPartLayer
     Else
         If blockName = "" Then blockName = " "
         Set drawBlockItem = ThisDrawing.ModelSpace.AddText(blockName, aligPoint, size)
@@ -633,6 +634,52 @@ Public Function InsterEnt() As AcadBlockReference '插入音附
             
         End If
     Next
+    '繪前綴元素
+    Dim extMBG As New MusicBlockGraphics
+    Dim extra As New MusicItem
+    Dim startPt As New point
+    
+    Dim beamMIList As New MusicItemList
+    
+    If Not MData.extraObjs Is Nothing Then
+        For i = 0 To MData.extraObjs.Count - 1
+            startPt.x = gAtPt.x - (Me.TextSize * amt.extraScale * amt.wNote * (MData.extraObjs.Count - i))
+            startPt.y = gAtPt.y + Me.TextSize * 1.2
+'            Set extra = New MusicItem
+'            Set extra.notes = New MusicNoteItemList
+'            extra.notes.Push MData.extraObjs(i)
+            Set extra = MData.extraObjs(i).ToOneMusicItem
+            extra.oX = startPt.x
+            extra.oY = startPt.y
+            extMBG.setDataText startPt, extra, Me.TextSize * amt.extraScale
+            extMBG.nowPartLayer = nowPartLayer
+            extMBG.InsterEnt '插入音符及指法
+            beamMIList.Push extra
+        Next
+        extMBG.draw_dur beamMIList
+        beamMIList.Clear
+    End If
+    '繪後綴元素
+    If Not MData.rightObjs Is Nothing Then
+        For i = 0 To MData.rightObjs.Count - 1
+            startPt.x = Grippt.gptRight.x + (Me.TextSize * amt.extraScale * amt.wNote * (i))
+            startPt.y = gAtPt.y + Me.TextSize * 1.2
+'            Set extra = New MusicItem
+'            Set extra.notes = New MusicNoteItemList
+'            extra.notes.Push MData.rightObjs(i)
+            Set extra = MData.rightObjs(i).ToOneMusicItem
+            extra.oX = startPt.x
+            extra.oY = startPt.y
+            extMBG.setDataText startPt, extra, Me.TextSize * amt.extraScale
+            extMBG.nowPartLayer = nowPartLayer
+            extMBG.InsterEnt '插入音符及指法
+            beamMIList.Push extra
+        Next
+        extMBG.draw_dur beamMIList
+        beamMIList.Clear
+    
+    End If
+    
 End Function
 
 Private Sub BlockReferenceSetMusicData(TheObj, note1 As MusicNoteItem)
@@ -861,41 +908,131 @@ On Error Resume Next
 
 EndJoin:
 End Function
+Public Function draw_dur(musicList As MusicItemList)
+    ''繪製下拍線
+    Dim N As Integer
+    Dim n2 As Integer
+    Dim i As Integer
+    Dim sst As MusicItem
+    Dim sEnd As MusicItem
+    Dim stPt As New point
+    Dim endPt As New point
+    '取得最大的  nflags
+    For i = 0 To musicList.Count - 1
+        If n2 < musicList(i).nflags Then
+            n2 = musicList(i).nflags
+        End If
+    Next
+    
+    '開始繪下拍線
+    Dim x As Integer
+'    for (int x =1  x<=the_lineOne  x++)
+    For N = 1 To n2
+        For i = 0 To musicList.Count - 1
+            If musicList(i).nflags >= N Then
+                If sst Is Nothing Then
+                    Set sst = musicList(i) '取得第一個位置
+                Else
+                    Set sEnd = musicList(i) '取得第 後面的位置
+                End If
+            Else
+                If Not sst Is Nothing Then
+                    If sEnd Is Nothing Then
+                        Set sEnd = sst
+                    End If
+                    line_link N, sst, sEnd
+                    Set sst = Nothing
+                    Set sEnd = Nothing
+                    
+                End If
+            
+            End If
+        Next
+        If Not sst Is Nothing Then
+            If sEnd Is Nothing Then
+                Set sEnd = sst
+            End If
+            line_link N, sst, sEnd
+            Set sst = Nothing
+            Set sEnd = Nothing
+            
+        End If
+    Next
+
+End Function
 
 '
 '''畫拍子的線
 ''' num_col   要畫幾個線
 ''' l_pt, r_pt  左右鏈結的中點
 
-Sub line_link(num_col As Integer, lPt As point, rPt As point)
+Sub line_link(num_col As Integer, s1 As MusicItem, s2 As MusicItem)
 
-    If num_col < 0 Then
+    If num_col <= 0 Then
         Exit Sub
     End If
-    
+
     Dim xt As Double
     Dim yt As Double
-    
+
     Dim plineObj As AcadPolyline
     Dim points(0 To 5) As Double
-    
+
     ' Define the 2D polyline points
-    points(0) = lPt.x - amt.A_TEXT_WIDTH / 2 * gTextSize
-    points(1) = lPt.y - (amt.bkInster_Line_H * gTextSize) - (num_col * amt.LINE_JUMP * gTextSize)
-    points(2) = lPt.Z
-    
-    
-    points(3) = rPt.x + amt.A_TEXT_WIDTH / 2 * gTextSize
+    points(0) = s1.oX
+    points(1) = s1.oY + (amt.bkMidHight * gTextSize) - (num_col * amt.LINE_JUMP * gTextSize)
+    points(2) = 0
+
+
+    points(3) = s2.oX + amt.A_TEXT_WIDTH * gTextSize
     points(4) = points(1)
-    points(5) = rPt.Z
-        
+    points(5) = 0
+
+
     ' Create a lightweight Polyline object in model space
     Set plineObj = ThisDrawing.ModelSpace.AddPolyline(points)
-    plineObj.setWidth 0, gTextSize * amt.LINE_THICKNESS, gTextSize * amt.LINE_THICKNESS
-    plineObj.Layer = MAINLAYER
+    plineObj.ConstantWidth = gTextSize * amt.LINE_THICKNESS
+    plineObj.Layer = nowPartLayer
     'Call ThisDrawing.ModelSpace.AddPolyline .InsertBlock(insertionPoint, MFS.sFinge, gTextSize, gTextSize, gTextSize, 0)
 
 End Sub
+
+
+
+'
+'''畫拍子的線
+''' num_col   要畫幾個線
+''' l_pt, r_pt  左右鏈結的中點
+
+'Sub line_link(num_col As Integer, lPt As point, rPt As point)
+'
+'    If num_col < 0 Then
+'        Exit Sub
+'    End If
+'
+'    Dim xt As Double
+'    Dim yt As Double
+'
+'    Dim plineObj As AcadPolyline
+'    Dim points(0 To 5) As Double
+'
+'    ' Define the 2D polyline points
+'    points(0) = lPt.x - amt.A_TEXT_WIDTH / 2 * gTextSize
+'    points(1) = lPt.y - (amt.bkInster_Line_H * gTextSize) - (num_col * amt.LINE_JUMP * gTextSize)
+'    points(2) = lPt.Z
+'
+'
+'    points(3) = rPt.x + amt.A_TEXT_WIDTH / 2 * gTextSize
+'    points(4) = points(1)
+'    points(5) = rPt.Z
+'
+'    ' Create a lightweight Polyline object in model space
+'    Set plineObj = ThisDrawing.ModelSpace.AddPolyline(points)
+'    plineObj.setWidth 0, gTextSize * amt.LINE_THICKNESS, gTextSize * amt.LINE_THICKNESS
+'    plineObj.Layer = MAINLAYER
+'    'Call ThisDrawing.ModelSpace.AddPolyline .InsertBlock(insertionPoint, MFS.sFinge, gTextSize, gTextSize, gTextSize, 0)
+'
+'End Sub
 
 Private Function InsertMusicStar(insertionPoint() As Double, size As Double)
 '插入古箏 前音 琵音 * 號

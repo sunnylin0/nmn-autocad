@@ -111,6 +111,7 @@ Function layoutOneItem(vele As VoiceElement, spacing As Double) As Double
            Case Cg.Rest, Cg.note:
                 mus.x = vele.nextX
                 mus.w = amt.wNote * G.fontName
+                calExtraw mus   '計算前綴元素
            Case Else
                 mus.x = vele.nextX
                 mus.w = amt.wOther * G.fontName
@@ -316,6 +317,7 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
                         If s1.dots > 0 Then
                             s1.w = 2 * amt.wNote * G.FONTSIZE
                         End If
+                        calExtraw s1 '計算前綴元素
                         s1.remark = "t" & tmp_track & "_i" & tmp_track_item
                         vo.children.Push s1
                         G.durationIndex = G.durationIndex + s1.duration

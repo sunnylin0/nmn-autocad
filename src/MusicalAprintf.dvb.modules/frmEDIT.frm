@@ -17,13 +17,14 @@ Attribute VB_Exposed = False
 
 
 Option Explicit
-'2024.03.30  要加入 拍號 M:3/8 M:4/4 ，大改音符排序方式
+'2024.08.23  "v2.1" 加入 前綴元素 '>'  後綴元素 '<'
+'2024.03.30  "v2.0" 要加入 拍號 M:3/8 M:4/4 ，大改音符排序方式
 '2024.03.29  修改 4/4 3/8 拍數對位問題
 '2013.11.21  修改 DataBuffer 為元素
 '            多加 iAdd 合音行
 '2013.03.17  V3 正要修改 二胡的版本，因程式之前是用古箏的指法圖，現在改成二胡的指法圖
 
-Const version  As String = "v2.0" '軟體號碼
+Const version  As String = "v2.1" '軟體號碼
 Const c1 As Integer = 60   'C調1的鍵名值
 'Const FOURPAINUM   As Integer = 64 '1/4音符計數
 'Const MIDICLOCK As Integer = 24   '每1/64音符的MIDICLOCK數
@@ -31,6 +32,7 @@ Const c1 As Integer = 60   'C調1的鍵名值
 Const PARTITION_DEF As Integer = 384   '預設每拍分割為384計時單元
 Const VOLUME_DEF As Integer = 64
 Const MAINLAYER As String = "MAIN"    '主要的圖層
+Dim partLayer As String     '記錄現在第幾部
 
 
 
@@ -123,7 +125,7 @@ Private Sub cmOK_Click()
     '整理 拍號及小節數 分成一行一行的 TuneLines
     Set TuneLines = constTE.translate2Staffs(m_buf)
     
-    
+    'layout 將 x 坐標調整到其絕對位置
     rr ("layout")
     Call layout(TuneLines, 210#, 30)
     rr ("layout")
@@ -466,6 +468,14 @@ Private Sub drawLayoutStaff(abcTuneLines As TuneLineList)
         
         
         For j = 0 To abcTuneLines(i).staffGroup.voices.Count - 1
+'            If j = 0 Or j = 2 Then
+'                G.FONTSIZE = 3.6
+'            Else
+'                G.FONTSIZE = 3.4
+'            End If
+            partLayer = j
+            
+            
             Set vo = abcTuneLines(i).staffGroup.voices(j)
             startPt.c 0, 0
             endPt.c 0, 0
@@ -577,6 +587,7 @@ Private Sub drawLayoutStaff(abcTuneLines As TuneLineList)
                         s1.oX = startPt.x
                         s1.oY = startPt.y
                         MBG.setDataText startPt, s1, G.FONTSIZE
+                        MBG.nowPartLayer = partLayer
                         Set BNewObj = MBG.InsterEnt '插入音符及指法
                         
                         ''** 拍線計算 ***********************
@@ -590,11 +601,11 @@ Private Sub drawLayoutStaff(abcTuneLines As TuneLineList)
                             Temo2 = durationIndex - (Temo1 * (Cg.BLEN / G.mete2))
                             
                             If Temo2 Mod (Cg.BLEN / G.mete2) = 0 Or Temo2 > (Cg.BLEN / G.mete2) Then
-                                draw_dur beamMuseList
+                                MBG.draw_dur beamMuseList
                                 beamMuseList.Clear
                             End If
                          ElseIf beamMuseList.Count >= 1 Then
-                            draw_dur beamMuseList
+                            MBG.draw_dur beamMuseList
                             beamMuseList.Clear
                         End If
                         
@@ -634,93 +645,7 @@ Private Sub drawLayoutStaff(abcTuneLines As TuneLineList)
 
 
 End Sub
-Private Function draw_dur(musicList As MusicItemList)
-    ''繪製下拍線
-    Dim N As Integer
-    Dim n2 As Integer
-    Dim i As Integer
-    Dim sst As MusicItem
-    Dim sEnd As MusicItem
-    Dim stPt As New point
-    Dim endPt As New point
-    '取得最大的  nflags
-    For i = 0 To musicList.Count - 1
-        If n2 < musicList(i).nflags Then
-            n2 = musicList(i).nflags
-        End If
-    Next
-    
-    '開始繪下拍線
-    Dim x As Integer
-'    for (int x =1  x<=the_lineOne  x++)
-    For N = 1 To n2
-        For i = 0 To musicList.Count - 1
-            If musicList(i).nflags >= N Then
-                If sst Is Nothing Then
-                    Set sst = musicList(i) '取得第一個位置
-                Else
-                    Set sEnd = musicList(i) '取得第 後面的位置
-                End If
-            Else
-                If Not sst Is Nothing Then
-                    If sEnd Is Nothing Then
-                        Set sEnd = sst
-                    End If
-                    line_link N, sst, sEnd
-                    Set sst = Nothing
-                    Set sEnd = Nothing
-                    
-                End If
-            
-            End If
-        Next
-        If Not sst Is Nothing Then
-            If sEnd Is Nothing Then
-                Set sEnd = sst
-            End If
-            line_link N, sst, sEnd
-            Set sst = Nothing
-            Set sEnd = Nothing
-            
-        End If
-    Next
 
-End Function
-'
-'''畫拍子的線
-''' num_col   要畫幾個線
-''' l_pt, r_pt  左右鏈結的中點
-
-Sub line_link(num_col As Integer, s1 As MusicItem, s2 As MusicItem)
-
-    If num_col <= 0 Then
-        Exit Sub
-    End If
-    
-    Dim xt As Double
-    Dim yt As Double
-    
-    Dim plineObj As AcadPolyline
-    Dim points(0 To 5) As Double
-    
-    ' Define the 2D polyline points
-    points(0) = s1.oX
-    points(1) = s1.oY + (amt.bkMidHight * G.FONTSIZE) - (num_col * amt.LINE_JUMP * G.FONTSIZE)
-    points(2) = 0
-   
-    
-    points(3) = s2.oX + amt.A_TEXT_WIDTH * G.FONTSIZE
-    points(4) = points(1)
-    points(5) = 0
-    
-    
-    ' Create a lightweight Polyline object in model space
-    Set plineObj = ThisDrawing.ModelSpace.AddPolyline(points)
-    plineObj.ConstantWidth = G.FONTSIZE * amt.LINE_THICKNESS
-    plineObj.Layer = MAINLAYER
-    'Call ThisDrawing.ModelSpace.AddPolyline .InsertBlock(insertionPoint, MFS.sFinge, gTextSize, gTextSize, gTextSize, 0)
-
-End Sub
 Private Sub draw_many_text1()
   
   

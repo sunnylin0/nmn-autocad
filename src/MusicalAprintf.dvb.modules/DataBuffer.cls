@@ -155,6 +155,10 @@ Private Sub SetMusicNoteFormation(moeList() As MusicNoteItemList)
     Dim isAdd As Boolean
     Dim isDots As Boolean
     
+    
+    Dim extraList As MusicNoteItemList
+    Dim isExtra As Boolean
+    
     For nTrack = 0 To UBound(moeList)
         initMusicMain nTrack
         
@@ -206,6 +210,22 @@ Private Sub SetMusicNoteFormation(moeList() As MusicNoteItemList)
                 
                 isAdd = True
                 Set objMusic = calDuration2(objMusic, lastDuration)
+            ElseIf c.mtow_fingering = ">" Then
+            '前墜字
+                If isExtra = False Then
+                    Set objMusic = Nothing
+                    Set extraList = New MusicNoteItemList
+                    isExtra = True
+                End If
+                extraList.Push c
+                
+            ElseIf c.mtow_fingering = "<" Then
+            '後墜字
+                    Set objMusic = mMusic(nTrack).Last
+                    If objMusic.rightObjs Is Nothing Then
+                        Set objMusic.rightObjs = New MusicNoteItemList
+                    End If
+                    objMusic.rightObjs.Push c
             Else
                 If isDots Then
                     Set objMusic = mMusic(nTrack).Last
@@ -222,7 +242,15 @@ Private Sub SetMusicNoteFormation(moeList() As MusicNoteItemList)
                     mMusic(nTrack).Push objMusic
                 End If
             End If
-            calExtraw objMusic
+            If Not objMusic Is Nothing And isExtra = True Then
+                '這是看如有前墜字物件後，有產生 MusicItem
+                '就加入前墜字 給 MusicItem
+                Set objMusic.extraObjs = extraList
+                Set extraList = Nothing
+                isExtra = False
+                
+            End If
+            'calExtraw objMusic
         
             If c.mslur = "[" Or c.mslur = "(" Then
                 objMusic.slurStart = True       '二胡連音線，(古箏是合音)
@@ -354,7 +382,7 @@ Private Sub SetMusicItem(nTrack As Integer, ln As Integer, WD As Integer)
                     If mMusic(nTrack)(uu).duration > 0 Then
                         Set objMusic = mMusic(nTrack)(uu)
                         objMusic.identify_Duration objMusic.duration * 1.5
-                        objMusic.calMeWidth
+                        'objMusic.calMeWidth
                         GoTo nogood
                     End If
                 Next
@@ -464,7 +492,7 @@ Private Sub SetMusicItem(nTrack As Integer, ln As Integer, WD As Integer)
             objMusic.identify_Duration lastDuration
             mMusic(nTrack).Push objMusic
         End If
-        calExtraw objMusic
+        ''calExtraw objMusic
     
         If c_Slur = "[" Or c_Slur = "(" Then
             objMusic.slurStart = True       '二胡連音線，(古箏是合音)

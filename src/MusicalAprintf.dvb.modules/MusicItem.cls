@@ -57,6 +57,8 @@ Public durationClass As Double
 Public minspacing As Double
 Public extra As RelativeElementList
 Public extraw As Double    '玡后じ糴 琌璽
+Public extraObjs As MusicNoteItemList  '玡后じ
+Public rightObjs As MusicNoteItemList  '后じ
 Public right As RelativeElementList
 Public invisible As Boolean
 Public bottom As Double
@@ -279,9 +281,9 @@ Public Sub calMeWidth()
 
         Select Case Me.typs
            Case Cg.bar:
-                Me.w = amt.wBar * G.fontName
+                Me.w = amt.wBar * G.FONTSIZE
            Case Cg.meter:
-                Me.w = amt.wMete * G.fontName
+                Me.w = amt.wMete * G.FONTSIZE
            Case Cg.Rest, Cg.note:
                 If Me.dots > 0 Then
                     Me.w = 3 * amt.wNote * G.FONTSIZE
@@ -290,6 +292,10 @@ Public Sub calMeWidth()
                 End If
            Case Else
         End Select
+        '璸衡后糴
+        If Not Me.rightObjs Is Nothing Then
+            Me.w = Me.w + Me.rightObjs.Count * G.FONTSIZE * amt.extraScale
+        End If
 
 End Sub
 

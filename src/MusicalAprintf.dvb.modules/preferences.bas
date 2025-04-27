@@ -65,6 +65,7 @@ Type AMusicType
     wOther As Double
     wNote2note As Double    '每拍到每拍的間距
 
+    extraScale As Double    '前綴元素 比例
 End Type
 
 Public amt As AMusicType
@@ -193,6 +194,9 @@ Sub AMT_LOAD()
     amt.wNote = 0.75        '音符的寬度
     amt.wOther = 1
     amt.wNote2note = 0.5 '每拍到每拍的間距
+    
+    amt.extraScale = 0.6 '
+    
 End Sub
     
     
