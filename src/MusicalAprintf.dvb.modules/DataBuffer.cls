@@ -315,20 +315,42 @@ Private Sub noteConfigSet(nTrack As Integer, c As MusicNoteItem)
             Dim rMusicItem As MusicItem
             Set rMusicItem = New MusicItem
             
-            regEx.Pattern = ":setbar[\s]+(\d+)/(\d+)"
+            regEx.Pattern = ":setbar[\s]+(\d+)\s*?/\s*?(\d+)"
             Set regMatches = regEx.Execute(c.configText)
-            If regMatches.Count >= 1 Then
+            If regMatches.Count = 1 Then
                 rMusicItem.typs = Cg.Config
-                rMusicItem.setbarstaffid = regMatches(0).SubMatches(0)
-                rMusicItem.setbarstaff = regMatches(0).SubMatches(1)
+                '設定第x節開始，設定每行幾小節
+                If regMatches(0).SubMatches.Count = 2 Then
+                    rMusicItem.setbarstaffid = regMatches(0).SubMatches(0)
+                    rMusicItem.setbarstaff = regMatches(0).SubMatches(1)
+                End If
             End If
         
             regEx.Pattern = ":bar[\s]+(\d+)"
             Set regMatches = regEx.Execute(c.configText)
-            If regMatches.Count >= 1 Then
+            If regMatches.Count = 1 Then
                 rMusicItem.typs = Cg.Config
                 rMusicItem.barsperstaff = regMatches(0).SubMatches(0) '設定每行幾小節
             End If
+            
+            '設定第 x 小節強制換行
+            regEx.Pattern = ":linebreak[\s]+(\d+)"
+            Set regMatches = regEx.Execute(c.configText)
+            If regMatches.Count = 1 Then
+                rMusicItem.typs = Cg.Config
+                rMusicItem.barlinebreak = regMatches(0).SubMatches(0)
+            End If
+            
+            '設定第 x 小節強制換頁，小節數重 1 開始
+            regEx.Pattern = ":pagebreak[\s]+(\d+)"
+            Set regMatches = regEx.Execute(c.configText)
+            If regMatches.Count = 1 Then
+                rMusicItem.typs = Cg.Config
+                rMusicItem.barpagebreak = regMatches(0).SubMatches(0)
+            End If
+            
+            
+            
             
             mMusic(nTrack).Push rMusicItem
             

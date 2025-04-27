@@ -7,6 +7,9 @@
 
 
 ## 版本更新
+- 2025.04.25 V2.14
+加入 I:pagebreak 44 '設定第 x 小節強制換頁，小節數重 1 開始
+加入 I:linebreak 44 '設定第 x 小節強制換行
 - 2024.11.28  V2.13
 isVirtualChar As Boolean '設定空心字符  
 加入 I:setbar 5/3 在台頭設定 "第幾小節開始/每行幾小節"

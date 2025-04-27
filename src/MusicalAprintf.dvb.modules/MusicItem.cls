@@ -37,6 +37,8 @@ Option Explicit
  Public setbarstaffid   As Integer   '設定每行幾小節  setbarstaffid 是要第幾小節
  Public setbarstaff   As Integer   '設定每行幾小節  setbarstaff 是設定每行幾小節
  Public barNumber As Integer    '這小節號碼
+ Public barlinebreak As Integer '設定第 x 小節強制換行
+ Public barpagebreak As Integer '設定第 x 小節強制換頁，小節數重 1 開始
   
  Public ln As Integer       '要記錄讀進來的資料是在文件裡的第幾 "行"
  Public WD As Integer      '要記錄貢進來的資料是在文件要的第幾 "字"

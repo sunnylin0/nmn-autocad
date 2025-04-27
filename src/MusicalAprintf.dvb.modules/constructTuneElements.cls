@@ -300,6 +300,14 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
                             barConfig(s1.setbarstaffid).barId = s1.setbarstaffid
                             barConfig(s1.setbarstaffid).barLineQuantity = s1.setbarstaff
                         End If
+                        
+                        If (s1.barlinebreak > 1) Then
+                            If barConfig(setbarstaffid) Is Nothing Then
+                                Set barConfig(setbarstaffid) = New aBarConfig
+                            End If
+                            barConfig(setbarstaffid).barId = setbarstaffid
+                            barConfig(setbarstaffid).barLineQuantity = s1.setbarstaff
+                        End If
                     Case Cg.bar:
                         s1.w = amt.wBar * G.fontsize
                         s1.barNumber = barId
@@ -330,6 +338,7 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
                         s1.remark = "t" & tmp_track & "_i" & tmp_track_item
                         vo.children.Push s1
                         G.durationIndex = G.durationIndex + s1.duration
+          
                    Case Else
                 End Select
                 

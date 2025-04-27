@@ -14,9 +14,9 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
-
-
 Option Explicit
+'2025.04.25  加入 I:pagebreak 44 '設定第 x 小節強制換頁，小節數重 1 開始
+'2025.04.25  加入 I:linebreak 44 '設定第 x 小節強制換行
 '2024.11.28  isVirtualChar As Boolean '設定空心字符  v2.13
 '2024.11.28  加入 I:setbar 5/3 在台頭設定 "第幾小節開始/每行幾小節"
 '2024.11.27  v2.12 tuplet "{" "}" 加入 3 5 6 7 連音的功能
@@ -370,7 +370,7 @@ Private Sub inst_G(the_G As Glode, aPt As point)
     
     '插入資料
     insertionPt.x = insertionPt.x - 3
-    Set mtxt = ThisDrawing.ModelSpace.AddMText(insertionPt.ToDouble, 0.01, Me.TextBox8.text)
+    Set mtxt = ThisDrawing.ModelSpace.AddMText(insertionPt.ToDouble, 25, Me.TextBox8.text)
     mtxt.height = 0.01
     
 End Sub
@@ -476,7 +476,7 @@ Private Sub drawLayoutStaff(abcTuneLines As TuneLineList)
     trackY = 0
     iLineToLine = -1
     iTrackToTrack = 0
-    MBG.setVirtualChar True
+    MBG.setVirtualChar G.isVirtualChar
     For i = 0 To abcTuneLines.Count - 1
         Set currStaffGroup = abcTuneLines(i).staffGroup
         
@@ -813,6 +813,9 @@ Private Sub draw_many_text1()
                             barConfig(setbarstaffid).barId = setbarstaffid
                             barConfig(setbarstaffid).barLineQuantity = s1.setbarstaff
                         End If
+                        
+
+                        
                         GoTo CallBackFor
                    Case Cg.meter:
                         If (tmp_track = 0) Then
@@ -1552,8 +1555,6 @@ Private Function atTableDraw_bar(ByVal the_pt As point, ByVal the_track As Integ
     End If
 
 End Function
-
-
 
 
 
