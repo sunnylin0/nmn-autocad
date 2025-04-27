@@ -12,13 +12,13 @@ Option Explicit
 Public i As Double             ''站存設定現在要作用的子元素
 Public durationIndex As Double ''累記 現在已經讀取每小節的音符長度總合
 Public startX As Double        ''樂器名後 的 x 為開始位置
-Public minx As Double
-Public nextx As Double         ''下一個子元素的位置，是用子元素的時長(duration)*8 開跟號 * spacing
+Public minX As Double
+Public nextX As Double         ''下一個子元素的位置，是用子元素的時長(duration)*8 開跟號 * spacing
      ''如子元素 (bar) 沒時長則用 前一次取到的 (note) 時長 spacingduration
 Public spacingduration As Double
 Public header As String     ''每段頭的樂器名
 
-Public children As AbsoluteElementList
+Public children As MusicItemList  'AbsoluteElementList
 Public beams As BeamElemList
 Public otherchildren As iArray 'voiceItem[] '' ties, slurs, triplets
      '' "GlissandoElem" as    ''滑音
@@ -57,9 +57,10 @@ Public isJianpu As Boolean      '' 是否是簡譜
 
 Public Sub init(voicenumber As Integer, voicetotal As Integer)
 
-        Set Me.children = New AbsoluteElementList
+        Set Me.children = New MusicItemList 'AbsoluteElementList
         Set Me.beams = New BeamElemList
         Set Me.otherchildren = New iArray '[]  '' ties, slurs, triplets
+        Me.i = 0
         Me.w = 0
         Me.duplicate = False
         Me.voicenumber = voicenumber  ''number of the voice on a given stave (not staffgroup)

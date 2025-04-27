@@ -74,7 +74,7 @@ Function a(varPt As Variant)
         x = varPt.x
         y = varPt.y
         Z = varPt.Z
-    ElseIf UBound(varPt) = 2 Then
+    ElseIf UBound(varPt) >= 2 Then
         x = varPt(0)
         y = varPt(1)
         Z = varPt(2)
@@ -105,6 +105,13 @@ Function ToArray()
     tarr(0) = x
     tarr(1) = y
     tarr(2) = Z
-    ToArrayXYZ = tarr
+    ToArray = tarr
+End Function
+Function ToDouble() As Double()
+    Dim arrD(2) As Double
+    arrD(0) = x
+    arrD(1) = y
+    arrD(2) = Z
+     ToDouble = arrD
 End Function
 

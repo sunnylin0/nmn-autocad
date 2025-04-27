@@ -18,10 +18,13 @@ Public voices As VoiceElementList   ' VoiceElement
 Public staffInfos As vStaffInfoList
 Public brace As BraceElemList
 Public bracket As BraceElemList
-Private sa_(100) As Size
-Private saIs As New Dictionary
 
-Public Property Get sa(Index As Integer) As Size
+Private sa_(100) As size
+Private saIs As New Dictionary
+Public spacingUnits As Double   '記錄這行的空白單位
+Public minSpace As Double       '記錄這行的 最小空白單位
+
+Public Property Get sa(Index As Integer) As size
     If saIs(Index) = True Then
         sa = sa_(Index)
         Exit Property
@@ -30,7 +33,7 @@ Public Property Get sa(Index As Integer) As Size
     End If
 End Property
 
-Public Property Let sa(Index As Integer, si As Size)
+Public Property Let sa(Index As Integer, si As size)
     If UBound(sa_) >= Index Then
         sa_(Index) = si
         saIs(Index) = True

@@ -24,7 +24,7 @@ Public Function attr(typs, klass)
         attr = Me.gFontAndAttr.calc(typs, klass)
 End Function
 
-Public Function calc(text, typs, klass, Optional el As Dictionary) As Size
+Public Function calc(text, typs, klass, Optional el As Dictionary) As size
         Dim hash As Dictionary
         '' This can be passed in either a string or a font. If it is a string it names one of the standard fonts.
         If (VarType(typs) = vbString) Then
@@ -33,12 +33,12 @@ Public Function calc(text, typs, klass, Optional el As Dictionary) As Size
             Dim f As New vFont
             Dim ar As New Dictionary
             f.face = typs.face
-            f.Size = typs.Size
+            f.size = typs.size
             f.decoration = typs.decoration
             f.style = typs.style
             f.weight = typs.weight
             
-            aa("font-size") = typs.Size
+            aa("font-size") = typs.size
             aa("font-style") = typs.style
             aa("font-family") = typs.face
             aa("font-weight") = typs.weight
@@ -48,12 +48,12 @@ Public Function calc(text, typs, klass, Optional el As Dictionary) As Size
             hash("attr") = ar
         End If
         
-        Dim si As Size
+        Dim si As size
         si = Me.svg.getTxtSize(text, hash("attr"), el)
         If (hash.font.box) Then
             '' Add padding and an equal margin to each side.
-            si.height = Size.height + hash.font.padding * 4
-            si.width = Size.width + hash.font.padding * 4
+            si.height = size.height + hash.font.padding * 4
+            si.width = size.width + hash.font.padding * 4
         End If
         calc = si
 End Function
@@ -64,7 +64,7 @@ Public Function baselineToCenter(text As String, typs As String, klass As String
         Dim height  As Double
         Dim fontHeight  As Double
         height = Me.calc(text, typs, klass).height
-        fontHeight = Me.attr(typs, klass).font.Size
+        fontHeight = Me.attr(typs, klass).font.size
 
         baselineToCenter = height * 0.5 + (total - Index - 2) * fontHeight
 End Function

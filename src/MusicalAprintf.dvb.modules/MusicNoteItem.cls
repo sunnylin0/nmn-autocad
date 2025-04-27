@@ -15,7 +15,7 @@ Option Explicit
  Public mnote As String               '高低音
  Public mscale As String              '音階
  Public mtempo As String              '拍子
- Public delay As Integer              '拍子的延遲長度
+ Public duration As Integer              '拍子的延遲長度
  Public mtow_fingering As String      '指法 第二個
  Public mslur As String               '連音符
  Public mand As Boolean               '記錄合音 true為跟後面一音合音 ,false為沒有

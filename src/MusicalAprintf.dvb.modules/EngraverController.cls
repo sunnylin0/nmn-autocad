@@ -156,19 +156,19 @@ Public Sub adjustNonScaledItems(scale_ As Double)
         Me.width = Me.width / scale_
         Me.renderer.adjustNonScaledItems scale_
 End Sub
-Public Function getMeasureWidths(abctune As Dictionary) As iArray
+Public Function getMeasureWidths(abcTune As Dictionary) As iArray
 
         Me.reset
         Set Me.GetFontAttr = New GetFontAndAttr
         Set Me.getTxtSize = New getTextSize
-        Me.GetFontAttr.init abctune.formatting, Me.classes
+        Me.GetFontAttr.init abcTune.formatting, Me.classes
         Me.getTxtSize.init Me.GetFontAttr, Me.renderer.paper
 
-        Call Me.setupTune(abctune, 0)
-        Call Me.constructTuneElements(abctune)
+        Call Me.setupTune(abcTune, 0)
+        Call Me.constructTuneElements(abcTune)
         '' layout() sets the x-coordinate of the abcTune element here:
         '' abcTune.lines[0].staffGroup.voices[0].children[0].x
-        Call layout(Me.renderer, abctune, 0, Me.space)
+        Call layout(Me.renderer, abcTune, 0, Me.space)
 
         Dim ret As New iArray
         Dim section As New Dictionary
@@ -177,8 +177,8 @@ Public Function getMeasureWidths(abctune As Dictionary) As iArray
         Dim needNewSection   As Boolean
         
         needNewSection = True
-        For i = 0 To i < abctune.lines.Count
-            abcLine = abctune.lines(i)
+        For i = 0 To i < abcTune.lines.Count
+            abcLine = abcTune.lines(i)
             If Not (abcLine.Staff Is Nothing) Then
                 If (needNewSection = True) Then
                     section("left") = 0
@@ -190,13 +190,13 @@ Public Function getMeasureWidths(abctune As Dictionary) As iArray
                     needNewSection = False
                 End If
                 '' At this point, the voices are laid out so that the bar lines are even with each other. So we just need to get the placement of the first voice.
-                If (abcLine.staffGroup.voices.Length > 0) Then
+                If (abcLine.StaffGroup.voices.Length > 0) Then
                     Dim voice As VoiceElement
                     Dim foundNotStaffExtra  As Boolean
                     Dim lastXPosition As Double
                     Dim k As Integer
                     Dim child As AbsoluteElement
-                    Set voice = abcLine.staffGroup.voices(0)
+                    Set voice = abcLine.StaffGroup.voices(0)
                     foundNotStaffExtra = False
                     lastXPosition = 0
                     For k = 0 To voice.children.Count - 1
@@ -220,27 +220,27 @@ Public Function getMeasureWidths(abctune As Dictionary) As iArray
         Set getMeasureWidths = ret
 
 End Function
-Public Function setupTune(abctune As TuneData, tuneNumber As Integer) As Double
+Public Function setupTune(abcTune As TuneData, tuneNumber As Integer) As Double
         'line Me.classes.reset
 
-        If (abctune.formatting.jazzchords = Empty) Then
-            Me.jazzchords = abctune.formatting.jazzchords
+        If (abcTune.formatting.jazzchords = Empty) Then
+            Me.jazzchords = abcTune.formatting.jazzchords
         End If
         
-        Me.renderer.newTune abctune
+        Me.renderer.newTune abcTune
         Dim tDic As New Dictionary
-        tDic("bagpipes") = abctune.formatting.bagpipes
-        tDic("flatbeams") = abctune.formatting.flatBeams
-        tDic("graceSlurs") = abctune.formatting.graceSlurs <> False '' undefined is the default, which is true
-        Set tDic("percmap") = abctune.formatting.percmap
+        tDic("bagpipes") = abcTune.formatting.bagpipes
+        tDic("flatbeams") = abcTune.formatting.flatBeams
+        tDic("graceSlurs") = abcTune.formatting.graceSlurs <> False '' undefined is the default, which is true
+        Set tDic("percmap") = abcTune.formatting.percmap
         tDic("initialClef") = Me.initialClef
         tDic("jazzchords") = Me.jazzchords
         tDic("germanAlphabet") = Me.germanAlphabet
         Set Me.engraver = n.AbstractEng(Me.getTxtSize, tuneNumber, tDic)
         Me.engraver.setStemHeight Me.renderer.spacingRenderer.stemHeight
-        Me.engraver.measureLength = abctune.getMeterFraction().num / abctune.getMeterFraction().den
-        If (abctune.formatting.staffwidth <> 0) Then
-            Me.width = abctune.formatting.staffwidth * 1.33  '' The width is expressed in pt  convert to px.
+        Me.engraver.measureLength = abcTune.getMeterFraction().num / abcTune.getMeterFraction().den
+        If (abcTune.formatting.staffwidth <> 0) Then
+            Me.width = abcTune.formatting.staffwidth * 1.33  '' The width is expressed in pt  convert to px.
          Else
             If (Me.renderer.isPrint = True) Then
                 Me.width = Me.staffwidthPrint
@@ -250,8 +250,8 @@ Public Function setupTune(abctune As TuneData, tuneNumber As Integer) As Double
         End If
 
         Dim scale_ As Double
-        If abctune.formatting.scale_ <> 0 Then
-            scale_ = abctune.formatting.scale_
+        If abcTune.formatting.scale_ <> 0 Then
+            scale_ = abcTune.formatting.scale_
         Else
             scale_ = Me.scale_
         End If
@@ -269,7 +269,7 @@ Public Function setupTune(abctune As TuneData, tuneNumber As Integer) As Double
         setupTune = scale_
 End Function
     
-Public Sub constructTuneElements(abctune As TuneData)
+Public Sub constructTuneElements(abcTune As TuneData)
 '/** 生成原始五線譜數據  */
 
         'line abcTune.topText = new TopText(abcTune.metaText, abcTune.metaTextInfo, abcTune.formatting, abcTune.lines, me.width, me.renderer.isPrint, me.renderer.padding.left, me.renderer.spacing, me.GetTxtSize)
@@ -283,12 +283,12 @@ Public Sub constructTuneElements(abctune As TuneData)
         hasPrintedTempo = False
         hasSeenNonSubtitle = False
         If hasPrintedTempo = False Then
-            Set tmpPrintTempo = abctune.metaText.tempo
+            Set tmpPrintTempo = abcTune.metaText.tempo
         End If
         
         '自訂
         Set abcLine = New TuneLine
-        Set abcLine.staffGroup = Me.engraver.createABCLine(abctune.lines(0).Staffs, tmpPrintTempo, i)
+        Set abcLine.StaffGroup = Me.engraver.createABCLine(abcTune.lines(0).Staffs, tmpPrintTempo, i)
         
 '        for (i = 0  i < abcTune.lines.length  i++) {
 '            abcLine = abcTune.lines[i]
@@ -313,21 +313,21 @@ Public Sub constructTuneElements(abctune As TuneData)
 '        abcTune.bottomText = new BottomText(abcTune.metaText, me.width, me.renderer.isPrint, me.renderer.padding.left, me.renderer.spacing, me.GetTxtSize)
 End Sub
 
- Public Sub engraveTune(abctune As TuneData, tuneNumber As Integer, lineOffset As Integer)
+ Public Sub engraveTune(abcTune As TuneData, tuneNumber As Integer, lineOffset As Integer)
 
  
         Dim scale_ As Double
-        scale_ = Me.setupTune(abctune, tuneNumber)
+        scale_ = Me.setupTune(abcTune, tuneNumber)
 
         '' Create all of the element objects that will appear on the page.
         '' 建立將出現在頁面上的所有元素物件。
         '' 將建立 StaffGroup 物件
-        Me.constructTuneElements abctune
+        Me.constructTuneElements abcTune
 
         '' Do all the positioning, both horizontally and vertically
         '' 進行所有的水平和垂直定位 x 的位置
         Dim maxWidth  As Double
-        maxWidth = layout(Me.renderer, abctune, Me.width, Me.space)
+        maxWidth = layout(Me.renderer, abcTune, Me.width, Me.space)
 
         '' Deal with tablature for staff
         '' 處理五線譜的樂譜

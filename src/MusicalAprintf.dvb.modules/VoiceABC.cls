@@ -50,7 +50,7 @@ Public params As iArray    ' Array<string | number>
 Public title As String
     '' VoiceItemScale {
 
-Public Size As Double
+Public size As Double
     '' VoiceItemStem {
 
 Public Direction As String ' StemDirection
@@ -192,7 +192,7 @@ Public Function Clone() As VoiceABC
     cope.preString = Me.preString
   Set cope.rel_position = Me.rel_position
   Set cope.Rest = Me.Rest
-    cope.Size = Me.Size
+    cope.size = Me.size
     cope.stafflines = Me.stafflines
     cope.staffscale = Me.staffscale
     cope.startBeam = Me.startBeam

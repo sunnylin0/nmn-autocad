@@ -10,7 +10,7 @@ Attribute VB_Exposed = False
 
 Public t As String
 Public font As aFontItem
-Public istart
+Public iStart
 Public iend
 Public ln
 Public Shift
@@ -21,7 +21,7 @@ Public Sub ConvertVarName(key, value)
             ''д@пы
             Case "t":        Me.t = value
             Case "font":  Set Me.font = value
-            Case "istart":   Me.istart = value
+            Case "istart":   Me.iStart = value
             Case "iend":     Me.iend = value
             Case "ln":       Me.ln = value
             Case "shift":    Me.Shift = value

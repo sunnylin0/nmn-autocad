@@ -13,9 +13,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-
-
 Option Explicit
+'2024.03.30  ­n¥[¤J ©ç¸¹ M:3/8 M:4/4 ¡A¤j§ï­µ²Å±Æ§Ç¤è¦¡
 '2024.03.29  ­×§ï 4/4 3/8 ©ç¼Æ¹ï¦ì°ÝÃD
 '2013.11.21  ­×§ï DataBuffer ¬°¤¸¯À
 '            ¦h¥[ iAdd ¦X­µ¦æ
@@ -26,7 +25,6 @@ Const C1 As Integer = 60   'C½Õ1ªºÁä¦W­È
 'Const FOURPAINUM   As Integer = 64 '1/4­µ²Å­p¼Æ
 'Const MIDICLOCK As Integer = 24   '¨C1/64­µ²ÅªºMIDICLOCK¼Æ
 'Const TEMPO_DEF As Integer = 90   '¹w³]¨C¤ÀÄÁ90©ç
-Const BLEN As Integer = 1536    '¹w³]¥þ©ç¬° 1536 ­p®É³æ¤¸
 Const PARTITION_DEF As Integer = 384   '¹w³]¨C©ç¤À³Î¬°384­p®É³æ¤¸
 Const VOLUME_DEF As Integer = 64
 Const MAINLAYER As String = "MAIN"    '¥D­nªº¹Ï¼h
@@ -41,9 +39,9 @@ Private Type ErhuFing
     InOut As String     '¤º   ¥~
 End Type
 
-Dim G As Glode
-Dim m_Buf As New DataBuffer
-Dim tune As TuneData
+Dim m_buf As New DataBuffer
+Dim TuneLines As New TuneLineList
+Private constTE As New constructTuneElements
 
 '1 ¦bvb¤uµ{¤¤¤Þ¥Îautocadªºƒ·
 '2 ©w…óautocad†Á¶H
@@ -108,14 +106,17 @@ Private Sub cmOK_Click()
     Call init
 
     database
-    Set m_Buf = New DataBuffer '.Clear
-    Call m_Buf.LoadDataToBuf(Me.TextBox8.text)
+    Set m_buf = New DataBuffer '.Clear
+    Call m_buf.LoadDataToBuf(Me.TextBox8.text)
     'MsgBox Me.TextBox8.text
     Me.Hide
-    
 
+    '¸ê®Æ¾ã²z¦¨¤@¦æ¤@¦æªº TuneLines
+    Set TuneLines = constTE.translate2Staffs(m_buf)
     
-    Call draw_many_text1
+    Call layout(TuneLines, 210#, 30)
+    Call drawLayoutStaff(TuneLines)
+    'Call draw_many_text1
     'Call setLayoutMusicItem
     
     
@@ -128,19 +129,19 @@ Private Sub CommandButton2_Click()
     Call init
 
     database
-    Set m_Buf = New DataBuffer '.Clear
-    Call m_Buf.LoadDataToBuf(Me.TextBox8.text)
+    Set m_buf = New DataBuffer '.Clear
+    Call m_buf.LoadDataToBuf(Me.TextBox8.text)
     'MsgBox Me.TextBox8.text
     Me.Hide
     
     Set tune = New TuneData
     Set gTuneLine = New TuneLine
-    Set gTuneLine.staffGroup = New StaffGroupElement
-    Set gTuneLine.Staffs = getToStaffList(m_Buf)
+    Set gTuneLine.StaffGroup = New StaffGroupElement
+    Set gTuneLine.Staffs = getToStaffList(m_buf)
     ''GTuneLine..Staffs getInitABCElement
     
-    Dim v As VoiceABCList
-    Set v = gTuneLine.Staffs(0).voices(0)
+    Dim V As VoiceABCList
+    Set V = gTuneLine.Staffs(0).voices(0)
     
     ''v.AddArrayAfter , m_Buf.getToVoiceABCs
     Dim eg As New EngraverController
@@ -314,12 +315,12 @@ Private Sub database()
 '        End If
 '    Next
 End Sub
-Private Sub inst_G(the_G As Glode, pt As Variant)
+Private Sub inst_G(the_G As Glode, aPt As point)
     '´¡¤J³]©w¸ê®Æ
     Dim mtxt As AcadMText
     Dim textObj As AcadText
     Dim textString As String
-    Dim insertionPoint(0 To 2) As Double
+    Dim insertionPt As New point
     Dim height As Double
     
     ' Define the text object
@@ -335,15 +336,213 @@ Private Sub inst_G(the_G As Glode, pt As Variant)
     textString = textString & "©ç·L½Õ " & the_G.Beat_MIN_X
     
     
-    insertionPoint(0) = pt(0) - 30: insertionPoint(1) = pt(1): insertionPoint(2) = pt(2)
+    insertionPt.x = aPt.x - 30
+    insertionPt.y = aPt.x
+    insertionPt.Z = aPt.Z
     height = 3
     
     ' Create the text object in model space
-    Set mtxt = ThisDrawing.ModelSpace.AddMText(insertionPoint, height, textString)
+    Set mtxt = ThisDrawing.ModelSpace.AddMText(insertionPt.ToDouble, height, textString)
     mtxt.width = 40
     mtxt.styleName = "Standard"
     
 End Sub
+Private Sub drawLayoutStaff(abcTuneLines As TuneLineList)
+    Dim MBG As New MusicBlockGraphics
+    
+    '©ñ¸m¤å¦r¥»
+    Dim retPt As Variant
+    Dim insPt As New point
+    
+    ' Return a point using a prompt
+    retPt = ThisDrawing.Utility.GetPoint(, "\n¿ï¾Ü­n´¡¤JªºÂI ¡GEnter insertion point: ")
+    '´¡¤J³]©w¸ê®Æ¤å¦r»¡©ú
+    Call inst_G(G, insPt)
+'***********************************************************************************
+    'µe¥X©w¦ì½u-µe®Ø
+    Dim plineObj As AcadPolyline
+    insPt = retPt
+    Set plineObj = MBG.insterPositionBox(insPt, G)
+
+'*********************************************************************************
+    '´¡¤J³æ¤@¼ÐÃD
+    Dim objText As AcadText
+    Dim titlePT As New point
+    Dim ooPt As New point
+    
+    titlePT.x = insPt.x + (G.pagewidth / 2)
+    titlePT.y = insPt.y + G.FONTSIZE * 5.5
+    Set objText = ThisDrawing.ModelSpace.AddText(m_buf.getTITLE, titlePT.ToDouble, 6)
+    ooPt.a objText.insertionPoint
+    objText.Layer = "TEXT"
+    objText.Alignment = acAlignmentCenter
+    objText.styleName = "¤å¦r"
+    ooPt.x = ooPt.x + objText.insertionPoint(0)
+    ooPt.y = ooPt.y + objText.insertionPoint(1)
+    
+    objText.Move objText.insertionPoint, ooPt.ToDouble
+
+'*********************************************************************************
+'«Ø¥ß¥D­n ­µ²Å
+    Dim layerObj As AcadLayer
+    Set layerObj = ThisDrawing.Layers.Add(MAINLAYER)
+
+
+    Dim tmp_joinApp As New iArray
+    Dim tmp_joinIds As New iArray
+    'double lastTemp
+    Dim tmp_track As Integer
+    Dim tmp_track_item As Long
+    Dim A_TEMPO_add As Integer
+
+    Dim tmp_delaytime As Double  '­pºâ©ç¤l ¬O­n­p¤W¤@­Ó¦rªºªø«×
+    
+    Dim tmp_xy As point
+    
+    Dim BNewObj As AcadBlockReference
+    Dim ptlist As New PointList
+    Dim tmp_pLWPoly As AcadPolyline
+    Dim tmp_name As String
+    
+    'Dim cst As String
+    'Dim cst_no_fing As String
+    Dim ptGripMid As Variant
+    Dim s1 As MusicItem
+    
+    tmp_delaytime = 0
+    
+    tmp_name = G.fontName
+    Dim tmp_erhu_fing As ErhuFing
+    Dim midDownPt(2) As Double
+    Dim mt_slur_left As MusicBlockGraphics
+    Dim mt_slur_right As MusicBlockGraphics
+    Dim plineSlur As AcadLWPolyline
+    Dim barConfig(1000) As aBarConfig
+    Dim barId As Integer
+    Dim currStaffGroup As StaffGroupElement
+    Dim vo As VoiceElement
+    Dim currY As Double
+    Dim i As Integer
+    Dim j As Integer
+    Dim k As Integer
+    Dim startPt As New point
+    Dim endPt As New point
+    'Dim sumLine As Integer  '­pºâ²Ä´X¦æ
+    'Dim sumMeasure As Integer  '­pºâ¨C¦æªº²Ä´X¦æ
+    
+    For i = 0 To abcTuneLines.Count - 1
+        Set currStaffGroup = abcTuneLines(i).StaffGroup
+        For j = 0 To abcTuneLines(i).StaffGroup.voices.Count - 1
+            Set vo = abcTuneLines(i).StaffGroup.voices(j)
+            startPt.c 0, 0
+            endPt.c 0, 0
+            currY = (G.TrackToTrack * j) + (G.LineToLine * i) + (G.TrackToTrack * (abcTuneLines(i).StaffGroup.voices.Count - 1)) * i
+            For k = 0 To vo.children.Count - 1
+                Set s1 = vo.children(k)
+                Select Case s1.typs
+                   Case Cg.bar:
+                        startPt.x = insPt.x + s1.x
+                        startPt.y = -((amt.LINE_PASE + amt.DROP_UP) * G.FONTSIZE) + currY
+                        startPt.y = -startPt.y + insPt.y
+                        endPt.x = insPt.x + s1.x
+                        endPt.y = currY
+                        endPt.y = -endPt.y + insPt.y
+                        
+                        ptlist.Clear
+                        ptlist.Add startPt
+                        ptlist.Add endPt
+                        
+                        Set tmp_pLWPoly = ThisDrawing.ModelSpace.AddPolyline(ptlist.ToXYZList)
+                        tmp_pLWPoly.ConstantWidth = amt.BAR_WITCH * G.FONTSIZE / 4.6
+                        tmp_pLWPoly.Layer = "bar"
+                   Case Cg.meter:
+                    Dim metePt1 As New point
+                    Dim metePt2 As New point
+                    metePt1.x = s1.x + insPt.x
+                    metePt1.y = -currY + insPt.y
+                    metePt2.x = s1.x + insPt.x
+                    metePt2.y = -currY + insPt.y + G.FONTSIZE
+                    
+                    Set objText = ThisDrawing.ModelSpace.AddText(s1.mete, metePt1.ToDouble, G.FONTSIZE * 0.7)
+                    Set objText = ThisDrawing.ModelSpace.AddText(s1.mete2, metePt2.ToDouble, G.FONTSIZE * 0.7)
+                    
+                   Case Cg.Rest, Cg.note:
+                    Dim n As Integer
+                    startPt.x = insPt.x + s1.x
+                    startPt.y = -currY + insPt.y
+                    MBG.setDataText startPt, s1, G.FONTSIZE
+                    Set BNewObj = MBG.InsterEnt '´¡¤J­µ²Å¤Î«üªk
+                    
+                           
+                   Case Else
+                End Select
+            Next
+        
+
+        Next
+    Next
+  
+''***********************************
+    ''Ã¸»s¤U©ç½u
+    For i = 0 To abcTuneLines.Count - 1
+        Set currStaffGroup = abcTuneLines(i).StaffGroup
+        For j = 0 To abcTuneLines(i).StaffGroup.voices.Count - 1
+            Set vo = abcTuneLines(i).StaffGroup.voices(j)
+            startPt.c 0, 0
+            endPt.c 0, 0
+            currY = (G.TrackToTrack * j) + (G.LineToLine * i) + (G.TrackToTrack * (abcTuneLines(i).StaffGroup.voices.Count - 1)) * i
+            For k = 0 To vo.children.Count - 1
+                Set s1 = vo.children(k)
+                Select Case s1.typs
+                   Case Cg.bar:
+                   Case Cg.meter:
+                   Case Cg.Rest, Cg.note:
+                    startPt.x = insPt.x + s1.x
+                    startPt.y = -currY + insPt.y
+                    MBG.setDataText startPt, s1, G.FONTSIZE
+                    Set BNewObj = MBG.InsterEnt '´¡¤J­µ²Å¤Î«üªk
+                    
+                           
+                   Case Else
+                End Select
+            Next
+        
+
+        Next
+    Next
+
+
+End Sub
+Private Function draw_dur(s1, x, y, s2, n, nlast)
+    //Ã¸»s©ç½u
+
+  
+            var s, s3, sc = s1.grace ? .5 : 1;
+            xypath(x - 3, y + 5);
+            out_svg('h' + ((s2.x - s1.x) / sc + 8).toFixed(1) + '"/>\n'); // "
+            y -= 2.5;
+            while (++n <= nl) {
+                s = s1;
+                while (1) {
+                    if (s.nflags && s.nflags >= n) {
+                        s3 = s;
+                        while (s != s2) {
+                            if (s.next.beam_br1
+                                || (s.next.beam_br2 && n > 2)
+                                || (s.next.nflags
+                                    && s.next.nflags < n))
+                                break;
+                            s = s.next;
+                        }
+                        draw_dur(s3, s3.x, y, s, n, nl);
+                    }
+                    if (s == s2)
+                        break;
+                    s = s.next;
+                }
+            }
+        } // draw_dur()
+End Function
 
 Private Sub draw_many_text1()
   
@@ -372,7 +571,7 @@ Private Sub draw_many_text1()
     titlePT = insPt
     titlePT(0) = titlePT(0) + (G.pagewidth / 2)
     titlePT(1) = titlePT(1) + G.FONTSIZE * 5.5
-    Set objText = ThisDrawing.ModelSpace.AddText(m_Buf.getTITLE, titlePT, 6)
+    Set objText = ThisDrawing.ModelSpace.AddText(m_buf.getTITLE, titlePT, 6)
     ooPt = objText.insertionPoint
     objText.Layer = "TEXT"
     objText.Alignment = acAlignmentCenter
@@ -415,12 +614,14 @@ Private Sub draw_many_text1()
     Dim mt_slur_left As MusicBlockGraphics
     Dim mt_slur_right As MusicBlockGraphics
     Dim plineSlur As AcadLWPolyline
+    Dim barConfig(1000) As aBarConfig
+    Dim barId As Integer
     
     'Dim sumLine As Integer  '­pºâ²Ä´X¦æ
     'Dim sumMeasure As Integer  '­pºâ¨C¦æªº²Ä´X¦æ
     
   
-        For tmp_track = 0 To m_Buf.GetTrackSize() - 1
+        For tmp_track = 0 To m_buf.GetTrackSize() - 1
             'NewObj = Nothing
 'lin            tmp_joinApp.clear()
             tmp_delaytime = 0
@@ -431,10 +632,10 @@ Private Sub draw_many_text1()
             G.durationIndex = 0
             G.currLine = 0
             G.currMeasure = 0
-            For tmp_track_item = 0 To m_Buf.GetTrackBufferSize(tmp_track) - 1
+            For tmp_track_item = 0 To m_buf.GetTrackBufferSize(tmp_track) - 1
 
                 '³o¬O­n³sµ²½uªº¡A¥H m_Mete2 ¬°®É­È
-                If G.durationIndex >= (BLEN / G.mete2 * A_TEMPO_add) Then
+                If G.durationIndex >= (Cg.BLEN / G.mete2 * A_TEMPO_add) Then
                     If A_TEMPO_add = G.mete Then
                         A_TEMPO_add = 1
                     Else
@@ -455,7 +656,7 @@ Private Sub draw_many_text1()
 
                 End If
 
-                If (G.durationIndex >= (BLEN / G.mete2) * G.mete) Then
+                If (G.durationIndex >= (Cg.BLEN / G.mete2) * G.mete) Then
                     G.currMeasure = G.currMeasure + 1
                     G.durationIndex = 0
 
@@ -466,19 +667,32 @@ Private Sub draw_many_text1()
                 End If
 
 
-                Set s1 = m_Buf.GetData(tmp_track, tmp_track_item)
+                Set s1 = m_buf.GetData(tmp_track, tmp_track_item)
                 If (s1 Is Nothing) Then GoTo CallBackFor
                 Select Case s1.typs
                    Case Cg.bar:
-                        G.barsperstaff = s1.barsperstaff
+                        If (s1.barsperstaff >= 1 And tmp_track = 0) Then
+                            G.barsperstaff = s1.barsperstaff
+                            Set barConfig(barId) = New aBarConfig
+                            barConfig(barId).barId = barId
+                            barConfig(barId).barLineQuantity = s1.barsperstaff
+                        End If
                         GoTo CallBackFor
                    Case Cg.meter:
-                        G.mete = s1.mete
-                        G.mete2 = s1.mete2
+                        If (tmp_track = 0) Then
+                            G.mete = s1.mete
+                            G.mete2 = s1.mete2
+                            barConfig(barId).barId = barId
+                            barConfig(barId).mete = s1.mete
+                            barConfig(barId).mete2 = s1.mete2
+                            
+                        End If
+                        
                         GoTo CallBackFor
                    Case Cg.Rest, Cg.note:
                    Case Else
                 End Select
+
 
                 If s1.notes(0).mnote = " " Or s1.notes(0).mnote = "" Then
                     GoTo CallBackFor
@@ -646,7 +860,7 @@ CallBackFor:
 
 End Sub
 
-Private Function InsertMusicText(insertionPoint() As Double, cst As String, Size As Double)
+Private Function InsertMusicText(insertionPoint() As Double, cst As String, size As Double)
 '´¡¤J­µªþ
     Dim textObj As AcadText
     Dim blockRefObj  As AcadBlockReference
@@ -681,7 +895,7 @@ Private Function InsertMusicText(insertionPoint() As Double, cst As String, Size
     Dim midGirPnt(2) As Double
     
     If MFS.sNote <> "" Then
-        Call ThisDrawing.ModelSpace.InsertBlock(insertionPoint, MFS.sNote, Size, Size, Size, 0)
+        Call ThisDrawing.ModelSpace.InsertBlock(insertionPoint, MFS.sNote, size, size, size, 0)
         
 
     End If
@@ -709,7 +923,7 @@ End Sub
 
 
 
-Private Function InsertErhuFinge(midDownPt As point, this_ef As ErhuFing, Size As Double)
+Private Function InsertErhuFinge(midDownPt As point, this_ef As ErhuFing, size As Double)
 '´¡¤J¤G­J«üªk
     Dim textObj As AcadText
     Dim blockRefObj  As AcadBlockReference
@@ -732,9 +946,9 @@ Private Function InsertErhuFinge(midDownPt As point, this_ef As ErhuFing, Size A
         If this_ef.fing1 And amt.fªÅ©¶ Then
             'Call ThisDrawing.ModelSpace.InsertBlock(insertionPoint, "¤G­J_ªÅ", 0.75, 0.75, 0.75, 0)
             textString = "\U+5B80"
-            height = Size * 0.47
-            alignmentPoint(0) = insertionPoint(0) + (amt.A_TEXT_WIDTH * Size / 2)
-            alignmentPoint(1) = insertionPoint(1) + Size * 2.13 + (ipos * yAdd * Size)
+            height = size * 0.47
+            alignmentPoint(0) = insertionPoint(0) + (amt.A_TEXT_WIDTH * size / 2)
+            alignmentPoint(1) = insertionPoint(1) + size * 2.13 + (ipos * yAdd * size)
             alignmentPoint(2) = insertionPoint(2)
             
             Set textObj = ThisDrawing.ModelSpace.AddText(textString, insertionPoint, height)
@@ -746,9 +960,9 @@ Private Function InsertErhuFinge(midDownPt As point, this_ef As ErhuFing, Size A
         End If
         If this_ef.fing1 And amt.f´|©¶ Then
             'textString = "\U+5B80"
-            height = Size * 0.47
-            alignmentPoint(0) = insertionPoint(0) + (amt.A_TEXT_WIDTH * Size / 2)
-            alignmentPoint(1) = insertionPoint(1) + Size * 2.13 + (ipos * yAdd * Size)
+            height = size * 0.47
+            alignmentPoint(0) = insertionPoint(0) + (amt.A_TEXT_WIDTH * size / 2)
+            alignmentPoint(1) = insertionPoint(1) + size * 2.13 + (ipos * yAdd * size)
             alignmentPoint(2) = insertionPoint(2)
             
             Set blockRefObj = ThisDrawing.ModelSpace.InsertBlock(alignmentPoint, "¤G­J_Ý¬´|", 1#, 1#, 1#, 0)
@@ -767,9 +981,9 @@ Private Function InsertErhuFinge(midDownPt As point, this_ef As ErhuFing, Size A
             textString = "¢¼"
         End If
         If textString <> "" Then
-            height = Size * 0.47
-            alignmentPoint(0) = insertionPoint(0) + (amt.A_TEXT_WIDTH * Size / 2)
-            alignmentPoint(1) = insertionPoint(1) + Size * 2.13 + (ipos * yAdd * Size)
+            height = size * 0.47
+            alignmentPoint(0) = insertionPoint(0) + (amt.A_TEXT_WIDTH * size / 2)
+            alignmentPoint(1) = insertionPoint(1) + size * 2.13 + (ipos * yAdd * size)
             alignmentPoint(2) = insertionPoint(2)
             
             ' Create the text object in model space
@@ -786,10 +1000,10 @@ Private Function InsertErhuFinge(midDownPt As point, this_ef As ErhuFing, Size A
     If this_ef.InOut <> "" Then
     '¤º¥~
         textString = this_ef.InOut
-        height = Size * 0.47
+        height = size * 0.47
         
-        alignmentPoint(0) = insertionPoint(0) + (amt.A_TEXT_WIDTH * Size / 2)
-        alignmentPoint(1) = insertionPoint(1) + (Size * 2.13) + (ipos * yAdd * Size)
+        alignmentPoint(0) = insertionPoint(0) + (amt.A_TEXT_WIDTH * size / 2)
+        alignmentPoint(1) = insertionPoint(1) + (size * 2.13) + (ipos * yAdd * size)
         alignmentPoint(2) = insertionPoint(2)
         
         
@@ -807,8 +1021,8 @@ Private Function InsertErhuFinge(midDownPt As point, this_ef As ErhuFing, Size A
 
     If this_ef.Push <> "" Then
 
-        alignmentPoint(0) = insertionPoint(0) + (amt.A_TEXT_WIDTH * Size / 2)
-        alignmentPoint(1) = insertionPoint(1) + (Size * 2.13) + (ipos * yAdd * Size)
+        alignmentPoint(0) = insertionPoint(0) + (amt.A_TEXT_WIDTH * size / 2)
+        alignmentPoint(1) = insertionPoint(1) + (size * 2.13) + (ipos * yAdd * size)
         alignmentPoint(2) = insertionPoint(2)
 
         If this_ef.Push = "©Ô" Then
@@ -817,7 +1031,7 @@ Private Function InsertErhuFinge(midDownPt As point, this_ef As ErhuFing, Size A
             textString = "b±À"
         End If
         
-        Set blockRefObj = ThisDrawing.ModelSpace.InsertBlock(alignmentPoint, textString, Size, Size, Size, 0)
+        Set blockRefObj = ThisDrawing.ModelSpace.InsertBlock(alignmentPoint, textString, size, size, size, 0)
        
         'blockRefObj.styleName = "SimpErhu"
         blockRefObj.Layer = "SimpErhu²Å¸¹"
@@ -883,12 +1097,12 @@ Private Function atBarXYpos(ByVal the_pt As point, ByVal the_track As Integer, _
     tmp_NoteDist = (tmp_barSpaceWidth - G.BarToNoteSpace * 2) / G.mete
     tmp_rowspacing = (G.TrackToTrack * (G.Many - 1) + G.LineToLine)             'y ¶b¥Î
 
-    MeasureDEF = (G.mete * (BLEN / G.mete2))   '­pºâ¨C¤p¸`¦³¦h¤Ö³æ¦ì (4©ç¥þ­µ²Å¦³¦h¤Ö³æ¦ì)
+    MeasureDEF = (G.mete * (Cg.BLEN / G.mete2))   '­pºâ¨C¤p¸`¦³¦h¤Ö³æ¦ì (4©ç¥þ­µ²Å¦³¦h¤Ö³æ¦ì)
     'tmp_modTempo = the_alltempo Mod MeasureDEF '¥þ³¡°£±¼Á`³æ¦ì®É «á¡A¬ÝÁÙ¦³¦h¤Öªº ³æ¦ì®É
     '
 
     tmp_modCol = tmp_barSpaceWidth Mod G.mete2
-    Col = the_alltempo / (BLEN / G.mete2)  '¨ú±o²{¦b¤p¸`ªº²Ä´X©ç
+    Col = the_alltempo / (Cg.BLEN / G.mete2)  '¨ú±o²{¦b¤p¸`ªº²Ä´X©ç
     col_b = (Col Mod G.mete)  '¨ú±o¨C¤p¸`ªº²Ä´X©ç
 
     
@@ -1211,6 +1425,10 @@ End Function
 
 
 
+Private Sub TextBox8_Change()
+
+End Sub
+
 Private Sub UserForm_Initialize()
     AcadConnect
 
@@ -1270,7 +1488,7 @@ Sub setLayoutMusicItem()
 
 
             G.currMeasure = 0
-            For tmp_track_item = 0 To m_Buf.GetTrackBufferSize(tmp_track) - 1
+            For tmp_track_item = 0 To m_buf.GetTrackBufferSize(tmp_track) - 1
 
                 '³o¬O­n³sµ²½uªº¡A¥H m_Mete2 ¬°®É­È
                 If G.durationIndex >= (PARTITION_DEF / (G.mete2 / 4) * A_TEMPO_add) Then
@@ -1305,7 +1523,7 @@ Sub setLayoutMusicItem()
                 End If
 
 
-                Set s1 = m_Buf.GetData(tmp_track, tmp_track_item)
+                Set s1 = m_buf.GetData(tmp_track, tmp_track_item)
 
                 Select Case s1.typs
                    Case Cg.bar:
@@ -1336,20 +1554,20 @@ Function layoutMusicItem(spacing As Double, musicGroup()) As Double
     
     minSpace = 1000
     '³o°j°é¬O³]©w X ¶b¦V
-    Do While (finished(staffGroup.voices) = False)   ' Inner loop.
+    Do While (finished(StaffGroup.voices) = False)   ' Inner loop.
        Dim currVoice As VoiceElement
-       Set currVoice = staffGroup.voices(1)
+       Set currVoice = StaffGroup.voices(1)
        Debug.Print currVoice.i
        
         
         '' §ä¨ì­n¦b¸óÁn­µªº­Ô¿ïªÌ¤§¶¡§G¸mªº²Ä¤@­Ó«ùÄò®É¶¡¯Å§O
         currentduration = Empty '' candidate smallest duration level
-        For i = 0 To staffGroup.voices.Count - 1
+        For i = 0 To StaffGroup.voices.Count - 1
             If currentduration = Empty Then
-                currentduration = getDurationIndex(staffGroup.voices(i))
+                currentduration = getDurationIndex(StaffGroup.voices(i))
             Else
-                If getDurationIndex(staffGroup.voices(i)) < currentduration Then
-                    currentduration = getDurationIndex(staffGroup.voices(i))
+                If getDurationIndex(StaffGroup.voices(i)) < currentduration Then
+                    currentduration = getDurationIndex(StaffGroup.voices(i))
                 End If
             End If
         Next
@@ -1363,15 +1581,15 @@ Function layoutMusicItem(spacing As Double, musicGroup()) As Double
         Dim othervoices As New iArray ' VoiceElement[] = []
         currentvoices.Clear
         othervoices.Clear
-        For i = 0 To staffGroup.voices.Count - 1
-            durationIndex = getDurationIndex(staffGroup.voices(i))
+        For i = 0 To StaffGroup.voices.Count - 1
+            durationIndex = getDurationIndex(StaffGroup.voices(i))
             '' PER: Because of the inexactness of JS floating point math, we just get close.
             '' PER¡G¥Ñ©ó JS ¯BÂI¼Æ¾Çªº¤£ºë½T©Ê¡A§Ú­Ì¥u¬O±µªñ¦Ó¤w¡C
             If (durationIndex - currentduration > Epsilon) Then
-                othervoices.Push staffGroup.voices(i)
+                othervoices.Push StaffGroup.voices(i)
                 ''console.log("out: voice ",i)
              Else
-                currentvoices.Push staffGroup.voices(i)
+                currentvoices.Push StaffGroup.voices(i)
                 ''if (debug) console.log("in: voice ",i)
             
             End If
@@ -1399,19 +1617,19 @@ Function layoutMusicItem(spacing As Double, musicGroup()) As Double
 
         Dim lastTopVoice
         For i = 0 To currentvoices.Count - 1
-            Dim v As VoiceElement
+            Dim V As VoiceElement
             Dim topVoice As VoiceElement
             Dim voicechildx As Double
             Dim dx As Double
-            Set v = currentvoices(i)
-            If (v.voicenumber = 0) Then lastTopVoice = i
-            If lastTopVoice <> Empty And currentvoices(lastTopVoice).voicenumber <> v.voicenumber Then
+            Set V = currentvoices(i)
+            If (V.voicenumber = 0) Then lastTopVoice = i
+            If lastTopVoice <> Empty And currentvoices(lastTopVoice).voicenumber <> V.voicenumber Then
                 Set topVoice = currentvoices(lastTopVoice)
             Else
                 Set topVoice = Nothing
             End If
             ''line ¤£ª¾¨ì if (~isSameStaff(v, topVoice)) then   Set topVoice = Empty
-            voicechildx = layoutVoiceElement.layoutOneItem(x, spacing, v, 0, topVoice)
+            voicechildx = layoutVoiceElement.layoutOneItem(x, spacing, V, 0, topVoice)
             dx = voicechildx - x
             ''³o¬O¬Ý¬O§_¦³«e­Ê­µ
             ''¦pªG¦³¡A¥þ³¡ªº­µ²Å´N¦b¥[«e­Ê­µªº¶ZÂ÷

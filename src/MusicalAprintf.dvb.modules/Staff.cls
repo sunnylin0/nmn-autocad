@@ -26,4 +26,4 @@ Public stafflines As Integer
 Public isJianpu As Boolean
 Public staffscale As Double
 Public title As iArray    ' Array<string>
-Public voices As iArray 'VoiceABCList        'Array<Array<VoiceItem>>
+Public voices As MusicItemList  'iArray 'VoiceABCList        'Array<Array<VoiceItem>>

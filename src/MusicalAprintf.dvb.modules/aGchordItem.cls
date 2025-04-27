@@ -13,7 +13,7 @@ Public text As String
 Public x
 Public pos
 Public otext As String
-Public istart
+Public iStart
 Public iend
 Public font As aFontItem
 
@@ -27,7 +27,7 @@ Public Sub ConvertVarName(key, value)
             Case "pos":     Me.pos = value
             Case "used":    Me.used = value
             Case "otext":   Me.otext = value
-            Case "istart":  Me.istart = value
+            Case "istart":  Me.iStart = value
             Case "iend":  Me.iend = value
             Case "font":  Set Me.font = value
             Case Else

@@ -14,7 +14,7 @@ Public box As Boolean
 Public pad
 Public Name As String
 Public weight As String
-Public Size
+Public size
 Public used As Boolean
 Public fid
 Public swfac
@@ -28,7 +28,7 @@ Public Sub ConvertVarName(key, value)
             Case "pad":    Me.pad = value
             Case "name":   Me.Name = value
             Case "weight": Me.weight = value
-            Case "size":   Me.Size = value
+            Case "size":   Me.size = value
             Case "used":   Me.used = value
             Case "fid":    Me.fid = value
             Case "swfac":  Me.swfac = value

@@ -56,6 +56,14 @@ Function childGetTsItem(prod) As voiceItem
                 Set getArrList = objArrayItem(Json.item(key), AbcObject.Number)
                 'Call vItem.ConvertVarName(key, Json.Item(key))
                 CallByName vItem, key, VbSet, getArrList
+            Case "slurEnd":
+                Set getArrList = objArrayItem(Json.item(key), AbcObject.Number)
+                'Call vItem.ConvertVarName(key, Json.Item(key))
+                CallByName vItem, key, VbSet, getArrList
+            Case "k_map", "a_gch":
+                Set getArrList = objArrayItem(Json.item(key), AbcObject.KMapItem)
+                'Call vItem.ConvertVarName(key, Json.Item(key))
+                CallByName vItem, key, VbSet, getArrList
             Case "a_meter":
             Case "x_meter":
             Case "tempo_notes":
@@ -67,6 +75,8 @@ Function childGetTsItem(prod) As voiceItem
                 CallByName vItem, "typs", VbLet, Json.item(key)
             Case "next":
                 CallByName vItem, "nexs", VbLet, Json.item(key)
+            Case "__TSpos":
+                CallByName vItem, "TS_pos", VbLet, Json.item(key)
             Case Else
                 CallByName vItem, key, VbLet, Json.item(key)
                 'Call vItem.ConvertVarName(key, Json.Item(key))
@@ -76,12 +86,11 @@ callBack1:
     Set childGetTsItem = vItem
     Exit Function
 ErrorHandler:
-
-If VarType(Json.item(key)) = vbObject Then
-    Debug.Print "key-> " & key & " value-> [object]"
-Else
-    Debug.Print "key-> " & key & " value-> " & Json.item(key)
-End If
+    If VarType(Json.item(key)) = vbObject Then
+        Debug.Print "key-> " & key & " value-> [object]"
+    Else
+        Debug.Print "key-> " & key & " value-> " & Json.item(key)
+    End If
 GoTo callBack1
 
 End Function
@@ -92,6 +101,7 @@ Function objArrayItem(ListObject, ByVal objectEnum As AbcObject) As iArray
         Dim ListNote
         Dim aObj
         Dim aObjArr As New iArray
+        Dim retArrList
         If objectEnum = Number Or objectEnum = Booling Then
             For Each o In ListObject
                 aObjArr.Push o
@@ -101,6 +111,17 @@ Function objArrayItem(ListObject, ByVal objectEnum As AbcObject) As iArray
                 Set aObj = newObjectItem(objectEnum)
                 For Each ks In o.Keys
                     CallByName aObj, ks, VbLet, o.item(ks)
+                    Select Case key    ' Evaluate Number.
+                        Case "font":
+                            Set retArrList = objArrayItem(o.item(key), AbcObject.FontItem)
+                            'Call vItem.ConvertVarName(key, Json.Item(key))
+                            CallByName aObj, ks, VbSet, retArrList
+                      
+                        Case Else
+                            CallByName aObj, ks, VbLet, o.item(ks)
+
+                     End Select
+                    
                     'Call aNote.ConvertVarName(o2, lsNote.Item(o2))
 callback2:
                 Next
@@ -110,7 +131,7 @@ callback2:
         Set objArrayItem = aObjArr
         Exit Function
 ErrorHandler:
-    Debug.Print "key=> " & ks & "  value-> " & o.item(ks)
+    Debug.Print "objArrayItemkey=> "& "[" &   &"]" & ks & "  value-> " & o.item(ks)
 GoTo callback2
         ' Resume execution at same line
         ' that caused the error.
@@ -126,6 +147,7 @@ Function newObjectItem(objectName As AbcObject)
             Case AbcObject.GchordItem:      Set newObjectItem = New aGchordItem
             Case AbcObject.LyrcsItem:       Set newObjectItem = New aLyricsItem
             Case AbcObject.VoiecItem:       Set newObjectItem = New voiceItem
+            Case AbcObject.KMapItem:        Set newObjectItem = New aKMap
             Case Else
                 Debug.Print "沒有變數 " & key & "名"
         End Select

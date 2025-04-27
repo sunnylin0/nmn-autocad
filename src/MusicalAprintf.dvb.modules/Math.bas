@@ -92,14 +92,14 @@ Public Function Floor(ByVal x#) As Long
 End Function
 
 
-Public Function delta(ByVal a#, Optional ByVal b# = 0, Optional ByVal c# = 0) As Double
-    delta = b ^ 2 - 4 * a * c
+Public Function delta(ByVal a#, Optional ByVal B# = 0, Optional ByVal c# = 0) As Double
+    delta = B ^ 2 - 4 * a * c
 End Function
 
 
-Public Function Bhask(ByVal a#, Optional ByVal b# = 0, Optional ByVal c# = 0)
-    If delta(a, b, c) < 0 Then Exit Function
-    Bhask = Array((-b + Sqr(delta(a, b, c))) / (2 * a), (-b - Sqr(delta(a, b, c))) / (2 * a))
+Public Function Bhask(ByVal a#, Optional ByVal B# = 0, Optional ByVal c# = 0)
+    If delta(a, B, c) < 0 Then Exit Function
+    Bhask = Array((-B + Sqr(delta(a, B, c))) / (2 * a), (-B - Sqr(delta(a, B, c))) / (2 * a))
 End Function
 
 
@@ -139,21 +139,21 @@ Public Function max(ParamArray x() As Variant) As Double
 End Function
 
 
-Public Function GCD(ByVal a As Long, ByVal b As Long) As Long
+Public Function GCD(ByVal a As Long, ByVal B As Long) As Long
     Dim remainder As Long
-    If a = 0 Or b = 0 Then Exit Function
+    If a = 0 Or B = 0 Then Exit Function
     Do
-      remainder = Abs(a) Mod Abs(b)
-      a = Abs(b)
-      b = remainder
+      remainder = Abs(a) Mod Abs(B)
+      a = Abs(B)
+      B = remainder
     Loop Until remainder = 0
     GCD = a
 End Function
 
 
-Public Function LCM(ByVal a As Long, ByVal b As Long) As Long
-    If a = 0 Or b = 0 Then Exit Function
-    LCM = (Abs(a) * Abs(b)) \ GCD(a, b)
+Public Function LCM(ByVal a As Long, ByVal B As Long) As Long
+    If a = 0 Or B = 0 Then Exit Function
+    LCM = (Abs(a) * Abs(B)) \ GCD(a, B)
 End Function
 
 
@@ -352,7 +352,59 @@ Public Function HACotan(ByVal x#) As Double
     HACotan = Log((x + 1) / (x - 1)) / 2
 End Function
 
-Public Function LawCos(ByVal b As Double, ByVal c As Double, ByVal Angle As Double) As Double
-    LawCos = b ^ 2 + c ^ 2 - 2 * c * Cos(Angle)
+Public Function LawCos(ByVal B As Double, ByVal c As Double, ByVal Angle As Double) As Double
+    LawCos = B ^ 2 + c ^ 2 - 2 * c * Cos(Angle)
 End Function
 
+
+Function BitMoveLeft(ByRef V As Long, num As Long) As Long
+'左移位元 , 需要注意乘2的時候是否會溢出:
+    Dim i As Long
+    Dim flag As Boolean '是否要把第32位轉換為1
+    
+    For i = 1 To num
+        '判斷第31位是否=1
+        If V >= &H40000000 Then
+            flag = True
+            '把第31位置換為 0
+            V = V And &H3FFFFFFF
+        Else
+            flag = False
+        End If
+        
+        V = V * 2
+    Next
+    
+    If flag Then
+        V = V Or &H80000000
+    End If
+    
+    BitMoveLeft = V
+End Function
+
+
+
+
+Function BitMoveRight(ByRef B As Long, num As Long) As Long
+'右移位元 , 需要注意負數的情況:
+    Dim iStart As Long
+    
+    iStart = 1
+    If B < 0 Then
+        '第32位置換為 0
+        B = B And &H7FFFFFFF
+        B = B \ 2
+        
+        '第31位置換為 1
+        B = B Or &H40000000
+        
+        iStart = 2
+    End If
+    
+    Dim i As Long
+    For i = iStart To num
+        B = B \ 2
+    Next
+    
+    BitMoveRight = B
+End Function

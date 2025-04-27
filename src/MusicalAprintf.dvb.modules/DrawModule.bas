@@ -24,7 +24,7 @@ Type box
     bottom  As Double
 End Type
 
-Type Size
+Type size
     width As Double
     height As Double
 End Type

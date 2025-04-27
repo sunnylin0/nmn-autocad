@@ -14,8 +14,8 @@ Dim mLogSize As Long
 Sub clean()
     mSize = 0
 End Sub
-Function Size() As Long
-    Size = mSize
+Function size() As Long
+    size = mSize
 End Function
 Function list() As Double()
     If mSize <= 0 Then

@@ -105,7 +105,7 @@ Public Type Glode
     barsperstaff  As Integer '設定每行幾小節
     durationIndex As Double ''累記 現在已經讀取每小節的音符長度總合
     currLine As Integer     '現在是第幾行
-    currMeasure As Integer     '現在是 行的第幾小節
+    currMeasure As Integer     '現在是 這行的第幾小節
     
     pagewidth As Double
     LeftSpace As Double

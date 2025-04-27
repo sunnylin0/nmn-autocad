@@ -21,7 +21,7 @@ Public space As Double
 Public padding As vBox
 Public paddingOverride As vBox
 Public y As Double
-Public abctune As TuneData
+Public abcTune As TuneData
 
 Public path As String
 Public isPrint As Boolean
@@ -52,20 +52,20 @@ Public Sub reset()
 
         Me.paper.Clear  'clear()
         Me.y = 0
-        Set Me.abctune = Nothing
+        Set Me.abcTune = Nothing
         Me.path = ""
         Me.isPrint = False
         Me.lineThickness = 0
         initVerticalSpace
 End Sub
 
-Public Sub newTune(abctune As TuneData)
-        Set Me.abctune = abctune   '' TODO-PER: this is just to get the font info.
-        Me.setVerticalSpace abctune.formatting
+Public Sub newTune(abcTune As TuneData)
+        Set Me.abcTune = abcTune   '' TODO-PER: this is just to get the font info.
+        Me.setVerticalSpace abcTune.formatting
          ''me.measureNumber = null
          ''me.noteNumber = null
-        Me.isPrint = (abctune.media = "print")
-        Me.setPadding abctune
+        Me.isPrint = (abcTune.media = "print")
+        Me.setPadding abcTune
 End Sub
 
  Public Sub setLineThickness(lineThickness As Integer)
@@ -95,7 +95,7 @@ Public Function getPaddingVariable(self, paddingOverKey, formattingKey, printDef
             End If
             getPaddingVariable = paddingKey
 End Function
-Public Sub setPadding(abctune As TuneData)
+Public Sub setPadding(abcTune As TuneData)
          '' If the padding is set in the tune, then use that.
          '' Otherwise, if the padding is set in the override, use that.
          '' Otherwise, use the defaults (there are a different set of defaults for screen and print.)
@@ -103,10 +103,10 @@ Public Sub setPadding(abctune As TuneData)
          '' 1cm x 0.393701in/cm x 72pt/in x 1.33px/pt = 38px
          '' 1.8cm x 0.393701in/cm x 72pt/in x 1.33px/pt = 68px
         Set padding = New vBox
-        padding.top = getPaddingVariable(Me, paddingOverride.top, abctune.formatting.topmargin, 38, 15)
-        padding.bottom = getPaddingVariable(Me, paddingOverride.bottom, abctune.formatting.botmargin, 38, 15)
-        padding.left = getPaddingVariable(Me, paddingOverride.left, abctune.formatting.leftmargin, 68, 15)
-        padding.right = getPaddingVariable(Me, paddingOverride.right, abctune.formatting.rightmargin, 68, 15)
+        padding.top = getPaddingVariable(Me, paddingOverride.top, abcTune.formatting.topmargin, 38, 15)
+        padding.bottom = getPaddingVariable(Me, paddingOverride.bottom, abcTune.formatting.botmargin, 38, 15)
+        padding.left = getPaddingVariable(Me, paddingOverride.left, abcTune.formatting.leftmargin, 68, 15)
+        padding.right = getPaddingVariable(Me, paddingOverride.right, abcTune.formatting.rightmargin, 68, 15)
 End Sub
 
 '    /**
@@ -118,10 +118,10 @@ Public Sub adjustNonScaledItems(scale_ As Double)
         Me.padding.bottom = Me.padding.bottom / scale_
         Me.padding.left = Me.padding.left / scale_
         Me.padding.right = Me.padding.right / scale_
-        Set Me.abctune.formatting.headerfont = New vFont        'line 沒有建立 要初始化
-        Set Me.abctune.formatting.footerfont = New vFont        'line 沒有建立 要初始化
-        Me.abctune.formatting.headerfont.Size = Me.abctune.formatting.headerfont.Size / scale_
-        Me.abctune.formatting.footerfont.Size = Me.abctune.formatting.footerfont.Size / scale_
+        Set Me.abcTune.formatting.headerfont = New vFont        'line 沒有建立 要初始化
+        Set Me.abcTune.formatting.footerfont = New vFont        'line 沒有建立 要初始化
+        Me.abcTune.formatting.headerfont.size = Me.abcTune.formatting.headerfont.size / scale_
+        Me.abcTune.formatting.footerfont.size = Me.abcTune.formatting.footerfont.size / scale_
 End Sub
 
 '    /**

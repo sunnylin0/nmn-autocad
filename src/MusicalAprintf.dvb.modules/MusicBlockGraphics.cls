@@ -353,22 +353,22 @@ Public Function drawSlur(mt_slur_left As MusicBlockGraphics, mt_slur_right As Mu
                         
     Set drawSlur = plineSlur
 End Function
-Public Function drawBlockItem(blockName As String, x As Double, y As Double, Optional Size As Double = 1, Optional dx As Double = 0, Optional dy As Double = 0)
+Public Function drawBlockItem(blockName As String, x As Double, y As Double, Optional size As Double = 1, Optional dx As Double = 0, Optional dy As Double = 0)
     '繪 圖塊
     Dim textObj As AcadText
     Dim blockRefObj  As AcadBlockReference
     Dim textString As String
     Dim aligPoint(0 To 2) As Double
     
-    aligPoint(0) = x + (Size * dx)
-    aligPoint(1) = y + (Size * dy)
+    aligPoint(0) = x + (size * dx)
+    aligPoint(1) = y + (size * dy)
     aligPoint(2) = 0
     
     If blockName <> "" And checkBlockName(blockName) Then
-        Set drawBlockItem = ThisDrawing.ModelSpace.InsertBlock(aligPoint, blockName, Size, Size, Size, 0)
+        Set drawBlockItem = ThisDrawing.ModelSpace.InsertBlock(aligPoint, blockName, size, size, size, 0)
         drawBlockItem.Layer = MAINLAYER
     Else
-        Set drawBlockItem = ThisDrawing.ModelSpace.AddText(blockName, aligPoint, Size)
+        Set drawBlockItem = ThisDrawing.ModelSpace.AddText(blockName, aligPoint, size)
     End If
 End Function
 Public Function InsterEnt() As AcadBlockReference '插入音附
@@ -396,14 +396,6 @@ Public Function InsterEnt() As AcadBlockReference '插入音附
     Dim x As Double, y As Double, Z As Double
     Dim lastOctave As Integer
     
-    Dim point1(0 To 2) As Double
-    Dim point2(0 To 2) As Double
-    point1(0) = 0: point1(1) = 0: point1(2) = 0
-    point2(0) = 2: point2(1) = 0: point2(2) = 0
-
-    'insertionPoint(0) = Grippt.gptMid.X
-    'insertionPoint(1) = Grippt.gptMid.Y
-    'insertionPoint(2) = Grippt.gptMid.Z
     x = Grippt.gptMid.x
     y = Grippt.gptMid.y
     Z = Grippt.gptMid.Z
@@ -783,7 +775,7 @@ Sub line_link(num_col As Integer, lPt As point, rPt As point)
 
 End Sub
 
-Private Function InsertMusicStar(insertionPoint() As Double, Size As Double)
+Private Function InsertMusicStar(insertionPoint() As Double, size As Double)
 '插入古箏 前音 琵音 * 號
 'insertionPoint  是本音符的位置
 
@@ -805,19 +797,19 @@ Private Function InsertMusicStar(insertionPoint() As Double, Size As Double)
     ssize = 0.65 '小字的比例
     
 
-    alignmentPoint(0) = insertionPoint(0) + (Size * xStar)
-    alignmentPoint(1) = insertionPoint(1) + (Size * yStar)
+    alignmentPoint(0) = insertionPoint(0) + (size * xStar)
+    alignmentPoint(1) = insertionPoint(1) + (size * yStar)
     alignmentPoint(2) = insertionPoint(2)
 
     
-    midDownPt(0) = alignmentPoint(0) + (amt.A_TEXT_WIDTH / 2 * Size * ssize)
+    midDownPt(0) = alignmentPoint(0) + (amt.A_TEXT_WIDTH / 2 * size * ssize)
     midDownPt(1) = alignmentPoint(1)
     midDownPt(2) = alignmentPoint(2)
 
 
 '*******畫星字*****************
     
-    Set blockRefObj = ThisDrawing.ModelSpace.InsertBlock(midDownPt, "M-NOTESTAR", Size, Size, Size, 0)
+    Set blockRefObj = ThisDrawing.ModelSpace.InsertBlock(midDownPt, "M-NOTESTAR", size, size, size, 0)
     blockRefObj.Layer = "裝飾符號"
     
 '*******畫拍線*****************
@@ -826,11 +818,11 @@ Private Function InsertMusicStar(insertionPoint() As Double, Size As Double)
     Dim lPt As New point
     Dim rPt As New point
     
-    sMGB.setDataText ppt, "", Size * ssize
+    sMGB.setDataText ppt, "", size * ssize
     
         
     lPt.x = midDownPt(0)
-    lPt.y = midDownPt(1) + (0.15 * Size * ssize)
+    lPt.y = midDownPt(1) + (0.15 * size * ssize)
     lPt.Z = midDownPt(2)
     
     rPt.x = lPt.x
@@ -850,9 +842,9 @@ Private Function InsertMusicStar(insertionPoint() As Double, Size As Double)
     
     ' Define the circle
     
-    radius = 0.38 * Size * ssize
+    radius = 0.38 * size * ssize
     centerPoint(0) = midDownPt(0) + radius
-    centerPoint(1) = midDownPt(1) - 0.3 * Size * ssize
+    centerPoint(1) = midDownPt(1) - 0.3 * size * ssize
     centerPoint(2) = midDownPt(2)
     startAngleInDegree = 180#
     endAngleInDegree = 275#

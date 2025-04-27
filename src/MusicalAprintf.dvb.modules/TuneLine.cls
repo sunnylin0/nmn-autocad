@@ -35,5 +35,5 @@ Public text As Dictionary
 '        text As TextFieldProperties
 '    }
 Public Staffs      As StaffList  ' Array<Staff>
-Public staffGroup As StaffGroupElement
+Public StaffGroup As StaffGroupElement
 Public vskip As Double

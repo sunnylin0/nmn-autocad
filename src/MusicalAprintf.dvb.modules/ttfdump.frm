@@ -13,6 +13,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
 Option Explicit
 
 Dim xylist As New PointList
@@ -29,7 +30,7 @@ Private Sub comDrawing_Click()
     pt = ThisDrawing.Utility.GetPoint(, "\n選擇要插入的點 ：Enter insertion point: ")
     '畫出定位線
     
-    For i = 0 To xylist.Size - 1
+    For i = 0 To xylist.size - 1
         sX = xylist.at(i).x + pt(0)
         sy = xylist.at(i).y + pt(1)
         xyString = xyString & sX & "," & sy & " "

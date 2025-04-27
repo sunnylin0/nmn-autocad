@@ -264,10 +264,10 @@ Attribute TestDictionary_AddBulkCountKeys.VB_Description = "Add bulk items to th
     If tr.AssertAreEqual(Len(HDRS), d.Count, "count keys") Then GoTo Finally
 
     For i = 1 To Len(HDRS)
-        Dim h As String, v As Long
+        Dim h As String, V As Long
         h = Mid(HDRS, i, 1)
-        v = CLng(Mid(VALS, i, 1))
-        If tr.AssertAreEqual(v, d(h), h) Then Exit For
+        V = CLng(Mid(VALS, i, 1))
+        If tr.AssertAreEqual(V, d(h), h) Then Exit For
     Next i
 
 Finally:
@@ -311,10 +311,10 @@ Attribute TestDictionary_AddBulkCountKeysRowMode.VB_Description = "Github issue 
     If tr.AssertAreEqual(Len(HDRS), d.Count, "count keys") Then GoTo Finally
 
     For i = 1 To Len(HDRS)
-        Dim h As String, v As Long
+        Dim h As String, V As Long
         h = Mid(HDRS, i, 1)
-        v = CLng(Mid(VALS, i, 1))
-        If tr.AssertAreEqual(v, d(h), h) Then Exit For
+        V = CLng(Mid(VALS, i, 1))
+        If tr.AssertAreEqual(V, d(h), h) Then Exit For
     Next i
 
 Finally:

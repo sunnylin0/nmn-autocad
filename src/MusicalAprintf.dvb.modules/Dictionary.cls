@@ -60,6 +60,7 @@ Private mBaseDict As Object
 Private mOptionNoItemFail As Boolean
 Private mLargestValueSize
 
+Public LabelPos As Integer
 
 ' Properties
 '-------------------------------------------------------------------------------
@@ -117,7 +118,9 @@ Public Property Get item(key As Variant) As Variant
     If IsObject(mBaseDict.item(key)) Then
         Set item = mBaseDict.item(key)
     Else
+        Dim ss
         item = mBaseDict.item(key)
+        ss = item
     End If
 End Property
 
@@ -264,7 +267,7 @@ Attribute AddBulk.VB_Description = "Adds key value pairs from a 2D array."
 '       get with a Range, e.g., Range("A1:B10").Value = (1 To 10, 1 To 2).
 '
         ' Dictionary key
-    Dim v As Variant    ' Dictionary value
+    Dim V As Variant    ' Dictionary value
     
     If OptionCountKeys Then mOptionNoItemFail = True
 
@@ -290,19 +293,19 @@ Attribute AddBulk.VB_Description = "Adds key value pairs from a 2D array."
 '       Determine the value and add it.
         Select Case True
             Case Is = OptionCountKeys:
-                v = Me.GetValue(k, 0) + 1
+                V = Me.GetValue(k, 0) + 1
             Case Is = colCount = 2:
-                v = ValueArray2D(i, 2)
+                V = ValueArray2D(i, 2)
             Case Is = colCount > 2:
-                v = GetDataValues(ValueArray2D, i, HeadersIndex)
+                V = GetDataValues(ValueArray2D, i, HeadersIndex)
             Case Else:
                 If IsObject(DefaultValue) Then
-                    Set v = DefaultValue
+                    Set V = DefaultValue
                 Else
-                    v = DefaultValue
+                    V = DefaultValue
                 End If
         End Select
-        Me.Add k, v
+        Me.Add k, V
     Next i
 End Sub
 
@@ -531,7 +534,7 @@ Attribute GetValueOrArraySize.VB_Description = "Returns the length of the array,
     End If
 End Function
 
-Private Function LongMin(a As Long, b As Long) As Long
+Private Function LongMin(a As Long, B As Long) As Long
 Attribute LongMin.VB_Description = "Returns the smaller of the two passed in values."
 '   Returns the smaller of the two passed in values.
 '
@@ -542,5 +545,5 @@ Attribute LongMin.VB_Description = "Returns the smaller of the two passed in val
 '   Returns:
 '       a if a is smaller, else b.
 '
-    LongMin = IIf(a < b, a, b)
+    LongMin = IIf(a < B, a, B)
 End Function

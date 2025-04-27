@@ -1,5 +1,14 @@
 Option Explicit
-
+Function javascript__hta()
+    'hta´ú¸Õ
+    Dim aa(2) As Double
+    Dim bb(2) As Double
+    aa(0) = 33
+    aa(1) = 33
+    aa(2) = 0
+    Dim ms
+        Set ms = ThisDrawing.ModelSpace.AddLine(aa, bb)
+End Function
 Function asdf()
     '´ú¦¡ json
     MsgBox 33
@@ -33,71 +42,9 @@ Function asdf()
 End Function
 
 Sub sq()
-    Dim iaa
-    iaa = (33 >= 333)
-    MsgBox iaa
+    Dim ia As New MusicItem
+    ia.identify_Duration 288
 
-    Dim tt As New iArray
-    tt.Add "1"
-    tt.Add "2"
-    tt.Add "3"
-    tt.Add "4"
-    tt.Add "5"
-    Dim iia As iArray
-    Set iia = tt.Clone
-
-    Debug.Print iia.Count
-    Debug.Print iia.ToString
-'    Debug.Print iia.AddAfter(10, "7")
-'
-'    Debug.Print iia.ToString
-    
-    
-'    Debug.Print iia.AddArrayAfter(10, iArray(9, 8, 7))
-'    Debug.Print iia.ToString
-'    Set iia = tt.Clone
-'
-'    Debug.Print iia.AddArrayBefore(10, iArray(9, 8, 7))
-'    Debug.Print iia.ToString
-'
-    Dim aArr As New iArray
-    aArr.PushArray Array(9, 8, 7)
-    Dim oo As Object
-    Set oo = ThisDrawing.ModelSpace.item(3)
-        
-'    Debug.Print iia.AddArrayAfter(5, aArr)
-'    Debug.Print iia.ToString
-'    Set iia = tt.Clone
-'
-'    Debug.Print iia.AddArrayBefore(5, aArr)
-'    Debug.Print iia.ToString
-    
-'    Debug.Print iia.AddAfter(5, aArr)
-'    Debug.Print iia.ToString("`")
-'    Set iia = tt.Clone
-'
-'    Debug.Print iia.AddBefore(5, aArr)
-'    Debug.Print iia.ToString("`")
-    
-    'Debug.Print iia.Avg
-    'Debug.Print iia.Sum
-    'Debug.Print iia.Tail.ToString
-'    Debug.Print iia.shift
-'    Debug.Print iia.ToString
-'    Debug.Print iia.Unshift(333)
-'    Debug.Print iia.ToString
-'
-'
-'    Debug.Print iia.Pop
-'    Debug.Print iia.Pop
-'    Debug.Print iia.Pop
-'    Debug.Print iia.ToString
-
-    Debug.Print iia.DropLeft(0).ToString
-    Debug.Print iia.ToString
-    Set iia = tt.Clone
-    Debug.Print iia.DropRight(0).ToString
-    Debug.Print iia.ToString
     
 End Sub
 Sub AddNumber()
@@ -691,8 +638,8 @@ Public Function GetDVBThis(DVBFileName As String) As String
     Dim i As Integer
     Dim strFileName As String
     
-    For i = 1 To ThisDrawing.Application.vbe.VBprojects.Count
-        strFileName = ThisDrawing.Application.vbe.VBprojects.item(i).FileName
+    For i = 1 To ThisDrawing.Application.vbe.VBProjects.Count
+        strFileName = ThisDrawing.Application.vbe.VBProjects.item(i).FileName
         If InStr(UCase(strFileName), UCase(DVBFileName)) > 0 Then
             GetDVBThis = strFileName
             Exit For
@@ -705,8 +652,8 @@ Public Function GetDVBPath(DVBFileName As String) As String
     Dim i As Integer
     Dim strFileName As String
     
-    For i = 1 To ThisDrawing.Application.vbe.VBprojects.Count
-        strFileName = ThisDrawing.Application.vbe.VBprojects.item(i).FileName
+    For i = 1 To ThisDrawing.Application.vbe.VBProjects.Count
+        strFileName = ThisDrawing.Application.vbe.VBProjects.item(i).FileName
         If InStr(UCase(strFileName), UCase(DVBFileName)) > 0 Then
             GetDVBPath = GetPath(strFileName)
             Exit For

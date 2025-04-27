@@ -3639,15 +3639,15 @@ Attribute TimSort.VB_Description = "Iterative Timsort"
     ' Start from `min_run`, doubling the size on
     ' each iteration until you surpass the length of
     ' the array.
-    Dim Size As Long
+    Dim size As Long
     Dim Start As Long
     Dim Midpoint As Long
     Dim Endpoint As Long
     Dim LastIndex As Long
     
     LastIndex = UBound(source)
-    Size = MIN_RUN
-    Do While Size < SourceLength
+    size = MIN_RUN
+    Do While size < SourceLength
         ' Determine the arrays that will
         ' be merged together
         Start = LBound(source)
@@ -3655,17 +3655,17 @@ Attribute TimSort.VB_Description = "Iterative Timsort"
             ' Compute the `midpoint` (where the first array ends
             ' and the second starts) and the `endpoint` (where
             ' the second array ends)
-            Midpoint = min(Start + Size - 1, LastIndex)
-            Endpoint = min(Start + Size * 2 - 1, LastIndex)
+            Midpoint = min(Start + size - 1, LastIndex)
+            Endpoint = min(Start + size * 2 - 1, LastIndex)
             ' Merge the two subarrays.
             ' The `left` array should go from `start` to
             ' `midpoint + 1`, while the `right` array should
             ' go from `midpoint + 1` to `end + 1`.
             MergeSort source, Start, Midpoint, Endpoint, LocalArrayType, Col
-            inc Start, Size * 2
+            inc Start, size * 2
         Loop
         ' Each iteration should double the size of your arrays
-        inc Size, Size
+        inc size, size
     Loop
 
 End Sub

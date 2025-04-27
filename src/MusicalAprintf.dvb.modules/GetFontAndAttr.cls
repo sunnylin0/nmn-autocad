@@ -36,7 +36,7 @@ Public Function calc(typs, klass) As Dictionary
             '' Raphael deliberately changes the font units to pixels for some reason, so we need to change points to pixels here.
             If Not font Is Nothing Then
                 font.face = font.face
-                font.Size = Int(font.Size * 4 / 3)
+                font.size = Int(font.size * 4 / 3)
                 font.decoration = font.decoration
                 font.style = font.style
                 font.weight = font.weight
@@ -44,14 +44,14 @@ Public Function calc(typs, klass) As Dictionary
                 
             Else
                 font.face = "Arial"
-                font.Size = Int(12 * 4 / 3)
+                font.size = Int(12 * 4 / 3)
                 font.decoration = "underline"
                 font.style = "normal"
                 font.weight = "normal"
          Else
              If TypeOf typs Is vFont Then
                 font.face = typs.face
-                font.Size = Int(typs.Size * 4 / 3)
+                font.size = Int(typs.size * 4 / 3)
                 font.decoration = typs.decoration
                 font.style = typs.style
                 font.weight = typs.weight
@@ -61,10 +61,10 @@ Public Function calc(typs, klass) As Dictionary
         Dim paddingPercent
         paddingPercent = IIf(Me.formatting.fontboxpadding = True, Me.formatting.fontboxpadding, 0.1)
         
-        font.padding = font.Size * paddingPercent
+        font.padding = font.size * paddingPercent
 
         Dim attr As New Dictionary
-        attr("font-size") = font.Size
+        attr("font-size") = font.size
         attr("font-style") = font.style
         attr("font-family") = font.face
         attr("font-weight") = font.weight

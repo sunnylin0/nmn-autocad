@@ -10,7 +10,7 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Public face As String
-Public Size As Double
+Public size As Double
 Public weight As String
 Public style As String
 Public decoration As String

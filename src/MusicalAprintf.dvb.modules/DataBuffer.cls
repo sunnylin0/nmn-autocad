@@ -31,7 +31,6 @@ End Type
 
 
 
-
 Private Type KeyFormat
     typs As Cg
     mtone As String       '星指法
@@ -39,7 +38,7 @@ Private Type KeyFormat
     mnote As String           '高低音
     mscale As String          '音階
     mtempo As String         '拍子
-    delay As Integer            '拍子的延遲長度
+    duration As Integer            '拍子的延遲長度
     mtow_fingering As String  '指法 第二個
     mslur As String           '連音符
     mand As String               '記錄合音 true為跟後面一音合音 ,false為沒有
@@ -59,8 +58,10 @@ Private Type KeyFormat
 End Type
 
 
-Dim mMusic(TRACK_MAX) As MusicItemList  'voiceFormat                '了解嗎
-Dim mSize() As Long '現在的 mMusic() as KeyFormat 的物件數量
+Dim mMusic() As MusicItemList  'voiceFormat                '了解嗎
+'Dim mSize() As Long '現在的 mMusic() as KeyFormat 的物件數量
+Dim pos(10) As Long '記錄現在到那個元素
+Dim lastDuration As Double ''記錄上一次的長度
 'Dim mLogSize() As Long '現在的 mMusic() 的空白陣列 的數量
 Dim author As String    '作者
 Dim title As String     '標題
@@ -71,7 +72,12 @@ Property Get getTITLE() As String
     getTITLE = title
 End Property
 
-
+Public Sub init()
+    Dim i As Integer
+    For i = 0 To 10
+        pos(i) = 0
+    Next
+End Sub
 
 
 Private Sub Class_Initialize()
@@ -80,17 +86,24 @@ Private Sub Class_Initialize()
     ReDim mSize(TRACK_MAX)
     ReDim mLogSize(TRACK_MAX)
     Dim i As Integer
-    For i = 0 To TRACK_MAX
-        Set mMusic(i) = New MusicItemList
-        mSize(i) = 0
-        'mLogSize(i) = UBound(mMusic, 2)
-    Next
+    ReDim mMusic(0)
+    
+    Set mMusic(0) = New MusicItemList
+    
     
     ReDim mTextNote(amt.mHowData)
     ReDim mCharI(amt.mHowData)
 End Sub
 Sub Clear()
     Class_Initialize
+End Sub
+Private Sub remMusic(ntrack As Integer)
+    If UBound(mMusic) < ntrack Then
+        ReDim Preserve mMusic(ntrack)
+        
+        Set mMusic(ntrack) = New MusicItemList
+    
+    End If
 End Sub
 
 Private Sub SetMusicItem(ntrack As Integer, ln As Integer, WD As Integer)
@@ -102,7 +115,6 @@ Private Sub SetMusicItem(ntrack As Integer, ln As Integer, WD As Integer)
     Dim i As Integer
     Dim j As Integer
     Dim lsup As Integer
-    Dim ilo As Integer
     
     '看陣列夠不夠
 '    If mSize(ntrack) + Len(mTextNote(amt.iNote)) > UBound(mMusic, 2) Then
@@ -127,7 +139,7 @@ Private Sub SetMusicItem(ntrack As Integer, ln As Integer, WD As Integer)
     Dim c_Slur As String
     Dim c_Add As String
     Dim isAdd As Boolean
-    
+    remMusic ntrack
     For i = 1 To Len(mTextNote(amt.iNote))
         
         '取得資料
@@ -146,7 +158,6 @@ Private Sub SetMusicItem(ntrack As Integer, ln As Integer, WD As Integer)
 '        c_Slur = c(AMT.iSlur)      '二胡連音線，(古箏是合音)
 '
         
-        ilo = mSize(ntrack)
         Select Case c(amt.iNote)     '這是音階
             Case "0", "1", "2", "3", "4", "5", "6", "7"
                 c_Note = c(amt.iNote)
@@ -236,28 +247,30 @@ Private Sub SetMusicItem(ntrack As Integer, ln As Integer, WD As Integer)
             objMusic.typs = Cg.note
             objMusic.notes.Push objNote
             objMusic.mtempo = c_Tempo   '這是拍子       -=368acefz
-            
+            lastDuration = calDuration(objMusic, lastDuration)
+            objMusic.identify_Duration lastDuration
             mMusic(ntrack).Push objMusic
-            mSize(ntrack) = mSize(ntrack) + 1
         ElseIf c_Add = "[" Or isAdd = True Then
             If c_Add = "[" Then
                 Set objMusic = New MusicItem
-                Set objMusic.notes = New iArray
+                Set objMusic.notes = New MusicNoteItemList
             End If
             isAdd = True
             objMusic.typs = Cg.note
             objMusic.notes.Push objNote
             objMusic.mtempo = c_Tempo   '這是拍子       -=368acefz
+            lastDuration = calDuration(objMusic, lastDuration)
+            objMusic.identify_Duration lastDuration
         Else
             Set objMusic = New MusicItem
-            Set objMusic.notes = New iArray
+            Set objMusic.notes = New MusicNoteItemList
             
             objMusic.typs = Cg.note
             objMusic.notes.Push objNote
             objMusic.mtempo = c_Tempo   '這是拍子       -=368acefz
-            
+            lastDuration = calDuration(objMusic, lastDuration)
+            objMusic.identify_Duration lastDuration
             mMusic(ntrack).Push objMusic
-            mSize(ntrack) = mSize(ntrack) + 1
         End If
     
         If c_Slur = "[" Or c_Slur = "(" Then
@@ -303,9 +316,6 @@ End Sub
     Dim findEnd As Integer
     Dim regEx As New RegExp
     regEx.Global = True
-
-    
-    
     
     For i = 0 To numPC
         cc = VBA.Mid(valText(i), 1, 1)
@@ -315,15 +325,15 @@ End Sub
             If ntrack >= 0 Then
                 Call SetMusicItem(ntrack, i, 1) '轉換成物件資料
                 'Call SetMusicItemToABC(ntrack, i, 1)
-                For ko = 0 To amt.mHowData
-                    mTextNote(ko) = ""
-                Next
             End If
             If ntrack = -1 Then
                 findSt = InStr(1, mcc, "<")
                 findEnd = InStr(1, mcc, ">")
                 title = Mid(mcc, findSt + 1, findEnd - findSt - 1)
             End If
+            For ko = 0 To amt.mHowData
+                mTextNote(ko) = ""
+            Next
             ntrack = ntrack + 1
         ElseIf cc = "*" Then
             Call SetMusicItem(ntrack, i, 1) '轉換成物件資料
@@ -371,7 +381,7 @@ End Sub
             Set regMatches = regEx.Execute(valText(i))
             
             If regMatches.Count >= 1 Then
-                rMusicItem.typs = Cg.bar
+                rMusicItem.typs = Cg.Config
                 rMusicItem.barsperstaff = regMatches(0).SubMatches(0) '設定每行幾小節
                 
             End If
@@ -386,17 +396,19 @@ End Sub
     
     
 End Sub
+
+
 Function GetTrackSize() As Integer
 '取得有多少軌
-    Dim i As Integer
-    For i = 0 To TRACK_MAX
-        If mSize(i) < 3 Then
-            GetTrackSize = i
-            Exit Function
-        End If
-    Next
-    GetTrackSize = TRACK_MAX
-
+'    Dim i As Integer
+'    For i = 0 To TRACK_MAX
+'        If mSize(i) < 3 Then
+'            GetTrackSize = i
+'            Exit Function
+'        End If
+'    Next
+'    GetTrackSize = TRACK_MAX
+    GetTrackSize = UBound(mMusic) + 1
 End Function
 
 Public Function GetTrackBufferSize(the_track As Integer) As Long
@@ -408,10 +420,28 @@ Function GetData(the_track As Integer, the_item As Long) As MusicItem
     'the_item 第幾個
     Dim tmp_s As String
     Dim i As Integer
+    Dim musList As MusicItemList
+    If UBound(mMusic) >= the_track Then
+        Set musList = mMusic(the_track)
+        If musList.Count >= the_item Then
+            Set GetData = musList(the_item)
+            Exit Function
+        End If
+    End If
+    
+    Set GetData = Nothing
+
+End Function
+Function GetDataPos(the_track As Integer) As MusicItem
+    'the_track 第幾部
+    'the_item 第幾個
+    Dim tmp_s As String
+    Dim i As Integer
     Dim musItem As MusicItemList
-    If (mSize(the_track) > 1 And mSize(the_track) > the_item) Then
+    If (mSize(the_track) > 1 And mSize(the_track) > pos(the_track)) Then
         Set musItem = mMusic(the_track)
-        Set GetData = musItem(the_item)
+        Set GetDataPos = musItem(pos(the_track))
+        pos(the_track) = pos(the_track) + 1
     End If
 End Function
 

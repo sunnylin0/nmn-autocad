@@ -1,4 +1,4 @@
-Attribute VB_Name = "layoutVoiceElement"
+Attribute VB_Name = "layoutVoiceElements"
 Option Explicit
 
 Sub beginLayout(startX As Double, voice As VoiceElement)
@@ -7,8 +7,8 @@ Sub beginLayout(startX As Double, voice As VoiceElement)
     voice.durationIndex = 0
     ''this.ii=this.children.length
     voice.startX = startX
-    voice.minx = startX '' furthest left To where negatively positioned elements are allowed To go
-    voice.nextx = startX '' x position where the Next element Of this voice should be placed assuming no other voices And no fixed width constraints
+    voice.minX = startX '' furthest left To where negatively positioned elements are allowed To go
+    voice.nextX = startX '' x position where the Next element Of this voice should be placed assuming no other voices And no fixed width constraints
     voice.spacingduration = 0 '' duration left To be laid out In current iteration (omitting additional spacing due To other aspects, such As bars, dots, sharps And flats)
 End Sub
 
@@ -19,7 +19,7 @@ End Function
 
 
 Function getNextX(voice As VoiceElement) As Double
-    getNextX = Math.max(Array(voice.minx, voice.nextx))
+    getNextX = Math.max(Array(voice.minX, voice.nextX))
         'Return Math.max(voice.minx, voice.nextx)
 End Function
 
@@ -37,10 +37,10 @@ End Function
 '*                基礎間距
 '*'
 Function layoutOneItem(x As Double, spacing As Double, voice As VoiceElement, minPadding As Double, firstVoice As VoiceElement)
-    Dim child As voiceItem
+    Dim child As MusicItem 'voiceItem
     Dim er As Double
     Dim pad  As Double
-    Dim firstChild As voiceItem
+    Dim firstChild As MusicItem 'voiceItem
     Dim overlaps As Boolean
     Dim j As Integer
     Set child = voice.children(voice.i)
@@ -49,10 +49,10 @@ Function layoutOneItem(x As Double, spacing As Double, voice As VoiceElement, mi
         Exit Function
     End If
     '' er : available extrawidth To the left  左側可用的額外寬度
-    er = x - voice.minx
+    er = x - voice.minX
     '' pad : only add padding To the items that aren't fixed to the left edge.
     '' pad : 僅在未固定到左邊緣的項目新增填滿。
-    If child.dur > 0 Then
+    If child.duration > 0 Then
         pad = voice.durationIndex / 1000 + minPadding
     Else
         pad = voice.durationIndex / 1000
@@ -106,13 +106,13 @@ Function layoutOneItem(x As Double, spacing As Double, voice As VoiceElement, mi
             x = x + extraWidth - er
         End If
     End If
-    Call child.setX(x)
+    child.setX x
 
-    voice.spacingduration = child.dur
+    voice.spacingduration = child.duration
     ''update minx
-    voice.minx = x + getMinWidth(child) '' add necessary layout space 新增必要的佈局空間
+    voice.minX = x + getMinWidth(child) '' add necessary layout space 新增必要的佈局空間
     If (voice.i <> voice.children.Count - 1) Then
-        voice.minx = voice.minx + child.minspacing '' add minimumspacing except On last elem 新增除最後一個元素之外的最小間距
+        voice.minX = voice.minX + child.minspacing '' add minimumspacing except On last elem 新增除最後一個元素之外的最小間距
     End If
 
     '' 計算下一個元件的位置
@@ -130,28 +130,28 @@ Sub shiftRight(dx As Double, voice As VoiceElement)
     Set child = voice.children(voice.i)
     If (child = Empty) Then Exit Sub
     child.setX (child.x + dx)
-    voice.minx = voice.minx + dx
-    voice.nextx = voice.nextx + dx
+    voice.minX = voice.minX + dx
+    voice.nextX = voice.nextX + dx
 End Sub
 
 '' call when spacingduration has been updated
 Sub updateNextX(x As Double, spacing As Double, voice As VoiceElement)
-    voice.nextx = x + (spacing * Math.Sqrt(voice.spacingduration / 1000 * 8))
+    voice.nextX = x + (spacing * Math.Sqrt(voice.spacingduration / 1000 * 8))
 End Sub
 
 Sub updateIndices(voice As VoiceElement)
     If (layoutEnded(voice) = False) Then
-        voice.durationIndex = voice.durationIndex + voice.children(voice.i).dur
+        voice.durationIndex = voice.durationIndex + voice.children(voice.i).duration
         If (voice.children(voice.i).typs = Cg.bar) Then
             '' everytime we meet a barline, do rounding to nearest 64th
             '' 每次遇到小節線時，都會四捨五入到最接近的第 64 位
-            voice.durationIndex = Round(voice.durationIndex / 24) * 24 '' 64) / 64 '' everytime we meet a barline, Do rounding To nearest 64th
+            'voice.durationIndex = Round(voice.durationIndex / 6400) * 6400 '' 64) / 64 '' everytime we meet a barline, Do rounding To nearest 64th
         End If
         voice.i = voice.i + 1
     End If
 
 End Sub
-Function getExtraWidth(child As voiceItem, minPadding As Double) As Double  '' space needed To the left Of the note
+Function getExtraWidth(child As MusicItem, minPadding As Double) As Double   '' space needed To the left Of the note
     Dim padding As Double
     If (child.typs = Cg.note Or child.typs = Cg.bar) Then
         padding = minPadding
@@ -159,7 +159,7 @@ Function getExtraWidth(child As voiceItem, minPadding As Double) As Double  '' s
     getExtraWidth = -child.extraw + padding
 End Function
 
-Function getMinWidth(child As voiceItem) As Double '' absolute space taken To the right Of the note
+Function getMinWidth(child As MusicItem) As Double  '' absolute space taken To the right Of the note
     getMinWidth = child.w
 End Function
 

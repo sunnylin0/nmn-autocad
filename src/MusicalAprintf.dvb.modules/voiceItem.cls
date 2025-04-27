@@ -2,7 +2,7 @@ VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
-Attribute VB_Name = "voiceItem_abc2svg"
+Attribute VB_Name = "voiceItem"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
@@ -10,8 +10,10 @@ Attribute VB_Exposed = False
 Option Explicit
 
 'Declare interface ()voiceBase {
+Public TS_pos As String
+
 Public typs As Integer
-Public v As Integer        ''琌材碭羘场
+Public V As Integer        ''琌材碭羘场
 Public soln As Boolean     ''传︽ ︽挡
 Public nl As Boolean       ''传︽ 穝︽秨﹍
 Public row As Integer      ''–羘场材碭︽
@@ -48,7 +50,7 @@ Public bar_mrep As Double
 Public bar_dotted As Boolean
 Public text As String
 Public fname As String
-Public istart As Double
+Public iStart As Double
 Public multi As Double
 Public iend As Double
 Public invis As Boolean
@@ -158,7 +160,7 @@ Public repeat_k As Double
 Public play As Boolean
 'Public invis As Boolean
 Public slurStart As iArray
-Public slurEnd
+Public slurEnd As iArray
 
 
 'Declare interface ()voiceRest extends voiceBase {
@@ -327,7 +329,7 @@ Public Sub ConvertVarName(key, value)
             Case "in_tuplet":   Me.in_tuplet = value 'in_tuplet As Boolean
             Case "instr":       Me.instr = value 'instr As Double
             Case "invis":       Me.invis = value 'invis As Boolean
-            Case "istart":      Me.istart = value 'istart As Double
+            Case "istart":      Me.iStart = value 'istart As Double
             Case "k_b40":       Me.k_b40 = value 'k_b40 As Double
             Case "k_bagpipe":   Me.k_bagpipe = value 'k_bagpipe
             Case "k_drum":      Me.k_drum = value 'k_drum
@@ -366,7 +368,7 @@ Public Sub ConvertVarName(key, value)
             Case "text":        Me.text = value 'text As String
             Case "time":        Me.time = value 'time As Double
             Case "tpe":         Me.tpe = value 'tpe As Double
-            Case "v":           Me.v = value 'v As Double
+            Case "v":           Me.V = value 'v As Double
             Case "wl":          Me.wl = value 'wl As Double
             Case "wmeasure":    Me.wmeasure = value 'wmeasure As Double
             Case "wr":          Me.wr = value 'wr As Double

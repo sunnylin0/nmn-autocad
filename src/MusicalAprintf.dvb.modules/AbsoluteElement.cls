@@ -9,11 +9,40 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
+
+
+
 Public typs As String
-Public duration As Double
+''''''''''''''''增加
+Public notes As iArray      'MusicNoteItem Array
+    'mfingering As String  '指法
+    'mnote As String           '高低音
+    'mscale As String          '音階
+ Public mtempo As String             '拍子
+ Public duration As Double      '拍子的延遲長度
+    'mtow_fingering As String  '指法 第二個
+ Public slurStart As Boolean                '連音符
+ Public slurEnd As Boolean                '連音符
+ Public tripStart As Boolean           '3 連音開始
+ Public tripEnd As Boolean             '3 連音結束
+ Public mand As Boolean                  '記錄合音 true為跟後面一音合音 ,false為沒有
+ Public what As Integer                 '記錄一些不一樣的指法
+ 
+ 
+ Public mete As Integer     '拍號設定改變
+ Public mete2 As Integer     '拍號設定改變
+ Public barsperstaff  As Integer    '設定每行幾小節
+  
+ Public ln As Integer       '要記錄讀進來的資料是在文件裡的第幾 "行"
+ Public WD As Integer      '要記錄貢進來的資料是在文件要的第幾 "字"
+ 
+''''''''''''''''增加
+
 Public x As Double
 Public y As Double
 Public w As Double     '正位的寬度
+
+Public extce As Double '這是前置的位置
 Public children As RelativeElementList
 Public heads As RelativeElementList
 Public abcelem As VoiceABC
@@ -108,7 +137,7 @@ Public Function getFixedCoords() As vFixedCoords
     getFixedCoords.x = Me.x
     getFixedCoords.w = Me.fixed.w
     getFixedCoords.t = Me.fixed.t
-    getFixedCoords.b = Me.fixed.b
+    getFixedCoords.B = Me.fixed.B
     
 End Function
 
@@ -122,7 +151,7 @@ Public Sub addExtra(extra As RelativeElement)
 
     Me.fixed.t = Math.max(Me.fixed.t, extra.top)
     
-    Me.fixed.b = Math.min(Me.fixed.b, extra.bottom)
+    Me.fixed.B = Math.min(Me.fixed.B, extra.bottom)
     If (extra.dx < Me.extraw) Then Me.extraw = extra.dx
     Me.extra(Me.extra.Count) = extra
     Me.addChild_ extra
@@ -142,7 +171,7 @@ Public Sub addRight(right As RelativeElement)
     
     Me.fixed.w = Math.max(Me.fixed.w, right.dx + right.w)
     Me.fixed.t = Math.max(Me.fixed.t, right.top)
-    Me.fixed.b = Math.min(Me.fixed.b, right.bottom)
+    Me.fixed.B = Math.min(Me.fixed.B, right.bottom)
     
     '' if (isNaN(me.fixed.t) || isNaN(me.fixed.b))
     ''  debugger
