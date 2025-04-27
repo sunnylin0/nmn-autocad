@@ -35,10 +35,10 @@ Private Sub CommandButton2_Click()
     ' Try to connect to a running instance of AutoCAD.
     
     Set oApp = GetObject(, "AutoCAD.Application")
-    If Err Then
+    If err Then
         ' Failed to get AutoCAD.
         MsgBox ("Could not connect to AutoCAD.")
-        Err.clear
+        err.Clear
         Exit Sub
     End If
      
@@ -49,11 +49,11 @@ Private Sub CommandButton2_Click()
     
     Set myCom = New myCustomCom
     Dim x As Single
-    Dim Y As Single
-    Dim z As Single
-    Call myCom.getPosition(x, Y, z)
+    Dim y As Single
+    Dim Z As Single
+    Call myCom.getPosition(x, y, Z)
     myCom.addMuiscText
-    MsgBox x & ":" & Y & ":" & z & ":"
+    MsgBox x & ":" & y & ":" & Z & ":"
   
 End Sub
 'Imports asdkcomServerFromArxLib
@@ -95,7 +95,7 @@ Private Sub CommandButton3_Click()
     
     ThisDrawing.Utility.GetEntity returnObj, basePnt, "選擇要插入有屬性的圖元："
     
-    returnObj.Center = basePnt
+    returnObj.center = basePnt
 End Sub
 
 Private Sub CommandButton4_Click()

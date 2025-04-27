@@ -79,10 +79,10 @@ StartJoin:
     Dim ssetObj As AcadSelectionSet
   
 
-    If SSetColl.count > 0 Then
-        SSetColl.item(0).Delete
+    If SSetColl.Count > 0 Then
+        SSetColl.item(0).delete
     End If
-    Set ssetObj = SSetColl.add("TEST")
+    Set ssetObj = SSetColl.Add("TEST")
 
     ssetObj.SelectOnScreen
     
@@ -96,7 +96,7 @@ StartJoin:
     coI = 0
   ' 找出圖面中的每一個選集
     For Each ent In ssetObj
-        If (ent.ObjectName = "MusicText") Then
+        If (ent.objectName = "MusicText") Then
             coI = coI + 1
         End If
     Next
@@ -113,7 +113,7 @@ StartJoin:
     Dim MTobj As NnmText
     Dim pt As Variant
     For Each ent In ssetObj
-        If (ent.ObjectName = "MusicText") Then
+        If (ent.objectName = "MusicText") Then
             pt = ent.insertionPoint()
             TheArray(coI) = pt(0)
             Set TheArrayEnt(coI) = ent
@@ -160,10 +160,10 @@ StartJoin:
     Dim ssetObj As AcadSelectionSet
   
 
-    If SSetColl.count > 0 Then
-        SSetColl.item(0).Delete
+    If SSetColl.Count > 0 Then
+        SSetColl.item(0).delete
     End If
-    Set ssetObj = SSetColl.add("TEST")
+    Set ssetObj = SSetColl.Add("TEST")
 
     ssetObj.SelectOnScreen
     
@@ -177,7 +177,7 @@ StartJoin:
     coI = 0
   ' 找出圖面中的每一個選集
     For Each ent In ssetObj
-        If (ent.ObjectName = "MusicText") Then
+        If (ent.objectName = "MusicText") Then
             coI = coI + 1
         End If
     Next
@@ -189,7 +189,7 @@ StartJoin:
     Dim MTobj As NnmText
     Dim pt As Variant
     For Each ent In ssetObj
-        If (ent.ObjectName = "MusicText") Then
+        If (ent.objectName = "MusicText") Then
             pt = ent.insertionPoint()
             TheArray(coI) = pt(0)
             Set TheArrayEnt(coI) = ent
@@ -213,10 +213,10 @@ On Error Resume Next
     ' Create a SelectionSet named "TEST" in the current drawing
     Dim ssetObj As AcadSelectionSet
   
-    If SSetColl.count > 0 Then
-        SSetColl.item(0).Delete
+    If SSetColl.Count > 0 Then
+        SSetColl.item(0).delete
     End If
-    Set ssetObj = SSetColl.add("TEST")
+    Set ssetObj = SSetColl.Add("TEST")
     Me.Hide
     ssetObj.SelectOnScreen
     
@@ -230,7 +230,7 @@ On Error Resume Next
     coI = 0
   ' 找出圖面中的每一個選集
     For Each ent In ssetObj
-        If (ent.ObjectName = "MusicText") Then
+        If (ent.objectName = "MusicText") Then
             ent.RightLink = 0
             ent.LeftLink = 0
         End If
@@ -256,7 +256,7 @@ On Error Resume Next
     coI = 0
   ' 找出圖面中的每一個選集
     For i = 0 To UBound(the_Ids, 1)
-        If the_Ids(i).ObjectName = "MusicText" Then
+        If the_Ids(i).objectName = "MusicText" Then
             coI = coI + 1
         End If
     Next
@@ -276,7 +276,7 @@ On Error Resume Next
     
     For i = 0 To UBound(the_Ids, 1)
         Set ent = the_Ids(i)
-        If (ent.ObjectName = "MusicText") Then
+        If (ent.objectName = "MusicText") Then
             pt = ent.insertionPoint()
             TheArray(coI) = pt(0)
             Set TheArrayEnt(coI) = ent
@@ -357,7 +357,7 @@ TRYAGAIN:
     Dim pt As Variant
     Dim SStr As String
     
-        If (Object.ObjectName = "MusicText") Then
+        If (Object.objectName = "MusicText") Then
             Set MTobj = Object
             
             pt = MTobj.GripLeft()
@@ -399,7 +399,7 @@ Private Sub CommandButton7_Click()
     
     ' Create a Layer and make it the active layer
     Dim i As Integer
-    For i = 0 To ThisDrawing.Layers.count - 1
+    For i = 0 To ThisDrawing.Layers.Count - 1
         Set newLayer = ThisDrawing.Layers(i)
         Me.TextBox1 = Me.TextBox1 & "datalayer(i,1) = """ & newLayer.Name & """ : datalayer(i,2) =  " & newLayer.TrueColor.ColorIndex & vbCrLf
         
@@ -416,7 +416,7 @@ Private Sub CommandButton8_Click()
     Dim textStyle As AcadTextStyle
     
     Dim i As Integer
-    For i = 0 To ThisDrawing.TextStyles.count - 1
+    For i = 0 To ThisDrawing.TextStyles.Count - 1
         Set textStyle = ThisDrawing.TextStyles(i)
         Me.TextBox1 = Me.TextBox1 & "dataStyles(" & i & ",1)=""" & textStyle.Name & """" & vbCrLf _
             & "dataStyles(" & i & ",2)=""" & textStyle.fontFile & """" & vbCrLf _

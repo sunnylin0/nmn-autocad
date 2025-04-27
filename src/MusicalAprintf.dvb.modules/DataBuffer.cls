@@ -7,11 +7,12 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
+
 Option Explicit
 
 '2013.03.17  V3 正要修改 二胡的版本，因程式之前是用古箏的指法圖，現在改成二胡的指法圖
 
-Const mChar As String = "*||||||"    ' 資料格式 '資料的前面字元有那些
+Const mChar As String = "*|||||||"    ' 資料格式 '資料的前面字元有那些
 Const TRACK_MAX As Integer = 5      '最大的音軌數
 
 Dim mCharI() As Integer
@@ -21,12 +22,19 @@ Dim mTextNote() As String       '把每行資料放進來 這是有陣列的
 Dim mmsa(0 To 1) As String
 Dim mOpenATable_ As Boolean
 
+Dim currentTextNotePos As Integer
 Private Type t
     ln As Integer   '要記錄讀進來的資料是在文件裡的第幾 "行"
-    wd As Integer   '要記錄貢進來的資料是在文件要的第幾 "字"
+    WD As Integer   '要記錄貢進來的資料是在文件要的第幾 "字"
 End Type
 
+
+
+
+
 Private Type KeyFormat
+    typs As Cg
+    mtone As String       '星指法
     mfingering As String  '指法
     mnote As String           '高低音
     mscale As String          '音階
@@ -34,10 +42,10 @@ Private Type KeyFormat
     delay As Integer            '拍子的延遲長度
     mtow_fingering As String  '指法 第二個
     mslur As String           '連音符
-    and As Boolean              '記錄合音 true為跟後面一音合音 ,false為沒有
+    mand As String               '記錄合音 true為跟後面一音合音 ,false為沒有
     what As Integer             '記錄一些不一樣的指法
     
-    textdata As String
+'    textdata As String
     
 '    mfPosition As Double    '這是看這字上下移多少
 '    mnPosition As Double    '這是看這字上下移多少
@@ -47,16 +55,17 @@ Private Type KeyFormat
 '    mslPosition As Double    '連音符 字上下移多少
     
     ln As Integer   '要記錄讀進來的資料是在文件裡的第幾 "行"
-    wd As Integer   '要記錄貢進來的資料是在文件要的第幾 "字"
+    WD As Integer   '要記錄貢進來的資料是在文件要的第幾 "字"
 End Type
 
 
-Dim mMusic() As KeyFormat                '了解嗎
+Dim mMusic(TRACK_MAX) As MusicItemList  'voiceFormat                '了解嗎
 Dim mSize() As Long '現在的 mMusic() as KeyFormat 的物件數量
-Dim mLogSize() As Long '現在的 mMusic() 的空白陣列 的數量
-Dim AUTHOR As String    '作者
+'Dim mLogSize() As Long '現在的 mMusic() 的空白陣列 的數量
+Dim author As String    '作者
 Dim title As String     '標題
 
+Dim GroupABCLists(8)  As VoiceABCList
 
 Property Get getTITLE() As String
     getTITLE = title
@@ -66,194 +75,25 @@ End Property
 
 
 Private Sub Class_Initialize()
-    ReDim mMusic(TRACK_MAX)
-    ReDim mMusic(TRACK_MAX, 100)
+    'ReDim mMusic(TRACK_MAX)
+    'ReDim mMusic(TRACK_MAX, 100)
     ReDim mSize(TRACK_MAX)
     ReDim mLogSize(TRACK_MAX)
     Dim i As Integer
     For i = 0 To TRACK_MAX
+        Set mMusic(i) = New MusicItemList
         mSize(i) = 0
-        mLogSize(i) = UBound(mMusic, 2)
+        'mLogSize(i) = UBound(mMusic, 2)
     Next
     
     ReDim mTextNote(amt.mHowData)
     ReDim mCharI(amt.mHowData)
 End Sub
-Sub clear()
+Sub Clear()
     Class_Initialize
 End Sub
-Sub GetDataToBuf__()
-    Dim i As Integer
-    Dim j As Integer
-'
-'    Dim tab_m As Integer
-'    Dim size_i As Integer
 
-     
-    'tab_m = 1
-    'numPClen = 1
-    
-    'Dim Buf_md(0 To L_BUF_MD) As MyClassT
-    Dim c As String
-    Dim cc As String
-    Dim mcc As String
-    'Dim bufcc(0 To L_BUF_MD) As MyBufT
-    
-    Call ttm.setLineChar(mChar, fMete)
-    Dim valText As Variant
-    Dim numPC As Integer
-    
-    If textSss = "" Then
-        MsgBox ("沒有資料")
-        Exit Sub
-    End If
-    
-    valText = Split(textSss, vbCrLf)
-    
-    numPC = UBound(valText)
-    
-   
-    For i = 0 To numPC
-        'Set buf_Range = ActiveDocument.Paragraphs(i).Range
-        c = Mid(valText(i), 1, 1)
-        mcc = valText(i)
-        'mcc = Mid(valText(i), 1, Len(valText(i)) )   ' 這是把最後一個字(vbCrLf)拿掉
-        If c = ">" Then
-            Exit For
-        End If
-        ttm.setSaveString (mcc)
-        
-    Next i
-        ttm.ShowData
-        
-        Selection.EndOf Unit:=wdStory, Extend:=wdMove   '用 Selection.EndOf 移到文件的尾端
-    
-        Call ttm.setFontSize(fSize, fOpenATable)
-        ttm.TextToMusic         '資料整理中
-        
-        Dim cNote As String
-        Dim cScale As String
-        Dim cFingering As String
-        Dim cTowFingering As String
-        Dim cTempo As String
-        Dim cSlur As String
-        
-        
-        Dim cposScale As Double
-        Dim cposFing As Double
-        Dim cposTowFing As Double
-        Dim cposSlur As Double
-        
-        Dim drawTab As New DrawTable
-        
-        
-        Dim tmp As String
-        Dim pos As Integer
-        
-        Call drawTab.StartSet(fMany, fMete, fBar, 10, fOpenATable) '設定表格
-        
-        Selection.font.size = fSize
-        Selection.font.Name = UserFontName
-        pos = 1
-        
-        '第 0 個位置是看有多少物件
-        For i = 1 To ttm.getMTEXT(iNote, 0)
-        
-            cNote = ttm.getMTEXT(iNote, i)
-            cScale = ttm.getMTEXT(iScale, i)
-            cFingering = ttm.getMTEXT(iFinge, i)
-            cTowFingering = ttm.getMTEXT(iTowFinge, i)
-            cTempo = ttm.getMTEXT(iTempo, i)
-            cSlur = ttm.getMTEXT(iSlur, i)
-            
-            cposScale = ttm.getMTEXTPosition(iScale, i)
-            cposFing = ttm.getMTEXTPosition(iFinge, i)
-            cposTowFing = ttm.getMTEXTPosition(iTowFinge, i)
-            cposSlur = ttm.getMTEXTPosition(iSlur, i)
-            
-            If cNote = "|" Then
-                Call drawTab.MoveNext(1, pos, False)
-                pos = pos + 1
-            ElseIf cNote = "!" Then
-                If fOpenATable Then
-                    Call drawTab.MoveNext(1, pos, True)
-                End If
-            ElseIf cNote <> cScale And cNote <> cTempo And cNote <> cFingering Then
-                
-                Selection.Fields.add Range:=Selection.Range, Type:=wdFieldEmpty, _
-                PreserveFormatting:=False                                   'Ctrl+F9
-                
-                Selection.MoveLeft Unit:=wdCharacter, count:=1
-                Selection.Delete Unit:=wdCharacter, count:=2
-
-                Selection.TypeText text:="eq \o(" & cNote & "," & cTempo
-                
-                If cScale <> "" Then  '高低音
-                    Selection.TypeText text:=","
-                    Selection.font.position = cposScale '這是下移的指令
-                    Selection.TypeText text:=cScale
-                    Selection.font.position = 0   '這是下移的指令
-                End If
-                
-                If Not (cFingering = "" Or cFingering = " ") Then    '第一行指法
-                    Selection.TypeText text:=","
-                    Selection.font.position = cposFing '這是下移的指令
-                    Selection.TypeText text:=cFingering
-                    Selection.font.position = 0 '這是下移的指令
-                
-                End If
-                
-                If Not (cTowFingering = "" Or cTowFingering = " ") Then    '第二行指法
-                    Selection.TypeText text:=","
-                    Selection.font.position = cposTowFing '這是下移的指令
-                    Selection.TypeText text:=cTowFingering
-                    Selection.font.position = 0 '這是下移的指令
-                End If
-                
-                If Not (cSlur = "" Or cSlur = " ") Then    '連音符行
-                    Selection.TypeText text:=","
-                    Selection.font.position = cposSlur '這是下移的指令
-                    Selection.TypeText text:=cSlur
-                    Selection.font.position = 0 '這是下移的指令
-                End If
-                
-                
-                Selection.TypeText text:=")"
-                'Selection.Fields.ToggleShowCodes 'Shift+F9
-                'Selection.MoveRight Unit:=wdCharacter, Count:=1
-                Selection.EndKey Unit:=wdLine
-            End If
-            
-            ''這是看是否要加入空白  或  半拍的符號
-            If cTempo = ChrW(&H5D39) Then
-                '現在的音符 拍號 是半拍
-                '看下一個音符的主音是否為 "!", "|" 小節符號
-                If ttm.getMTEXT(iNote, i + 1) = "!" Or ttm.getMTEXT(iNote, i + 1) = "|" Then
-                Else
-                    '如不是加入一個 半拍 字
-                    Selection.TypeText text:=ChrW(&H5D39)
-                End If
-                
-            ElseIf cTempo = "" Or cTempo = " " Then
-                '現在的音符 拍號 是一拍
-                '看現在及下一個音符的主音是否為 "!", "|" 小節符號
-                
-                If ttm.getMTEXT(iNote, i + 1) = "!" Or ttm.getMTEXT(iNote, i + 1) = "|" _
-                    Or ttm.getMTEXT(iNote, i) = "!" Or ttm.getMTEXT(iNote, i) = "|" Then
-                
-                Else
-                    '如不是加入2個 空白 字
-                    Selection.TypeText text:="  "
-                End If
-            End If
-            
-            
-            
-        Next i
-        
-End Sub
-
-Private Sub SetMusicItem(ntrack As Integer, ln As Integer, wd As Integer)
+Private Sub SetMusicItem(ntrack As Integer, ln As Integer, WD As Integer)
 'nTrack as integer '要轉換到第幾個音軌資料
 'ln As Integer   '要記錄讀進來的資料是在文件裡的第幾 "行"
 'wd As Integer   '要記錄貢進來的資料是在文件要的第幾 "字"
@@ -265,15 +105,18 @@ Private Sub SetMusicItem(ntrack As Integer, ln As Integer, wd As Integer)
     Dim ilo As Integer
     
     '看陣列夠不夠
-    If mSize(ntrack) + Len(mTextNote(amt.iNote)) > UBound(mMusic, 2) Then
-        ReDim Preserve mMusic(TRACK_MAX, UBound(mMusic, 2) * 2)
-    End If
+'    If mSize(ntrack) + Len(mTextNote(amt.iNote)) > UBound(mMusic, 2) Then
+'        ReDim Preserve mMusic(TRACK_MAX, UBound(mMusic, 2) * 2)
+'    End If
     
     '迴圈每個字
-    Dim tmp_data As String
     Dim a As String
     
-    Dim objMusic As KeyFormat
+    'Dim spaceMusic As voiceFormat   '空白
+    'Dim spaceNote(0) As noteFormat     '空白
+    'ReDim Preserve spaceMusic.notes(0)
+    Dim objMusic As MusicItem
+    Dim objNote As MusicNoteItem
     
     Dim c_TONE As String
     Dim c_Note As String
@@ -282,19 +125,15 @@ Private Sub SetMusicItem(ntrack As Integer, ln As Integer, wd As Integer)
     Dim c_Tempo As String
     Dim c_Scale As String
     Dim c_Slur As String
-    
-  
-    
+    Dim c_Add As String
+    Dim isAdd As Boolean
     
     For i = 1 To Len(mTextNote(amt.iNote))
-        tmp_data = ""
+        
+        '取得資料
         For j = amt.iTONE To Len(mChar)
             c(j) = Mid(mTextNote(j), i, 1)
-            a = c(j)
-            If a = "" Then
-                a = " "
-            End If
-            tmp_data = tmp_data & a
+            If c(j) = "" Then c(j) = " "
         Next j
         
         
@@ -303,7 +142,7 @@ Private Sub SetMusicItem(ntrack As Integer, ln As Integer, wd As Integer)
 '        c_Finge = c(AMT.iFinge)    '這是指法行     _+)(*&
 '        c_TowFinge = c(AMT.iTowFinge) '這是指法行第二行  _+)(*&
 '        c_Tempo = c(AMT.iTempo)    '這是拍子       -=368acefz
-'        c_Scale = c(AMT.iScale)    '這是高低音行   .,:;
+'        c_Scale = c(AMT.iScale)    '這是高低音行   .,:
 '        c_Slur = c(AMT.iSlur)      '二胡連音線，(古箏是合音)
 '
         
@@ -317,13 +156,13 @@ Private Sub SetMusicItem(ntrack As Integer, ln As Integer, wd As Integer)
                 c_Note = c(amt.iNote)
             Case "|"
                 If i = 1 Then
-'lin'                    mSize(ntrack) = mSize(ntrack) - 1
+'lin'               mSize(ntrack) = mSize(ntrack) - 1
                     GoTo nogood
                 End If
                 c_Note = c(amt.iNote)
             Case " ", ""
-'lin'                mSize(ntrack) = mSize(ntrack) - 1
-                GoTo nogood
+'lin'               mSize(ntrack) = mSize(ntrack) - 1
+                    GoTo nogood
             Case Else
                 c_Note = c(amt.iNote)
         End Select
@@ -335,7 +174,7 @@ Private Sub SetMusicItem(ntrack As Integer, ln As Integer, wd As Integer)
             Case "|"
             
             Case "a" To "z", "A" To "Z", "-", "="
-            Case Chr(21) To Chr(125)
+            Case chr(21) To chr(125)
                 c_Finge = c(amt.iFinge)
             Case Else
                 c_Finge = c(amt.iFinge)
@@ -369,49 +208,79 @@ Private Sub SetMusicItem(ntrack As Integer, ln As Integer, wd As Integer)
             Case "|"
                 c_Tempo = c(amt.iTempo)
             Case Else
+                IsEmpty c(amt.iTempo)
                 c_Tempo = c(amt.iTempo)
         End Select
         
         
+        c_TONE = c(amt.iTONE)
         c_Scale = c(amt.iScale)
-        c_Slur = c(amt.iSlur)
+        c_Slur = c(amt.iSlur)   '滑音行
+        c_Finge = c(amt.iFinge)
+        c_Add = c(amt.iAdd)     '合音行
         
+        Set objNote = New MusicNoteItem
         
+        objNote.mtone = c_TONE     ' * 行
+        objNote.mnote = c_Note      '這為主行       1234567.|l
+        objNote.mfingering = c_Finge    '這是指法行     _+)(*&
+        objNote.mtow_fingering = c_TowFinge  '這是指法行第二行  _+)(*&
+        objNote.mtempo = c_Tempo   '這是拍子       -=368acefz
+        objNote.mscale = c_Scale   '這是高低音行   .,:
         
-        'objMusic.mTONE = c_TONE     ' * 行
-        objMusic.mnote = c_Note      '這為主行       1234567.|l
-        objMusic.mfingering = c_Finge    '這是指法行     _+)(*&
-        objMusic.mtow_fingering = c_TowFinge  '這是指法行第二行  _+)(*&
-        objMusic.mtempo = c_Tempo   '這是拍子       -=368acefz
-        objMusic.mscale = c_Scale   '這是高低音行   .,:;
-        objMusic.mslur = c_Slur      '二胡連音線，(古箏是合音)
-        
-        
-        objMusic.textdata = tmp_data
-        objMusic.ln = ln  '寫入第幾行
-        objMusic.wd = i   '寫入第幾字
-        
-        
-        
-         mMusic(ntrack, ilo) = objMusic
-        
-        
-        mSize(ntrack) = mSize(ntrack) + 1
 
+
+        
+        If c_Add = "]" Then
+            isAdd = False
+            objMusic.typs = Cg.note
+            objMusic.notes.Push objNote
+            objMusic.mtempo = c_Tempo   '這是拍子       -=368acefz
+            
+            mMusic(ntrack).Push objMusic
+            mSize(ntrack) = mSize(ntrack) + 1
+        ElseIf c_Add = "[" Or isAdd = True Then
+            If c_Add = "[" Then
+                Set objMusic = New MusicItem
+                Set objMusic.notes = New iArray
+            End If
+            isAdd = True
+            objMusic.typs = Cg.note
+            objMusic.notes.Push objNote
+            objMusic.mtempo = c_Tempo   '這是拍子       -=368acefz
+        Else
+            Set objMusic = New MusicItem
+            Set objMusic.notes = New iArray
+            
+            objMusic.typs = Cg.note
+            objMusic.notes.Push objNote
+            objMusic.mtempo = c_Tempo   '這是拍子       -=368acefz
+            
+            mMusic(ntrack).Push objMusic
+            mSize(ntrack) = mSize(ntrack) + 1
+        End If
     
+        If c_Slur = "[" Or c_Slur = "(" Then
+            objMusic.slurStart = True       '二胡連音線，(古箏是合音)
+        ElseIf c_Slur = "]" Or c_Slur = ")" Then
+            objMusic.slurEnd = True
+        End If
+        
+        
+        objMusic.ln = ln  '寫入第幾行
+        objMusic.WD = i   '寫入第幾字
         
 nogood:
     Next i
 End Sub
- Public Sub GetDataToBuf(the_data As String)
+ Public Sub LoadDataToBuf(the_data As String)
 ' 從檔案中讀取一列字串放到特定位置,讀到'*'離開
     Dim ntrack As Integer
     Dim tmp_ntrack As Integer
     Dim buf_i(1000) As String
     Dim i As Integer, tab_m As Integer, vol As Integer
     Dim Name(256) As String
-    Dim P As String
-    Dim c As String
+    Dim p As String
     
     
     Dim cc As String
@@ -432,14 +301,20 @@ End Sub
     Dim ko As Integer
     Dim findSt As Integer
     Dim findEnd As Integer
+    Dim regEx As New RegExp
+    regEx.Global = True
+
+    
+    
     
     For i = 0 To numPC
-        c = Mid(valText(i), 1, 1)
+        cc = VBA.Mid(valText(i), 1, 1)
         mcc = valText(i)
         
-        If c = "<" Then
+        If cc = "<" Then
             If ntrack >= 0 Then
                 Call SetMusicItem(ntrack, i, 1) '轉換成物件資料
+                'Call SetMusicItemToABC(ntrack, i, 1)
                 For ko = 0 To amt.mHowData
                     mTextNote(ko) = ""
                 Next
@@ -450,22 +325,62 @@ End Sub
                 title = Mid(mcc, findSt + 1, findEnd - findSt - 1)
             End If
             ntrack = ntrack + 1
-        ElseIf c = "*" Then
+        ElseIf cc = "*" Then
             Call SetMusicItem(ntrack, i, 1) '轉換成物件資料
-            
+            'Call SetMusicItemToABC(ntrack, i, 1)
             For ko = 0 To amt.mHowData
                 mTextNote(ko) = ""
             Next
             
             pos = amt.iTONE
             mTextNote(pos) = mcc
-        ElseIf c = "|" Then
+        ElseIf cc = "|" Then
             pos = pos + 1
             mTextNote(pos) = mcc
+                        
+        ElseIf cc = "M" Then
+            '記錄拍號
+            Call SetMusicItem(ntrack, i, 1) '轉換成物件資料
+            'Call SetMusicItemToABC(ntrack, i, 1)
+            For ko = 0 To amt.mHowData
+                mTextNote(ko) = ""
+            Next
+            
+            Dim meteMatches
+            Dim musicIt As MusicItem
+            Set musicIt = New MusicItem
+            regEx.Pattern = "(\d+)/(\d+)"
+            Set meteMatches = regEx.Execute(valText(i))
+            
+            If meteMatches.Count >= 1 Then
+                musicIt.typs = Cg.meter
+                musicIt.mete = meteMatches(0).SubMatches(0)
+                musicIt.mete2 = meteMatches(0).SubMatches(1)
+            End If
+            mMusic(ntrack).Push musicIt
+        ElseIf cc = "I" Then
+            '設定每行幾小節
+            Call SetMusicItem(ntrack, i, 1) '轉換成物件資料
+            For ko = 0 To amt.mHowData
+                mTextNote(ko) = ""
+            Next
+            Dim regMatches
+            Dim rMusicItem As MusicItem
+            Set rMusicItem = New MusicItem
+            regEx.Pattern = "bar[\s]+(\d+)"
+            Set regMatches = regEx.Execute(valText(i))
+            
+            If regMatches.Count >= 1 Then
+                rMusicItem.typs = Cg.bar
+                rMusicItem.barsperstaff = regMatches(0).SubMatches(0) '設定每行幾小節
+                
+            End If
+            mMusic(ntrack).Push rMusicItem
         End If
     Next
     
     Call SetMusicItem(ntrack, i, 1) '轉換成物件資料
+    'Call SetMusicItemToABC(ntrack, i, 1)
     
     
     
@@ -484,16 +399,639 @@ Function GetTrackSize() As Integer
 
 End Function
 
-Function GetTrackBufferSize(the_track As Integer) As Long
+Public Function GetTrackBufferSize(the_track As Integer) As Long
 '取得每軌有多少音符
-    GetTrackBufferSize = mSize(the_track)
+    GetTrackBufferSize = mMusic(the_track).Count
 End Function
-Function GetData(the_track As Integer, the_item As Long) As String
+Function GetData(the_track As Integer, the_item As Long) As MusicItem
     'the_track 第幾部
     'the_item 第幾個
     Dim tmp_s As String
     Dim i As Integer
+    Dim musItem As MusicItemList
     If (mSize(the_track) > 1 And mSize(the_track) > the_item) Then
-        GetData = mMusic(the_track, the_item).textdata
+        Set musItem = mMusic(the_track)
+        Set GetData = musItem(the_item)
     End If
+End Function
+
+Private Function ConverRegexList(arrCode As iArray, comparValue As String) As String
+    Dim sarr() As String
+    Dim i As Integer
+    Dim rstr As String
+
+        For i = 0 To arrCode.Count - 1
+'            sarr = Split(arrCode(i), " ")
+'            If iLe = sarr(0) Then
+'                rstr = sarr(1)
+'                Exit For
+'            Else
+'                rstr = cc
+'            End If
+        Next
+    ConverRegexList = rstr
+End Function
+Private Function initTextNoteData() As Boolean
+    currentTextNotePos = 1
+End Function
+Private Function getTextNoteNextKF() As KeyFormat
+    Dim j As Integer
+    Dim c() As String
+    ReDim c(amt.mHowData)
+        For j = amt.iTONE To Len(mChar)
+            c(j) = Mid(mTextNote(j), currentTextNotePos, 1)
+            If c(j) = "" Then c(j) = " "
+        Next j
+        Dim kg As KeyFormat
+        kg.mtone = c(amt.iTONE)
+        kg.mnote = c(amt.iNote)
+        kg.mfingering = c(amt.iFinge)
+        kg.mtow_fingering = c(amt.iTowFinge)
+        kg.mscale = c(amt.iScale)
+        kg.mtempo = c(amt.iTempo)
+        kg.mand = c(amt.iAdd)
+        kg.mslur = c(amt.iSlur)
+        getTextNoteNextKF = kg
+End Function
+Private Function updateTextNoteData() As Boolean
+        If currentTextNotePos <= Len(mTextNote(amt.iNote)) Then
+            currentTextNotePos = currentTextNotePos + 1
+            updateTextNoteData = True
+        Else
+            updateTextNoteData = False
+        End If
+End Function
+Private Function getTempoConverDuration(str As String) As Double
+    '拍子的 字元 轉 成  duration
+    
+    Dim tempo_hj As String
+    Dim tempo_val As Variant
+    Dim tempo_ll As Variant
+    
+    tempo_hj = " -2=45368aAcCfFgGzZ"
+    tempo_ll = Array(1, 2, 2, 4, 4, 5, 3, 6, 8, 10, 10, 12, 12, 15, 15, 16, 32, 32)
+    tempo_val = Array(0, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4)
+    
+
+    Dim ii As Integer
+    Dim cn As String
+    Dim val As Integer
+    
+    For ii = 0 To Len(tempo_hj) - 1
+        cn = Mid(tempo_hj, ii + 1, 1)
+        If cn = str Then
+            val = tempo_ll(ii)
+            getTempoConverDuration = 1 / (val * 4)
+            Exit Function
+        End If
+    Next ii
+    
+End Function
+Private Function getNoteConverPitch(str As String) As Double
+    '高低音 的 字元 轉 成
+    
+    Dim tempo_hj As String
+    Dim tempo_val As Variant
+    Dim tempo_ll As Variant
+    
+    tempo_hj = "?;, .:!"
+    tempo_ll = Array(-3, -2, -1, 0, 1, 2, 3)
+    Dim ii As Integer
+    Dim cn As String
+    Dim val As Integer
+        
+    For ii = 0 To Len(tempo_hj) - 1
+        cn = Mid(tempo_hj, ii + 1, 1)
+        If cn = str Then
+            val = tempo_ll(ii)
+            getNoteConverPitch = 7 * val
+            Exit Function
+        End If
+    Next ii
+End Function
+Private Function converMITABC(GroupABCs As VoiceABCList, vABC As VoiceABC, kf As KeyFormat) As VoiceABC
+        Select Case kf.mnote     '這是音階
+            Case "0"
+                If (vABC.Rest Is Nothing) Then
+                    Set vABC.Rest = New vrestNote
+                End If
+                vABC.el_typs = "note"
+                vABC.Rest.typs = "rest"
+                vABC.duration = getTempoConverDuration(kf.mtempo)
+                
+            Case "1", "2", "3", "4", "5", "6", "7"
+                Dim pitEle As vpitchesNote
+                
+                If (vABC.pitches Is Nothing) Then
+                    Set vABC.pitches = New vpitchesNoteList
+                End If
+                Set pitEle = New vpitchesNote
+                pitEle.Name = kf.mnote
+                pitEle.pitch = CInt(kf.mnote) - 1 + getNoteConverPitch(kf.mscale)
+                pitEle.verticalPos = pitEle.pitch
+                pitEle.highestVert = pitEle.pitch + 6
+                
+                vABC.el_typs = "note"
+                vABC.duration = getTempoConverDuration(kf.mtempo)
+                vABC.pitches.Push pitEle
+            Case "-"
+                Set vABC = GroupABCs.Last
+                vABC.duration = (1 / 4)
+                vABC.pitches(0).Name = "-"
+            Case "."
+                Set vABC = GroupABCs.Last
+                If (vABC.dots > 0) Then
+                    Dim m As Integer
+                    Dim d, f As Double
+                        d = 1: f = 1
+                    For m = 0 To vABC.dots - 1
+                        f = f + d / 2
+                        d = d / 2
+                    Next
+                    d = vABC.duration / f
+                    vABC.dots = vABC.dots + 1
+                    f = d
+                    For m = 0 To vABC.dots
+                        f = f + d / 2
+                        d = d / 2
+                    Next
+                    vABC.duration = f
+                Else
+                    vABC.dots = 1
+                    vABC.duration = vABC.duration + vABC.duration / 2
+                End If
+                Set vABC = Nothing
+
+            Case "|", ":", "[", "]"
+                Dim lastABC As VoiceABC
+                Dim regEx As New RegExp
+                
+                ' 設定匹配規則
+                regEx.Pattern = "[\[\]\|:]"
+                Set lastABC = GroupABCs.Last
+                If regEx.Test(lastABC.Name) Then
+                    Set vABC = lastABC
+                End If
+                vABC.el_typs = "bar"
+                vABC.Name = vABC.Name + kf.mnote
+                
+                Select Case vABC.Name
+                    Case "|": vABC.typs = "bar_thin"
+                    Case "||": vABC.typs = "bar_thin_thin"
+                    Case ":|": vABC.typs = "bar_right_repeat"
+                    Case "|:": vABC.typs = "bar_left_repeat"
+                    Case ":|:": vABC.typs = "fasfasdfasf"
+                    Case "[|": vABC.typs = "bar_thin_thick"
+                    Case "|]": vABC.typs = "bar_thin_thick"
+                    Case Else: vABC.typs = "bar_thin"
+                End Select
+                
+            Case " ", ""
+                Set vABC = Nothing
+            Case Else
+                Set vABC = Nothing
+        End Select
+
+        Set converMITABC = vABC
+End Function
+Private Function SetMusicItemToABC(ntrack As Integer, ln As Integer, WD As Integer) As VoiceABCList
+'nTrack as integer '要轉換到第幾個音軌資料
+'ln As Integer   '要記錄讀進來的資料是在文件裡的第幾 "行"
+'wd As Integer   '要記錄貢進來的資料是在文件要的第幾 "字"
+    Dim c() As String
+    ReDim c(amt.mHowData)
+    Dim i As Integer, j As Integer, k As Integer
+    Dim lsup As Integer
+    Dim ilo As Integer
+    
+    '看陣列夠不夠
+'    If mSize(ntrack) + Len(mTextNote(amt.iNote)) > UBound(mMusic, 2) Then
+'        ReDim Preserve mMusic(TRACK_MAX, UBound(mMusic, 2) * 2)
+'    End If
+    
+    '迴圈每個字
+    Dim a As String
+    
+    'Dim spaceMusic As voiceFormat   '空白
+    'Dim spaceNote(0) As noteFormat     '空白
+    'ReDim Preserve spaceMusic.notes(0)
+    Dim objMusic As MusicItem
+    Dim objNote As MusicNoteItem
+    
+    Dim c_TONE As String
+    Dim c_Note As String
+    Dim c_Finge As String
+    Dim c_TowFinge As String
+    Dim c_Tempo As String
+    Dim c_Scale As String
+    Dim c_Slur As String
+    Dim c_Add As String
+    Dim isAdd As Boolean
+
+    Dim pit As New vpitchesNote
+    Dim lastABC As VoiceABC       '記錄上一個音符元件
+        
+    
+    Dim kf As KeyFormat
+    Dim vABC As VoiceABC
+    Dim pitEle As vpitchesNote
+    Dim lastPitchs As vpitchesNoteList '記錄上一個音符元件
+    Dim lastPitch As vpitchesNote
+    Dim curABCList As VoiceABCList
+    
+    If GroupABCLists(ntrack) Is Nothing Then
+        Set GroupABCLists(ntrack) = New VoiceABCList
+    End If
+    
+        Set curABCList = GroupABCLists(ntrack)
+    
+    initTextNoteData
+    Do
+        kf = getTextNoteNextKF
+        If curABCList.Count = 84 Then
+             a = a
+        End If
+        
+        Select Case kf.mand
+            Case "["
+                isAdd = True
+                Set vABC = New VoiceABC
+                Set vABC = converMITABC(curABCList, vABC, kf)
+                If Not (vABC Is Nothing) Then
+                    curABCList.Push vABC
+                End If
+                
+            Case "]"
+                isAdd = False
+                Set vABC = curABCList.Last
+                Set vABC = converMITABC(curABCList, vABC, kf)
+            Case " "
+                If isAdd = True Then
+                    Set vABC = curABCList.Last
+                    Set vABC = converMITABC(curABCList, vABC, kf)
+                Else
+                    Set vABC = New VoiceABC
+                    Set vABC = converMITABC(curABCList, vABC, kf)
+                    If Not (vABC Is Nothing) Then
+                        curABCList.Push vABC
+                    End If
+                End If
+            Case Else
+        End Select
+    
+    Loop Until updateTextNoteData = False
+    Set SetMusicItemToABC = curABCList
+    i = 8
+'
+'    For i = 1 To Len(mTextNote(amt.iNote))
+'
+'        '取得資料
+'        For j = amt.iTONE To Len(mChar)
+'            C(j) = Mid(mTextNote(j), i, 1)
+'            If C(j) = "" Then C(j) = " "
+'        Next j
+'
+'
+''        c_TONE = c(AMT.iTONE)      ' * 行
+''        c_Note = c(AMT.iNote)      '這為主行       1234567.|l
+''        c_Finge = c(AMT.iFinge)    '這是指法行     _+)(*&
+''        c_TowFinge = c(AMT.iTowFinge) '這是指法行第二行  _+)(*&
+''        c_Tempo = c(AMT.iTempo)    '這是拍子       -=368acefz
+''        c_Scale = c(AMT.iScale)    '這是高低音行   .,:
+''        c_Slur = c(AMT.iSlur)      '二胡連音線，(古箏是合音)
+''
+'        Dim vABC As New VoiceABC
+'        Dim pit As New vpitchesNote
+'        Dim lastABC As VoiceABC       '記錄上一個音符元件
+'        Dim lastPitchs As vpitchesNoteList '記錄上一個音符元件
+'
+'        If Not (lastABC Is Nothing) Then Set lastPitch = lastABC.pitches
+'
+'        Select Case C(amt.iAdd)
+'            Case "["
+'                isAdd = True
+'                For k = i To Len(mTextNote(amt.iNote))
+'                    '取得資料
+'                    For j = amt.iTONE To Len(mChar)
+'                        C(j) = Mid(mTextNote(j), i, 1)
+'                        If C(j) = "" Then C(j) = " "
+'                    Next j
+'                Next
+'            Case "]"
+'            Case " "
+'            Case Else
+'        End Select
+'        ilo = mSize(ntrack)
+'        Select Case C(amt.iNote)     '這是音階
+'            Case "0"
+'            Case "1", "2", "3", "4", "5", "6", "7"
+'                pit.pitch = CInt(C(amt.iNote))
+'            Case "."
+'                lastPitch.duration = lastPitch.duration + lastPitch.duration / 2
+'            Case "-"
+'                lastPitch.duration = lastPitch.duration + 0.25
+'            Case "|"
+'                If i = 1 Then
+''lin'               mSize(ntrack) = mSize(ntrack) - 1
+'                    GoTo nogood
+'                End If
+'                c_Note = C(amt.iNote)
+'            Case " ", ""
+''lin'               mSize(ntrack) = mSize(ntrack) - 1
+'                    GoTo nogood
+'            Case Else
+'                c_Note = C(amt.iNote)
+'        End Select
+'
+'
+'
+'        lsup = 0
+'        Select Case C(amt.iTempo)     '這是拍子
+'            Case " "
+'                c_Tempo = C(amt.iTempo)
+'            Case "-", "2"
+'                lsup = 1
+'                c_Tempo = C(amt.iTempo)
+'            Case "=", "4", "3"
+'                lsup = 2
+'                c_Tempo = C(amt.iTempo)
+'            Case "6", "8", "A"
+'                lsup = 3
+'                c_Tempo = C(amt.iTempo)
+'            Case "|"
+'                c_Tempo = C(amt.iTempo)
+'            Case Else
+'                IsEmpty C(amt.iTempo)
+'                c_Tempo = C(amt.iTempo)
+'        End Select
+'
+'
+'
+'        Select Case C(amt.iFinge)     '這是指法
+'            Case " "
+'            Case "("
+'            Case "|"
+'
+'            Case "a" To "z", "A" To "Z", "-", "="
+'            Case chr(21) To chr(125)
+'                c_Finge = C(amt.iFinge)
+'            Case Else
+'                c_Finge = C(amt.iFinge)
+'        End Select
+'
+'        Select Case C(amt.iTowFinge)     '這是指法2 第二行
+'            Case "a" To "z", "A" To "Z", "-", "="
+'                c_TowFinge = C(amt.iTowFinge)
+'            Case "1" To "7"
+'                c_TowFinge = C(amt.iTowFinge)
+'            Case " ", "(", "|"
+'                c_TowFinge = C(amt.iTowFinge)
+'            Case Else
+'                c_TowFinge = C(amt.iTowFinge)
+'        End Select
+'
+'
+'
+'
+'        c_TONE = C(amt.iTONE)
+'        c_Scale = C(amt.iScale)
+'        c_Slur = C(amt.iSlur)   '滑音行
+'        c_Finge = C(amt.iFinge)
+'        c_Add = C(amt.iAdd)     '合音行
+'
+'        Set objNote = New MusicNoteItem
+'
+'        objNote.mtone = c_TONE     ' * 行
+'        objNote.mnote = c_Note      '這為主行       1234567.|l
+'        objNote.mfingering = c_Finge    '這是指法行     _+)(*&
+'        objNote.mtow_fingering = c_TowFinge  '這是指法行第二行  _+)(*&
+'        objNote.mtempo = c_Tempo   '這是拍子       -=368acefz
+'        objNote.mscale = c_Scale   '這是高低音行   .,:
+'
+'
+'
+'
+'        If c_Add = "]" Then
+'            isAdd = False
+'            objMusic.typs = Cg.note
+'            objMusic.notes.Push objNote
+'            objMusic.mtempo = c_Tempo   '這是拍子       -=368acefz
+'
+'            mMusic(ntrack).Push objMusic
+'            mSize(ntrack) = mSize(ntrack) + 1
+'        ElseIf c_Add = "[" Or isAdd = True Then
+'            If c_Add = "[" Then
+'                Set objMusic = New MusicItem
+'                Set objMusic.notes = New iArray
+'            End If
+'            isAdd = True
+'            objMusic.typs = Cg.note
+'            objMusic.notes.Push objNote
+'            objMusic.mtempo = c_Tempo   '這是拍子       -=368acefz
+'        Else
+'            Set objMusic = New MusicItem
+'            Set objMusic.notes = New iArray
+'
+'            objMusic.typs = Cg.note
+'            objMusic.notes.Push objNote
+'            objMusic.mtempo = c_Tempo   '這是拍子       -=368acefz
+'
+'            mMusic(ntrack).Push objMusic
+'            mSize(ntrack) = mSize(ntrack) + 1
+'        End If
+'
+'        If c_Slur = "[" Or c_Slur = "(" Then
+'            objMusic.slurStart = True       '二胡連音線，(古箏是合音)
+'        ElseIf c_Slur = "]" Or c_Slur = ")" Then
+'            objMusic.slurEnd = True
+'        End If
+'
+'
+'        objMusic.ln = ln  '寫入第幾行
+'        objMusic.WD = i   '寫入第幾字
+'
+'nogood:
+'    Next i
+End Function
+Function getVoiceListData(trackNum As Integer) As VoiceABCList
+    If UBound(GroupABCLists) >= trackNum Then
+        Set getVoiceListData = GroupABCLists(trackNum)
+    End If
+
+End Function
+Function ConverToVoiceABCList(trackNum As Integer) As VoiceABCList
+
+    Dim mItem As MusicItem
+    Dim trackMaxLen As Integer
+    Dim currenCount As Integer
+    Dim sarr() As String
+    Dim reg As New RegExp
+    Dim cc As String
+    Dim sNote As String
+    Dim iTempo As Integer
+    Dim sTempo As Integer
+    Dim iScale As Integer
+    Dim sScale As Integer
+    Dim i As Integer
+    Dim vABC As VoiceABC
+
+'取得關鍵字  主音 AMT.iNote
+    Dim noteListCode As New iArray
+    Dim noteListType As iArray
+            
+        noteListCode.PushArray Array("0 M-NOTE0", _
+            "1 M-NOTE1", _
+            "2 M-NOTE2", _
+            "3 M-NOTE3", _
+            "4 M-NOTE4", _
+            "5 M-NOTE5", _
+            "6 M-NOTE6", _
+            "7 M-NOTE7", _
+            ". M-NOTE.", _
+            "- M-NOTE-", _
+            "o M-NOTEo", _
+            "x M-NOTEx", _
+            "X M-NOTEX2", _
+            "e M-NOTEe", _
+            "E M-NOTEE2")
+            
+    Dim iLe As Integer
+    Dim cn As String
+    Dim tempoListCode As New iArray
+
+    tempoListCode.PushArray Array( _
+            "1 M-TEMPO1", _
+            "2 M-TEMPO2", _
+            "3 M-TEMPO3", _
+            "4 M-TEMPO4")
+            
+    
+    Dim scaleListCode As New iArray
+    scaleListCode.PushArray Array( _
+            ". M-OCTAVE1 1", _
+            ": M-OCTAVE2 2", _
+            "! M-OCTAVE3 3", _
+            ", M-OCTAVEa -1", _
+            "  M-OCTAVEb -2", _
+            "? M-OCTAVEc -3")
+            
+    '取得升降字 -特疏字法
+    Dim toneListCode As New iArray
+    toneListCode.PushArray Array( _
+            "# MT-SHARP", _
+            "b MT-FLAT", _
+            "o MT-NATURAL")
+
+
+    
+    trackMaxLen = GetTrackBufferSize(trackNum)
+    For i = 0 To trackMaxLen - 1
+        Set mItem = GetData(trackNum, i)
+                
+        cc = ConverRegexList(noteListCode, "mItem.notes")
+        
+'        For j = 0 To noteListCode.Count - 1
+'            sarr = Split(noteListCode(i), " ")
+'            If cc = sarr(0) Then
+'                MFS(currenCount).sNote = sarr(1)
+'                Exit For
+'            Else
+'                MFS(currenCount).sNote = ""
+'            End If
+'        Next
+        
+        
+    Next
+    
+    cc = ""
+    
+'
+'
+'    ReDim MFS(MData.notes.Count - 1)
+'    For currenCount = 0 To MData.notes.Count - 1
+'
+'        cc = MData.notes(currenCount).mnote
+'        For i = 0 To noteListCode.Count - 1
+'            sarr = Split(noteListCode(i), " ")
+'            If cc = sarr(0) Then
+'                MFS(currenCount).sNote = sarr(1)
+'                Exit For
+'            Else
+'                MFS(currenCount).sNote = ""
+'            End If
+'        Next
+'
+'
+'        '取得關鍵字 拍子  -=368acefz amt.iTempo
+'        iLe = Tempo_c2line(MData.notes(currenCount).mtempo)
+'        cc = MData.notes(currenCount).mtempo
+'        For i = 0 To tempoListCode.Count - 1
+'            sarr = Split(tempoListCode(i), " ")
+'            If iLe = sarr(0) Then
+'                MFS(currenCount).sTempo = sarr(1)
+'                MFS(currenCount).iTempo = iLe
+'                Exit For
+'            Else
+'                MFS(currenCount).sTempo = cc
+'                MFS(currenCount).iTempo = iLe
+'            End If
+'        Next
+'
+'
+'        '取得關鍵字高低音行   .:! , ?
+'        cc = MData.notes(currenCount).mscale
+'        For i = 0 To scaleListCode.Count - 1
+'            sarr = Split(scaleListCode(i), " ")
+'            If cc = sarr(0) Then
+'                MFS(currenCount).sScale = sarr(1)
+'                MFS(currenCount).iScale = sarr(2)
+'                Exit For
+'            Else
+'                MFS(currenCount).sScale = ""
+'                MFS(currenCount).iScale = 0
+'            End If
+'        Next
+'
+'
+'        '取得關鍵字 -指法1
+'        MFS(currenCount).sFinge = ""
+'        cc = MData.notes(currenCount).mfingering
+'        Select Case cc
+'            Case "a" To "z", "A" To "Z", "-", "=", "@"
+'                MFS(currenCount).sFinge = kFing(Asc(cc))
+'                Set MFS(currenCount).mfPosition = posFing(Asc(cc)).clone
+'            Case Else
+'            MFS(currenCount).sFinge = ""
+'            Set MFS(currenCount).mfPosition = New point
+'        End Select
+'
+'
+'
+'    '    '取得關鍵字 -指法2
+'        cc = MData.notes(currenCount).mtow_fingering
+'        MFS(currenCount).sTowFinge = ""
+'        Select Case cc
+'            Case "a" To "z", "A" To "Z", "-", "=", "@"
+'                MFS(currenCount).sTowFinge = kTowFing(Asc(cc))
+'                Set MFS(currenCount).mfTowPosition = posTowFing(Asc(cc)).clone
+'            Case Else
+'            MFS(currenCount).sTowFinge = ""
+'            Set MFS(currenCount).mfTowPosition = New point
+'        End Select
+'
+'        '取得升降字 -特疏字法
+'        cc = MData.notes(currenCount).mtone
+'        For i = 0 To toneListCode.Count - 1
+'            sarr = Split(toneListCode(i), " ")
+'            If cc = sarr(0) Then
+'                MFS(currenCount).sTONE = sarr(1)
+'                Exit For
+'            Else
+'                MFS(currenCount).sTONE = cc
+'            End If
+'        Next
+'
+'
+'    Next
+
 End Function

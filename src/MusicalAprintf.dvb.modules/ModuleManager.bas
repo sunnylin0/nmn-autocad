@@ -40,19 +40,19 @@ Public Sub ImportModules(FromDirectory As String, Optional ShowMsgBox As Boolean
     Dim numFiles As Integer: numFiles = 0
     For Each f In dir.Files
         Dim dotIndex As String: dotIndex = InStrRev(f.Name, ".")
-        Dim ext As String: ext = UCase(Right(f.Name, Len(f.Name) - dotIndex))
+        Dim ext As String: ext = UCase(right(f.Name, Len(f.Name) - dotIndex))
         Dim correctType As Boolean: correctType = (ext = "BAS" Or ext = "CLS" Or ext = "FRM")
-        Dim allowedName As Boolean: allowedName = Left(f.Name, InStrRev(f.Name, ".") - 1) <> MY_NAME
+        Dim allowedName As Boolean: allowedName = left(f.Name, InStrRev(f.Name, ".") - 1) <> MY_NAME
         If correctType And allowedName Then
             numFiles = numFiles + 1
             Dim replaced As Boolean: replaced = doImport(f)
             Dim replacedStr As String
             replacedStr = IIf(replaced, " (replaced)", " (new)")
-            imports.add f.Name, replacedStr
+            imports.Add f.Name, replacedStr
         End If
 
         If ext = "DOCCLS" Then
-            arrThisMain.add f
+            arrThisMain.Add f
         End If
     Next f
     '注： ThisMain 要最後載入
@@ -63,14 +63,14 @@ Public Sub ImportModules(FromDirectory As String, Optional ShowMsgBox As Boolean
         numFiles = numFiles + 1
         replaced = InsertThisMainCode(fc)
         replacedStr = IIf(replaced, " (replaced)", " (Failed)")
-        imports.add thisDoc.Name, replacedStr
+        imports.Add thisDoc.Name, replacedStr
     Next thisDoc
 
     'Show a success message box, if requested
     If ShowMsgBox Then
         Dim i As Integer
         Dim msg As String: msg = numFiles & " modules imported:" & vbCrLf & vbCrLf
-        For i = 0 To imports.count - 1
+        For i = 0 To imports.Count - 1
             msg = msg & "    " & imports.Keys()(i) & imports.Items()(i) & vbCrLf
         Next i
         Dim result As VbMsgBoxResult: result = MsgBox(msg, vbOKOnly)
@@ -103,7 +103,7 @@ Public Sub ExportModules(ToDirectory As String)
         Dim correctType As Boolean
         correctType = (vbc.Type = vbext_ct_StdModule Or vbc.Type = vbext_ct_ClassModule Or vbc.Type = vbext_ct_MSForm Or vbc.Type = vbext_ct_Document)
         If correctType And vbc.Name <> MY_NAMENOT Then
-            Call doExport(vbc, dir.Path)
+            Call doExport(vbc, dir.path)
         End If
     Next vbc
 End Sub
@@ -123,7 +123,7 @@ Public Sub RemoveModules(Optional ShowMsgBox As Boolean = True)
         Dim correctType As Boolean: correctType = (vbc.Type = vbext_ct_StdModule Or vbc.Type = vbext_ct_ClassModule Or vbc.Type = vbext_ct_MSForm)
         If correctType And vbc.Name <> MY_NAME Then
             numModules = numModules + 1
-            removals.add vbc.Name
+            removals.Add vbc.Name
             allComponents.Remove vbc
         End If
     Next vbc
@@ -149,11 +149,11 @@ End Sub
 
 Private Function getFilePath() As String
 #If MANAGING_WORD Then
-    getFilePath = ThisDocument.Path
+    getFilePath = ThisDocument.path
 #ElseIf MANAGING_EXCEL Then
-    getFilePath = ThisWorkbook.Path
+    getFilePath = ThisWorkbook.path
 #ElseIf MANAGING_AUTOCAD Then
-        getFilePath = ThisDrawing.Path
+        getFilePath = ThisDrawing.path
 #Else
         Call raiseUnsupportedAppError
 #End If
@@ -213,17 +213,17 @@ Private Sub saveFile()
 End Sub
 
 Private Sub raiseUnsupportedAppError()
-    Err.Raise Number:=vbObjectError + 1, Description:=ERR_SUPPORTED_APPS
+    err.Raise Number:=vbObjectError + 1, Description:=ERR_SUPPORTED_APPS
 End Sub
 
 Private Function doImport(ByRef codeFile As Object) As Boolean
     On Error Resume Next
 
     'Determine whether a module with this name already exists
-    Dim Name As String: Name = Left(codeFile.Name, Len(codeFile.Name) - 4)
+    Dim Name As String: Name = left(codeFile.Name, Len(codeFile.Name) - 4)
     Dim allComponents As VBComponents:   Set allComponents = getAllComponents()
     Dim m As VBComponent:     Set m = allComponents.item(Name)
-    If Err.Number <> 0 Then
+    If err.Number <> 0 Then
         Set m = Nothing
     End If
     On Error GoTo 0
@@ -234,31 +234,31 @@ Private Function doImport(ByRef codeFile As Object) As Boolean
         allComponents.Remove m
     End If
     'Then import the new module
-    allComponents.Import (codeFile.Path)
+    allComponents.Import (codeFile.path)
     doImport = alreadyExists
 End Function
 Private Function InsertThisMainCode(ByRef codeFile As Object) As Boolean
     On Error Resume Next
 
     'Determine whether a module with this name already exists
-    Dim Name As String: Name = Left(codeFile.Name, Len(codeFile.Name) - 7)
+    Dim Name As String: Name = left(codeFile.Name, Len(codeFile.Name) - 7)
     Dim allComponents As VBComponents:     Set allComponents = getAllComponents()
     Dim ThisMainModule As VBComponent:     Set ThisMainModule = allComponents.item(Name)
-    If Err.Number <> 0 Then
+    If err.Number <> 0 Then
         Set ThisMainModule = Nothing
         InsertThisMainCode = False
         Exit Function
     End If
 
     'If so, remove it
-    Dim alreadyExists As Boolean: alreadyExists = fileSys.FileExists(codeFile.Path)
+    Dim alreadyExists As Boolean: alreadyExists = fileSys.FileExists(codeFile.path)
 
     'If so, remove it (even if its ReadOnly)
     If alreadyExists Then
 
         Dim LnAllCode As String
         Dim stream As Object
-        Set stream = fileSys.OpenTextFile(codeFile.Path, 1) '1 means ForReading
+        Set stream = fileSys.OpenTextFile(codeFile.path, 1) '1 means ForReading
         Do Until stream.AtEndOfStream
             LnAllCode = LnAllCode + vbCrLf + stream.ReadLine
         Loop
@@ -315,9 +315,9 @@ Private Function doExportThisMainCode(ByRef module As VBComponent, filePath As S
 
 
         If module.CodeModule.CountOfLines > 1 Then
-            LnAllCode = module.CodeModule.Lines(1, module.CodeModule.CountOfLines - 1)
+            LnAllCode = module.CodeModule.lines(1, module.CodeModule.CountOfLines - 1)
         Else
-            LnAllCode = module.CodeModule.Lines(1, 1)
+            LnAllCode = module.CodeModule.lines(1, 1)
         End If
 
         stream.WriteLine LnAllCode

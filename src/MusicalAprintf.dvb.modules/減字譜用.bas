@@ -18,20 +18,20 @@ For k = 0 To 500
     Dim ssetObj As AcadSelectionSet
     
   
-    If SSetColl.count > 0 Then
-        SSetColl.item(0).Delete
+    If SSetColl.Count > 0 Then
+        SSetColl.item(0).delete
     End If
     
-    Set ssetObj = SSetColl.add("TEST")
+    Set ssetObj = SSetColl.Add("TEST")
     
 
     ssetObj.SelectOnScreen
-    If ssetObj.count = 0 Then
+    If ssetObj.Count = 0 Then
     
        Exit Sub
     End If
     '找出圖面中的每一個選集
-    ReDim tmp_ent(ssetObj.count - 1)
+    ReDim tmp_ent(ssetObj.Count - 1)
     Dim lll As AcadLine
     
     

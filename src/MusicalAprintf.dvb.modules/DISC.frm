@@ -26,7 +26,7 @@ Private Sub cbLoad_Click()
     Const TAG_XRECORD_NAME = "ObjectTrackerXRecord"
 
     ' Connect to the dictionary we store the XRecord in
-    On Error GoTo CREATE
+    On Error GoTo create
     Set TrackingDictionary = ThisDrawing.Dictionaries(TAG_DICTIONARY_NAME)
     Set TrackingXRecord = TrackingDictionary.GetObject(TAG_XRECORD_NAME)
     On Error GoTo 0
@@ -51,10 +51,10 @@ Private Sub cbLoad_Click()
     
     Exit Sub
 
-CREATE:
+create:
     ' Create the entities that hold our XRecordData
     If TrackingDictionary Is Nothing Then  ' Make sure we have our tracking object
-        Set TrackingDictionary = ThisDrawing.Dictionaries.add(TAG_DICTIONARY_NAME)
+        Set TrackingDictionary = ThisDrawing.Dictionaries.Add(TAG_DICTIONARY_NAME)
         Set TrackingXRecord = TrackingDictionary.AddXRecord(TAG_XRECORD_NAME)
     End If
     
@@ -78,7 +78,7 @@ Private Sub CommandButton1_Click()
     Const TAG_XRECORD_NAME = "ObjectTrackerXRecord"
 
     ' Connect to the dictionary we store the XRecord in
-    On Error GoTo CREATE
+    On Error GoTo create
     Set TrackingDictionary = ThisDrawing.Dictionaries(TAG_DICTIONARY_NAME)
     Set TrackingXRecord = TrackingDictionary.GetObject(TAG_XRECORD_NAME)
     On Error GoTo 0
@@ -124,10 +124,10 @@ Private Sub CommandButton1_Click()
     
     Exit Sub
 
-CREATE:
+create:
     ' Create the entities that hold our XRecordData
     If TrackingDictionary Is Nothing Then  ' Make sure we have our tracking object
-        Set TrackingDictionary = ThisDrawing.Dictionaries.add(TAG_DICTIONARY_NAME)
+        Set TrackingDictionary = ThisDrawing.Dictionaries.Add(TAG_DICTIONARY_NAME)
         Set TrackingXRecord = TrackingDictionary.AddXRecord(TAG_XRECORD_NAME)
     End If
     
@@ -147,7 +147,7 @@ Private Sub CommandButton2_Click()
     Const TAG_XRECORD_NAME = "ObjectTrackerXRecord"
 
     ' Connect to the dictionary we store the XRecord in
-    On Error GoTo CREATE
+    On Error GoTo create
     Set TrackingDictionary = ThisDrawing.Dictionaries(TAG_DICTIONARY_NAME)
     Set TrackingXRecord = TrackingDictionary.GetObject(TAG_XRECORD_NAME)
 End Sub
@@ -163,21 +163,21 @@ Option Explicit
 
 'A 使用擴展字典的一般步驟：
 '  保存信息的基本步驟：
-'  1、使用GetExtensionDictionary方法創建一個對象的擴展字典；
-'  2、使用AddXData方法向擴展字典添加一條擴展記錄；
+'  1、使用GetExtensionDictionary方法創建一個對象的擴展字典
+'  2、使用AddXData方法向擴展字典添加一條擴展記錄
 '  3、使用SetXRecordData將數據保存在擴展記錄中。
 '  讀取擴展字典的基本步驟：
-'  1、使用GetExtensionDictionary獲取對象的擴展字典；
-'  2、使用GetObject方法獲得指定的擴展記錄；
+'  1、使用GetExtensionDictionary獲取對象的擴展字典
+'  2、使用GetObject方法獲得指定的擴展記錄
 '  3、使用GetXRecordData讀取保存在擴展記錄中的數據。
 
 'B 使用命名對象字典的一般步驟：
 '  保存命名字典信息的基本步驟
-'  1、使用Dictionaries.add添加一個命名對象字典；
+'  1、使用Dictionaries.add添加一個命名對象字典
 '  2、同A
 '  3、同A
 '  讀取命名對象字典的基本步驟：
-'  1、使用對象的基本操作獲得Dictionaries集合中制定的字典；
+'  1、使用對象的基本操作獲得Dictionaries集合中制定的字典
 '  2、同A
 '  3、同A
 
@@ -194,8 +194,8 @@ Public Function HasXRecord(ByVal ent As AcadEntity, ByVal key As String) As Bool
     Set objXRecord = objDict.GetObject(key)
     Set objDict = Nothing
    
-    If Err Then
-      Err.clear
+    If err Then
+      err.Clear
       HasXRecord = False
     Else
       HasXRecord = True
@@ -210,14 +210,14 @@ Public Sub CreateXRecord(ByRef xDataType As Variant, ByRef xData As Variant, Par
   '創建擴展記錄的數據集
   Debug.Assert (UBound(Filter) Mod 2 = 1)
  
-  Dim count As Integer
-  count = (UBound(Filter) + 1) / 2
+  Dim Count As Integer
+  Count = (UBound(Filter) + 1) / 2
   Dim DataType() As Integer, data() As Variant
-  ReDim DataType(count - 1)
-  ReDim data(count - 1)
+  ReDim DataType(Count - 1)
+  ReDim data(Count - 1)
  
   Dim i As Integer
-  For i = 0 To count - 1
+  For i = 0 To Count - 1
     DataType(i) = Filter(2 * i)
     data(i) = Filter(2 * i + 1)
   Next i
@@ -245,21 +245,21 @@ Public Sub GetXRecord(ByVal ent As AcadEntity, ByVal key As String, ByRef xDataT
   objXRecord.GetXRecordData xDataType, xData
 End Sub
 
-Public Function HasNamedDictionary(ByVal dictName As String, ByVal key As String) As Boolean
+Public Function HasNamedDictionary(ByVal DictName As String, ByVal key As String) As Boolean
   '判斷是否已經存在鍵位dictName的字典
   On Error Resume Next
  
   Dim objDict As AcadDictionary
   Dim objXRecord As AcadXRecord
  
-  Set objDict = ThisDrawing.Dictionaries(dictName)
-  If Err Then
-    Err.clear
+  Set objDict = ThisDrawing.Dictionaries(DictName)
+  If err Then
+    err.Clear
     HasNamedDictionary = False
   Else
     Set objXRecord = objDict.GetObject(key)
-    If Err Then
-      Err.clear
+    If err Then
+      err.Clear
       HasNamedDictionary = False
     Else
       HasNamedDictionary = True
@@ -267,22 +267,22 @@ Public Function HasNamedDictionary(ByVal dictName As String, ByVal key As String
   End If
 End Function
 
-Public Sub AddNamedDictionary(ByVal dictName As String, ByVal key As String, ByVal xDataType As Variant, ByVal xData As Variant)
+Public Sub AddNamedDictionary(ByVal DictName As String, ByVal key As String, ByVal xDataType As Variant, ByVal xData As Variant)
   '用於向當前圖形添加指定的命名對象字典
   Dim objDict As AcadDictionary
   Dim objXRecord As AcadXRecord
  
-  Set objDict = ThisDrawing.Dictionaries.add(dictName)
+  Set objDict = ThisDrawing.Dictionaries.Add(DictName)
   Set objXRecord = objDict.AddXRecord(key)
   objXRecord.SetXRecordData xDataType, xData
 End Sub
 
-Public Sub GetNamedDictionary(ByVal dictName As String, ByVal key As String, ByRef xDataType As Variant, ByRef xData As Variant)
+Public Sub GetNamedDictionary(ByVal DictName As String, ByVal key As String, ByRef xDataType As Variant, ByRef xData As Variant)
   '從當前圖形中獲得指定的命名對象字典
   Dim objDict As AcadDictionary
   Dim objXRecord As AcadXRecord
  
-  Set objDict = ThisDrawing.Dictionaries(dictName)
+  Set objDict = ThisDrawing.Dictionaries(DictName)
   Set objXRecord = objDict.GetObject(key)
   objXRecord.GetXRecordData xDataType, xData
 End Sub
@@ -328,11 +328,11 @@ Public Sub AddEntXRecord()
 End Sub
 
 
-Public Sub SetPoint3d(ByVal pt As Variant, ByRef x As Double, ByRef Y As Double, ByRef z As Double)
+Public Sub SetPoint3d(ByVal pt As Variant, ByRef x As Double, ByRef y As Double, ByRef Z As Double)
   ReDim pt(0 To 2) As Double
   pt(0) = x
-  pt(1) = Y
-  pt(2) = z
+  pt(1) = y
+  pt(2) = Z
  
 End Sub
 

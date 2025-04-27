@@ -30,19 +30,19 @@ Private Type KeyFormat
 End Type
 
 Dim mMusic() As KeyFormat                '了解嗎
-Public Sub setLineChar(Char As String, Mete As Integer)
+Public Sub setLineChar(Char As String, mete As Integer)
     'Char 設定資料的前面字元有那些
     'Mete 每小節有幾拍
     mChar = Char
-    mMete = Mete
+    mMete = mete
     ReDim mCharI(Len(mChar))
     mHowData = Len(mChar)
     ReDim mTextNote(mHowData + 1)    ' 陳述式將重新調整陣列的大小，且將所有元素內容清除。
                                      ' 因為它從 0 開始 所以要加 1
 End Sub
 
-Public Sub setFontSize(FontSize As Integer)
-    mFontSize = FontSize
+Public Sub setFontSize(FONTSIZE As Integer)
+    mFontSize = FONTSIZE
 End Sub
 
 Public Sub TextToMusic()
@@ -126,6 +126,7 @@ Public Sub TextToMusic()
             Case "|"
             Case Else
                 mMusic(pos).mfingering = c(MkDoc.iFinge)
+                mMusic(pos).mfPosition = 0
         End Select
         
         lsup = 0
@@ -157,7 +158,7 @@ Public Sub TextToMusic()
             Case ","        '下一點
                 mMusic(pos).mscale = kDOW1
                 mMusic(pos).msPosition = -mFontSize * posLinDown(lsup) / MAX200   '這是下移的指令
-            Case ";"        '上二點
+            Case " "        '上二點
                 mMusic(pos).mscale = kDOW2
                 mMusic(pos).msPosition = -mFontSize * posLinDown(lsup) / MAX200   '這是下移的指令
             Case "|"

@@ -1,12 +1,13 @@
 Attribute VB_Name = "AttribCode"
 Option Explicit
+
 Function ACAD_Ver() As Integer
 '傳回AutoCAD 的版本號碼
     ' This example returns AutoCAD version as a string
     
-    Dim VERSION As String
-    VERSION = ThisDrawing.Application.VERSION
-    ACAD_Ver = Val(VERSION)
+    Dim version As String
+    version = ThisDrawing.Application.version
+    ACAD_Ver = val(version)
     
 End Function
 Function GetAttribTextString(entAttrib As AcadEntity, title As String) As String
@@ -14,7 +15,7 @@ Function GetAttribTextString(entAttrib As AcadEntity, title As String) As String
     Dim Array1 As Variant
     Dim Pnt As Variant
     'Dim entObj As AcadEntity
-    Dim count As Integer
+    Dim Count As Integer
         With entAttrib
             '當一個塊引用表行被找到後，檢查它是否有屬性
             If StrComp(.EntityName, "AcDbBlockReference", 1) = 0 Then
@@ -23,13 +24,13 @@ Function GetAttribTextString(entAttrib As AcadEntity, title As String) As String
                     '提取塊引用中的屬性
                     Array1 = .GetAttributes
                     '這一輪迴圈用來查找標題，如果有填在第1行
-                    For count = LBound(Array1) To UBound(Array1)
+                    For Count = LBound(Array1) To UBound(Array1)
                         '如果還沒有標題
-                        If Array1(count).TagString = title Then
-                            GetAttribTextString = Array1(count).textString
+                        If Array1(Count).TagString = title Then
+                            GetAttribTextString = Array1(Count).textString
                             Exit Function
                         End If
-                    Next count
+                    Next Count
                     'MsgBox """" & title & """屬性未找到"
                 End If
             End If
@@ -41,7 +42,7 @@ Function SetAttribTextString(entAttrib As AcadEntity, title As String, sVal As S
     Dim Array1 As Variant
     Dim Pnt As Variant
     'Dim entObj As AcadEntity
-    Dim count As Integer
+    Dim Count As Integer
         With entAttrib
             '當一個塊引用表行被找到後，檢查它是否有屬性
             If StrComp(.EntityName, "AcDbBlockReference", 1) = 0 Then
@@ -50,13 +51,13 @@ Function SetAttribTextString(entAttrib As AcadEntity, title As String, sVal As S
                     '提取塊引用中的屬性
                     Array1 = .GetAttributes
                     '這一輪迴圈用來查找標題，如果有填在第1行
-                    For count = LBound(Array1) To UBound(Array1)
+                    For Count = LBound(Array1) To UBound(Array1)
                         '如果還沒有標題
-                        If Array1(count).TagString = title Then
-                            Array1(count).textString = sVal
+                        If Array1(Count).TagString = title Then
+                            Array1(Count).textString = sVal
                             Exit Function
                         End If
-                    Next count
+                    Next Count
                     'MsgBox """" & title & """屬性未找到"
                     SetAttribTextString = ""
                 End If
@@ -74,7 +75,7 @@ Function SetTowAttrib(entAttrib As AcadEntity, towAttrib As AcadEntity) As Strin
     Dim title As String
     Dim sVal As String
     'Dim entObj As AcadEntity
-    Dim count As Integer
+    Dim Count As Integer
         With entAttrib
             '當一個塊引用表行被找到後，檢查它是否有屬性
             If StrComp(.EntityName, "AcDbBlockReference", 1) = 0 Then
@@ -83,14 +84,14 @@ Function SetTowAttrib(entAttrib As AcadEntity, towAttrib As AcadEntity) As Strin
                     '提取塊引用中的屬性
                     Array1 = .GetAttributes
                     '這一輪迴圈用來查找標題，如果有填在第1行
-                    For count = LBound(Array1) To UBound(Array1)
+                    For Count = LBound(Array1) To UBound(Array1)
                        
-                        title = Array1(count).TagString
-                        sVal = Array1(count).textString
+                        title = Array1(Count).TagString
+                        sVal = Array1(Count).textString
                         
                         Call SetAttribTextString(towAttrib, title, sVal)
                         
-                    Next count
+                    Next Count
                     
                     
                 End If
@@ -105,7 +106,7 @@ Function GetAttribList(entAttrib As AcadEntity) As String
     Dim Array1 As Variant
     Dim Pnt As Variant
     Dim strList As String
-    Dim count As Integer
+    Dim Count As Integer
     strList = ""
         With entAttrib
             '當一個塊引用表行被找到後，檢查它是否有屬性
@@ -115,9 +116,9 @@ Function GetAttribList(entAttrib As AcadEntity) As String
                     '提取塊引用中的屬性
                     Array1 = .GetAttributes
                     '這一輪迴圈用來查找標題，如果有填在第1行
-                    For count = LBound(Array1) To UBound(Array1)
-                        strList = strList & Array1(count).TagString & vbCrLf
-                    Next count
+                    For Count = LBound(Array1) To UBound(Array1)
+                        strList = strList & Array1(Count).TagString & vbCrLf
+                    Next Count
                     GetAttribList = strList
                     Exit Function
                 End If

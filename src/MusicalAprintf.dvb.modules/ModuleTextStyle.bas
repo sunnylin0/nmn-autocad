@@ -76,21 +76,21 @@ Public Enum FontType
 End Enum
 
 Public Function EnumFontFamProc(lpNLF As LOGFONT, lpNTM As NEWTEXTMETRIC, _
-    ByVal FontType As Long, Fonts As Collection) As Long
+    ByVal FontType As Long, fonts As Collection) As Long
     
     Dim FaceName As String
     Dim FullName As String
     FaceName = StrConv(lpNLF.lfFaceName, vbUnicode)
-    Fonts.add Left$(FaceName, InStr(FaceName, vbNullChar) - 1)
+    fonts.Add left$(FaceName, InStr(FaceName, vbNullChar) - 1)
     EnumFontFamProc = 1
 End Function
 
 '自定義兩個函數：
 '獲取系統字體
-Public Sub FillListWithFonts(ByVal hWnd As Long, ByRef Fonts As Collection)
+Public Sub FillListWithFonts(ByVal hWnd As Long, ByRef fonts As Collection)
     Dim hDC As Long
     hDC = GetDC(hWnd)
-    EnumFontFamilies hDC, vbNullString, AddressOf EnumFontFamProc, Fonts
+    EnumFontFamilies hDC, vbNullString, AddressOf EnumFontFamProc, fonts
     ReleaseDC hWnd, hDC
 End Sub
 
@@ -99,7 +99,7 @@ Public Function GetShxFont(ByVal bBigFont As Boolean) As Variant
     Dim strFontPath() As String     ' AutoCAD的字體文件路徑
     
     ' 獲得所有的支持文件路徑
-    strFontPath = Split(ThisDrawing.Application.preferences.Files, ";")
+    strFontPath = Split(ThisDrawing.Application.preferences.Files, " ")
     
     ' 遍歷所有的支持文件路徑
     Dim i As Integer
@@ -112,7 +112,7 @@ Public Function GetShxFont(ByVal bBigFont As Boolean) As Variant
     For i = 0 To UBound(strFontPath)
         bFirst = True
         ' 確保最後一個字符是"\"
-        strFontPath(i) = IIf(Right(strFontPath(i), 1) = "\", strFontPath(i), strFontPath(i) & "\")
+        strFontPath(i) = IIf(right(strFontPath(i), 1) = "\", strFontPath(i), strFontPath(i) & "\")
         
         Do
             If bFirst Then
@@ -166,7 +166,7 @@ Public Function GetWindowsFonts() As Variant
     Dim WinFontPath As String     ' Windows 的字體文件路徑
     
     ' 獲得所有的支持文件路徑
-    WinFontPath = Left(WindowsDirectory, InStr(WindowsDirectory, Chr(0)) - 1)
+    WinFontPath = left(WindowsDirectory, InStr(WindowsDirectory, chr(0)) - 1)
     WinFontPath = Trim(WinFontPath) & "\Fonts\"
     
     ' 遍歷所有的支持文件路徑
@@ -180,7 +180,7 @@ Public Function GetWindowsFonts() As Variant
     For i = 0 To 0
         bFirst = True
         ' 確保最後一個字符是"\"
-        WinFontPath = IIf(Right(WinFontPath, 1) = "\", WinFontPath, WinFontPath & "\")
+        WinFontPath = IIf(right(WinFontPath, 1) = "\", WinFontPath, WinFontPath & "\")
         
         Do
             If bFirst Then
@@ -224,7 +224,7 @@ End Function
 
 Public Function CreateTextStyle(ByVal fontName As String, ByVal styleName As String, ByVal font As FontType) As AcadTextStyle
     Dim objTextStyle As AcadTextStyle
-    Set objTextStyle = ThisDrawing.TextStyles.add(styleName)
+    Set objTextStyle = ThisDrawing.TextStyles.Add(styleName)
     
     Dim WindowsDirectory As String, SystemDirectory As String, x As Long
     Dim fontTemp As String
@@ -241,7 +241,7 @@ Public Function CreateTextStyle(ByVal fontName As String, ByVal styleName As Str
         Dim WinFontPath As String     ' Windows 的字體文件路徑
         
         ' 獲得所有的支持文件路徑
-        WinFontPath = Left(WindowsDirectory, InStr(WindowsDirectory, Chr(0)) - 1)
+        WinFontPath = left(WindowsDirectory, InStr(WindowsDirectory, chr(0)) - 1)
         WinFontPath = Trim(WinFontPath) & "\Fonts\"
         ' 判斷字體的類型
         If InStr(1, UCase(fontName), "TTF") <> 0 Then

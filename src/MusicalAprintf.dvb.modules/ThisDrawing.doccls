@@ -1,6 +1,193 @@
 Option Explicit
+
+Function asdf()
+    '測式 json
+    MsgBox 33
+    Dim Json As Object
+    Set Json = JsonConverter.ParseJson("{""a"":123,""b"":[1,2,3,4],""c"":{""d"":456}}")
+    
+    ' Json("a") -> 123
+    ' Json("b")(2) -> 2
+    ' Json("c")("d") -> 456
+    Json("c")("e") = 789
+    
+    
+    Debug.Print Json("a")
+    Debug.Print JsonConverter.ConvertToJson(Json)
+    ' -> "{"a":123,"b":[1,2,3,4],"c":{"d":456,"e":789}}"
+    
+    Debug.Print JsonConverter.ConvertToJson(Json, Whitespace:=2)
+    ' -> "{
+    '       "a": 123,
+    '       "b": [
+    '         1,
+    '         2,
+    '         3,
+    '         4
+    '       ],
+    '       "c": {
+    '         "d": 456,
+    '         "e": 789
+    '       }
+    '     }"
+End Function
+
 Sub sq()
-    MsgBox square(21)
+    Dim iaa
+    iaa = (33 >= 333)
+    MsgBox iaa
+
+    Dim tt As New iArray
+    tt.Add "1"
+    tt.Add "2"
+    tt.Add "3"
+    tt.Add "4"
+    tt.Add "5"
+    Dim iia As iArray
+    Set iia = tt.Clone
+
+    Debug.Print iia.Count
+    Debug.Print iia.ToString
+'    Debug.Print iia.AddAfter(10, "7")
+'
+'    Debug.Print iia.ToString
+    
+    
+'    Debug.Print iia.AddArrayAfter(10, iArray(9, 8, 7))
+'    Debug.Print iia.ToString
+'    Set iia = tt.Clone
+'
+'    Debug.Print iia.AddArrayBefore(10, iArray(9, 8, 7))
+'    Debug.Print iia.ToString
+'
+    Dim aArr As New iArray
+    aArr.PushArray Array(9, 8, 7)
+    Dim oo As Object
+    Set oo = ThisDrawing.ModelSpace.item(3)
+        
+'    Debug.Print iia.AddArrayAfter(5, aArr)
+'    Debug.Print iia.ToString
+'    Set iia = tt.Clone
+'
+'    Debug.Print iia.AddArrayBefore(5, aArr)
+'    Debug.Print iia.ToString
+    
+'    Debug.Print iia.AddAfter(5, aArr)
+'    Debug.Print iia.ToString("`")
+'    Set iia = tt.Clone
+'
+'    Debug.Print iia.AddBefore(5, aArr)
+'    Debug.Print iia.ToString("`")
+    
+    'Debug.Print iia.Avg
+    'Debug.Print iia.Sum
+    'Debug.Print iia.Tail.ToString
+'    Debug.Print iia.shift
+'    Debug.Print iia.ToString
+'    Debug.Print iia.Unshift(333)
+'    Debug.Print iia.ToString
+'
+'
+'    Debug.Print iia.Pop
+'    Debug.Print iia.Pop
+'    Debug.Print iia.Pop
+'    Debug.Print iia.ToString
+
+    Debug.Print iia.DropLeft(0).ToString
+    Debug.Print iia.ToString
+    Set iia = tt.Clone
+    Debug.Print iia.DropRight(0).ToString
+    Debug.Print iia.ToString
+    
+End Sub
+Sub AddNumber()
+'寫上流水號
+  
+    'Me.Hide
+    ' Define the valid keywords
+    Dim keywordList As String
+    keywordList = "1 2 3 4 0"
+    Dim strT As String
+    
+    Dim textObj As AcadText
+    Dim textString As String
+    Dim insertionPoint(0 To 2) As Double, alignmentPoint(0 To 2) As Double
+
+    Dim height As Double
+   
+
+    ' Call InitializeUserInput to set up the keywords
+    ThisDrawing.Utility.InitializeUserInput 129, keywordList
+    ' Get the user input
+    Dim starNum As Integer
+    Dim addNum As Integer
+    starNum = ThisDrawing.Utility.GetInteger("要開始的號碼: ")
+    addNum = ThisDrawing.Utility.GetInteger("加的倍數: ")
+
+    Dim plineObj As AcadPolyline
+    Dim points(0 To 14) As Double
+    Dim addX As Double, addY As Double
+    
+    
+    height = 1.8
+    textString = val(starNum)
+
+GoToLook:
+On Error Resume Next
+    
+    
+    ' Get the user input
+    Dim returnPnt As Variant
+    returnPnt = ThisDrawing.Utility.GetPoint(, "選位置: ")
+    
+    If err Then
+        '**Description 這個要改的
+         If StrComp(err.Description, "使用者輸入的是關鍵字", 1) = 0 Then
+         ' One of the keywords was entered
+             Dim inputString As String
+             err.Clear
+             inputString = ThisDrawing.Utility.GetInput
+             '取得關鍵字
+    '        Select Case inputString
+        Else
+            Exit Sub
+        End If
+    End If
+    
+    addX = returnPnt(0) - (4.6 * 0.8)
+    addY = returnPnt(1)
+    
+    ' Define the 2D polyline points
+    points(0) = 0 + addX: points(1) = 0 + addY: points(2) = 0
+    points(3) = 4.6 + addX: points(4) = 0 + addY: points(5) = 0
+    points(6) = 4.6 + addX: points(7) = 2.7 + addY: points(8) = 0
+    points(9) = 0 + addX: points(10) = 2.7 + addY: points(11) = 0
+    points(12) = 0 + addX: points(13) = 0 + addY: points(14) = 0
+        
+    ' Create a lightweight Polyline object in model space
+    Set plineObj = ThisDrawing.ModelSpace.AddPolyline(points)
+    plineObj.Layer = "TEXT"
+    
+    ' Define the text object
+    
+    
+    insertionPoint(0) = addX + (4.6 / 2): insertionPoint(1) = addY: insertionPoint(2) = 0
+    
+    
+    ' Create the text object in model space
+    Set textObj = ThisDrawing.ModelSpace.AddText(textString, insertionPoint, height)
+    
+    textObj.Alignment = acAlignmentBottomCenter
+    textObj.Layer = "TEXT"
+    Call textObj.Move(alignmentPoint, insertionPoint)
+    
+    
+    textString = val(textString) + addNum
+    
+    GoTo GoToLook
+    
+
+
 End Sub
 Sub AllLineAdd()
 '計算線的總長度
@@ -10,11 +197,11 @@ Sub AllLineAdd()
     ' Create the selection set
     Dim ssetObj As AcadSelectionSet
     'Set ssetObj = ThisDrawing.SelectionSets.Add("TEST_SSET")
-    If ThisDrawing.SelectionSets.count = 0 Then
-        Set ssetObj = ThisDrawing.SelectionSets.add("TEST_SSET")
+    If ThisDrawing.SelectionSets.Count = 0 Then
+        Set ssetObj = ThisDrawing.SelectionSets.Add("TEST_SSET")
     Else
         Set ssetObj = ThisDrawing.SelectionSets.item(0)
-        ssetObj.clear
+        ssetObj.Clear
     
     End If
     
@@ -30,7 +217,7 @@ Sub AllLineAdd()
     Dim counta As Integer
     Dim obj As AcadLine
     Dim allLine As Double
-    counta = ssetObj.count()
+    counta = ssetObj.Count()
     
     
     ' Return a point using a prompt
@@ -51,7 +238,7 @@ Sub InsText()
     frmInsText.Show
 End Sub
 
-Sub MM()
+Sub mm()
     TestDll_Print.Show 1
 End Sub
 Sub frmMusic()
@@ -72,10 +259,10 @@ On Error Resume Next
     ' Create a SelectionSet named "TEST" in the current drawing
     Dim ssetObj As AcadSelectionSet
   
-    If SSetColl.count > 0 Then
-        SSetColl.item(0).Delete
+    If SSetColl.Count > 0 Then
+        SSetColl.item(0).delete
     End If
-    Set ssetObj = SSetColl.add("TEST")
+    Set ssetObj = SSetColl.Add("TEST")
     ssetObj.SelectOnScreen
     
     '排序陣列
@@ -88,7 +275,7 @@ On Error Resume Next
     coI = 0
   ' 找出圖面中的每一個選集
     For Each ent In ssetObj
-        If (ent.ObjectName = "MusicText") Then
+        If (ent.objectName = "MusicText") Then
             ent.RightLink = 0
             ent.LeftLink = 0
             ent.data = "b=!3=c"
@@ -110,10 +297,10 @@ On Error Resume Next
     ' Create a SelectionSet named "TEST" in the current drawing
     Dim ssetObj As AcadSelectionSet
   
-    If SSetColl.count > 0 Then
-        SSetColl.item(0).Delete
+    If SSetColl.Count > 0 Then
+        SSetColl.item(0).delete
     End If
-    Set ssetObj = SSetColl.add("TEST")
+    Set ssetObj = SSetColl.Add("TEST")
     ssetObj.SelectOnScreen
     
     '排序陣列
@@ -126,7 +313,7 @@ On Error Resume Next
     coI = 0
   ' 找出圖面中的每一個選集
     For Each ent In ssetObj
-        If (ent.ObjectName = "AsdkSmiley") Then
+        If (ent.objectName = "AsdkSmiley") Then
             coI = coI + 1
         End If
     Next
@@ -137,7 +324,7 @@ On Error Resume Next
     Dim MTobj As SmileyEntity
     Dim pt As Variant
     For Each ent In ssetObj
-        If (ent.ObjectName = "AsdkSmiley") Then
+        If (ent.objectName = "AsdkSmiley") Then
             pt = ent.insertionPoint()
             TheArray(coI) = pt(0)
             Set TheArrayEnt(coI) = ent
@@ -179,7 +366,7 @@ Sub asdfqwe()
     Dim basePnt(0 To 2) As Double
     
     ThisDrawing.Utility.GetEntity entObj, basePnt, "\n請選擇要修改的物件"
-    If (entObj.ObjectName = "AsdkSmiley") Then
+    If (entObj.objectName = "AsdkSmiley") Then
         Set SEOBJ = entObj
         Call SEOBJ.setData(SEOBJ.insertionPoint(), "b !5=z", "MMP2005", 44)
     End If
@@ -235,10 +422,10 @@ Sub aa()
     Dim moda As Integer
     mymode = 0
     
-    Dim x, Y, z As Double
+    Dim x, y, Z As Double
     Dim ret As Integer
     
-    ret = getPT(x, Y, z)
+    ret = getPT(x, y, Z)
     
     Dim abc As AcadEntity
     Dim pt As Variant
@@ -246,29 +433,29 @@ Sub aa()
     
     Dim oldpt As Variant
     Dim newpt(2) As Double
-    oldpt = ThisDrawing.Utility.GetPoint(, "\n指定移?起?: ")
+    oldpt = ThisDrawing.Utility.GetPoint(, "\n指定移?起 as  ")
     
     Dim mylne As AcadLine
-    ret = getPT(x, Y, z)
+    ret = getPT(x, y, Z)
     Dim startPt(2) As Double
     Dim endPt(2) As Double
     
-    endPt(0) = x: endPt(1) = Y: endPt(2) = z
+    endPt(0) = x: endPt(1) = y: endPt(2) = Z
     Set mylne = ThisDrawing.ModelSpace.AddLine(oldpt, endPt)
     Dim tmp(0) As Double
     
     Do While ret = 1
     
-    ret = getPT(x, Y, z)
-    newpt(0) = x: newpt(1) = Y: newpt(2) = z
-    mylne.EndPoint = newpt
+    ret = getPT(x, y, Z)
+    newpt(0) = x: newpt(1) = y: newpt(2) = Z
+    mylne.Endpoint = newpt
     For Each ent In ThisDrawing.ActiveSelectionSet
     ent.Move oldpt, newpt
 
 Next
 oldpt(0) = newpt(0): oldpt(1) = newpt(1): oldpt(2) = newpt(2)
 Loop
-mylne.Delete
+mylne.delete
 End Sub
 
 
@@ -349,9 +536,9 @@ Sub Ch10_AttachXDataToSelectionSetObjects()
     'sset.Item(1).Delete
     
     'For i = 0 To ThisDrawing.SelectionSets.Count - 1
-        ThisDrawing.SelectionSets.item("SS1").Delete
+        ThisDrawing.SelectionSets.item("SS1").delete
     'Next
-    Set sset = ThisDrawing.SelectionSets.add("SS1")
+    Set sset = ThisDrawing.SelectionSets.Add("SS1")
     
     ' 提示用戶選擇對象
     sset.SelectOnScreen
@@ -381,7 +568,7 @@ Sub Ch10_AttachXDataToSelectionSetObjects()
     For Each ent In sset
         '1000 指示字符串值
         xDataType(2) = 1000
-        xData(2) = ent.ObjectName
+        xData(2) = ent.objectName
         
         ent.SetXData xDataType, xData
     Next ent
@@ -436,7 +623,7 @@ Sub Ch10_ViewXData()
         
         If msgstr = "" Then msgstr = vbCrLf & "NONE"
         
-        MsgBox appName & " xdata on " & ent.ObjectName & _
+        MsgBox appName & " xdata on " & ent.objectName & _
         ":" & vbCrLf & msgstr
 
     Next ent
@@ -459,8 +646,8 @@ Sub Ch4_FilterXdata()
     
     Dim FilterType(1) As Integer
     Dim FilterData(1) As Variant
-    ThisDrawing.SelectionSets.item("SS9").Delete
-    Set sstext = ThisDrawing.SelectionSets.add("SS9")
+    ThisDrawing.SelectionSets.item("SS9").delete
+    Set sstext = ThisDrawing.SelectionSets.Add("SS9")
 
     FilterType(0) = 0
     FilterData(0) = "Circle"
@@ -473,12 +660,12 @@ End Sub
 
 Sub Day15_1_FIX()
     
-    Dim Rng As Object
+    Dim rng As Object
     Dim strData
     
     Dim dvbPath As String
     Dim acadPath As String
-    acadPath = ThisDrawing.Application.Path
+    acadPath = ThisDrawing.Application.path
     dvbPath = GetDVBThis("MusicalAprintf")
     
     '使用 Open 陳述式，配合Print寫入資料
@@ -504,7 +691,7 @@ Public Function GetDVBThis(DVBFileName As String) As String
     Dim i As Integer
     Dim strFileName As String
     
-    For i = 1 To ThisDrawing.Application.vbe.VBprojects.count
+    For i = 1 To ThisDrawing.Application.vbe.VBprojects.Count
         strFileName = ThisDrawing.Application.vbe.VBprojects.item(i).FileName
         If InStr(UCase(strFileName), UCase(DVBFileName)) > 0 Then
             GetDVBThis = strFileName
@@ -518,7 +705,7 @@ Public Function GetDVBPath(DVBFileName As String) As String
     Dim i As Integer
     Dim strFileName As String
     
-    For i = 1 To ThisDrawing.Application.vbe.VBprojects.count
+    For i = 1 To ThisDrawing.Application.vbe.VBprojects.Count
         strFileName = ThisDrawing.Application.vbe.VBprojects.item(i).FileName
         If InStr(UCase(strFileName), UCase(DVBFileName)) > 0 Then
             GetDVBPath = GetPath(strFileName)
@@ -530,7 +717,7 @@ Public Function GetDVBPath(DVBFileName As String) As String
 End Function
 Function GetPath(strFileName As String) As String
     Dim CPath As String
-    CPath = Left(strFileName, InStrRev(strFileName, "\") - 1)
+    CPath = left(strFileName, InStrRev(strFileName, "\") - 1)
     GetPath = CPath '< sure wish it was return, I like that better, this makes me think it is redefining the function
 End Function
 
@@ -572,9 +759,9 @@ Private Function donut(tcen As point, o1 As Double, o2 As Double) As AcadLWPolyl
        width = Abs(o1 - o2) / 2
        ' Define the 2D polyline points
        points(0) = tcen.x - lenght
-       points(1) = tcen.Y
+       points(1) = tcen.y
        points(2) = tcen.x + lenght
-       points(3) = tcen.Y
+       points(3) = tcen.y
            
        ' Create a lightweight Polyline object in model space
        Set plineSlur = ThisDrawing.ModelSpace.AddLightWeightPolyline(points)
@@ -582,8 +769,8 @@ Private Function donut(tcen As point, o1 As Double, o2 As Double) As AcadLWPolyl
        ' Change the bulge of the third segment
        plineSlur.SetBulge 0, 1
        plineSlur.SetBulge 1, 1
-       plineSlur.SetWidth 0, width, width
-       plineSlur.SetWidth 1, width, width
+       plineSlur.setWidth 0, width, width
+       plineSlur.setWidth 1, width, width
        plineSlur.Closed = True
        
        
@@ -604,10 +791,10 @@ On Error Resume Next
     ' Create a SelectionSet named "TEST" in the current drawing
     Dim ssetObj As AcadSelectionSet
   
-    If SSetColl.count > 0 Then
-        SSetColl.item(0).Delete
+    If SSetColl.Count > 0 Then
+        SSetColl.item(0).delete
     End If
-    Set ssetObj = SSetColl.add("TEST")
+    Set ssetObj = SSetColl.Add("TEST")
     ssetObj.SelectOnScreen
     
     '排序陣列
@@ -626,11 +813,11 @@ On Error Resume Next
     coI = 0
   ' 找出圖面中的每一個選集
     For Each ent In ssetObj
-        If (ent.ObjectName = "AcDb2dPolyline") Then
+        If (ent.objectName = "AcDb2dPolyline") Then
             
             retCoord = ent.Coordinates
-            startPt.x = retCoord(0): startPt.Y = retCoord(1): startPt.z = retCoord(2)
-            endPt.x = retCoord(3): endPt.Y = retCoord(4): endPt.z = retCoord(5)
+            startPt.x = retCoord(0): startPt.y = retCoord(1): startPt.Z = retCoord(2)
+            endPt.x = retCoord(3): endPt.y = retCoord(4): endPt.Z = retCoord(5)
             startPt.x = startPt.x + 1
             endPt.x = endPt.x + 1
             ptlist.addpt startPt
@@ -653,10 +840,10 @@ On Error Resume Next
     ' Create a SelectionSet named "TEST" in the current drawing
     Dim ssetObj As AcadSelectionSet
   
-    If SSetColl.count > 0 Then
-        SSetColl.item(0).Delete
+    If SSetColl.Count > 0 Then
+        SSetColl.item(0).delete
     End If
-    Set ssetObj = SSetColl.add("TEST")
+    Set ssetObj = SSetColl.Add("TEST")
     ssetObj.SelectOnScreen
     
     '排序陣列
@@ -676,11 +863,11 @@ On Error Resume Next
     coI = 0
   ' 找出圖面中的每一個選集
     For Each ent In ssetObj
-        If (ent.ObjectName = "AcDb2dPolyline") Then
+        If (ent.objectName = "AcDb2dPolyline") Then
             
             retCoord = ent.Coordinates
-            startPt.x = retCoord(0): startPt.Y = retCoord(1): startPt.z = retCoord(2)
-            endPt.x = retCoord(3): endPt.Y = retCoord(4): endPt.z = retCoord(5)
+            startPt.x = retCoord(0): startPt.y = retCoord(1): startPt.Z = retCoord(2)
+            endPt.x = retCoord(3): endPt.y = retCoord(4): endPt.Z = retCoord(5)
             startPt.x = startPt.x + 1
             endPt.x = endPt.x + 1
             ptlist.addpt startPt
@@ -691,12 +878,12 @@ On Error Resume Next
             
             '畫第一點
             startPt.x = startPt.x - 1.39 - 1
-            startPt.Y = startPt.Y - 3.55
+            startPt.y = startPt.y - 3.55
             Set objDonut = donut(startPt, 0, 0.95)
             objDonut.Layer = ent.Layer
             
             '畫第二點
-            startPt.Y = startPt.Y - 3.47
+            startPt.y = startPt.y - 3.47
             Set objDonut = donut(startPt, 0, 0.95)
             objDonut.Layer = ent.Layer
         End If
@@ -713,10 +900,10 @@ On Error Resume Next
     ' Create a SelectionSet named "TEST" in the current drawing
     Dim ssetObj As AcadSelectionSet
   
-    If SSetColl.count > 0 Then
-        SSetColl.item(0).Delete
+    If SSetColl.Count > 0 Then
+        SSetColl.item(0).delete
     End If
-    Set ssetObj = SSetColl.add("TEST")
+    Set ssetObj = SSetColl.Add("TEST")
     ssetObj.SelectOnScreen
     
     '排序陣列
@@ -737,11 +924,11 @@ On Error Resume Next
     coI = 0
   ' 找出圖面中的每一個選集
     For Each ent In ssetObj
-        If (ent.ObjectName = "AcDb2dPolyline") Then
+        If (ent.objectName = "AcDb2dPolyline") Then
             
             retCoord = ent.Coordinates
-            startPt.x = retCoord(0): startPt.Y = retCoord(1): startPt.z = retCoord(2)
-            endPt.x = retCoord(3): endPt.Y = retCoord(4): endPt.z = retCoord(5)
+            startPt.x = retCoord(0): startPt.y = retCoord(1): startPt.Z = retCoord(2)
+            endPt.x = retCoord(3): endPt.y = retCoord(4): endPt.Z = retCoord(5)
             startPt.x = startPt.x - 1
             endPt.x = endPt.x - 1
             ptlist.addpt startPt
@@ -751,12 +938,12 @@ On Error Resume Next
             oLine.ConstantWidth = 0.6
             '畫第一點
             startPt.x = startPt.x + 1.39 + 1
-            startPt.Y = startPt.Y - 3.55
+            startPt.y = startPt.y - 3.55
             Set objDonut = donut(startPt, 0, 0.95)
             objDonut.Layer = ent.Layer
             
             '畫第二點
-            startPt.Y = startPt.Y - 3.47
+            startPt.y = startPt.y - 3.47
             Set objDonut = donut(startPt, 0, 0.95)
             objDonut.Layer = ent.Layer
         End If
@@ -853,7 +1040,7 @@ Sub Ch4_ImportingAndExporting()
     
     Dim sset As AcadSelectionSet
     
-    Set sset = ThisDrawing.SelectionSets.add("NEWSSET")
+    Set sset = ThisDrawing.SelectionSets.Add("NEWSSET")
     
     '將當前圖形輸出到AutoCAD 臨時文件目錄下的 DXF 文件
     
@@ -871,11 +1058,11 @@ Sub Ch4_ImportingAndExporting()
     
     '刪除空的選擇集
     
-    ThisDrawing.SelectionSets.item("NEWSSET").Delete
+    ThisDrawing.SelectionSets.item("NEWSSET").delete
     
     '打開新圖形
     
-    ThisDrawing.Application.Documents.add "acad.dwt"
+    ThisDrawing.Application.Documents.Add "acad.dwt"
     
     '定義輸入
     
@@ -986,13 +1173,13 @@ Sub Ch4_MaximizeApplicationWindow()
     ' Create a SelectionSet named "TEST" in the current drawing
     Dim ssetObj As AcadSelectionSet
   
-    If SSetColl.count = 2 Then
-        SSetColl.item(0).Delete
-        SSetColl.item(1).Delete
-    ElseIf SSetColl.count > 0 Then
-        SSetColl.item(0).Delete
+    If SSetColl.Count = 2 Then
+        SSetColl.item(0).delete
+        SSetColl.item(1).delete
+    ElseIf SSetColl.Count > 0 Then
+        SSetColl.item(0).delete
     End If
-    Set ssetObj = SSetColl.add("TEST")
+    Set ssetObj = SSetColl.Add("TEST")
 
     Call ssetObj.Select(acSelectionSetWindow, point1, point2)
     
@@ -1001,10 +1188,10 @@ Sub Ch4_MaximizeApplicationWindow()
     Dim exportFile As String
 
     exportFile = saveFile("哀哀", _
-    "WMF Files (*.WMF)" & Chr$(0) & "*.WMF" & Chr$(0) _
-    & "X Files (*.x)" & Chr$(0) & "*.x" & Chr$(0) _
-    & "XMesh Files (*.xms)" & Chr$(0) & "*.xms" & Chr$(0) _
-    & "All Files (*.*)" + Chr$(0) + "*.*" + Chr$(0))
+    "WMF Files (*.WMF)" & chr$(0) & "*.WMF" & chr$(0) _
+    & "X Files (*.x)" & chr$(0) & "*.x" & chr$(0) _
+    & "XMesh Files (*.xms)" & chr$(0) & "*.xms" & chr$(0) _
+    & "All Files (*.*)" + chr$(0) + "*.*" + chr$(0))
         
         
     ' Export the current drawing to the file specified above.
@@ -1022,7 +1209,7 @@ Public Sub GetAttribute()
     '選擇圖元
     ThisDrawing.Utility.GetEntity entObj, pickPnt
     '判斷是否為塊引用
-    If StrComp(entObj.ObjectName, "AcDbBlockReference", 1) <> 0 Then
+    If StrComp(entObj.objectName, "AcDbBlockReference", 1) <> 0 Then
         MsgBox "你選擇的不是一個圖塊，程序將退出！"
         '如果選擇的不是一個塊引用則程序退出運行
         Exit Sub

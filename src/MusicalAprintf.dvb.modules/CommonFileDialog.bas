@@ -11,7 +11,7 @@ Attribute VB_Name = "CommonFileDialog"
 
 Option Explicit
 #If VBA7 Then
-'//The Win32 API Functions///
+'''The Win32 API Functions''/
 Private Declare PtrSafe Function GetSaveFileName Lib "comdlg32.dll" Alias "GetSaveFileNameA" (pOpenfilename As OPENFILENAME) As Long
 Private Declare PtrSafe Function GetOpenFileName Lib "comdlg32.dll" Alias "GetOpenFileNameA" (pOpenfilename As OPENFILENAME) As Long
 Private Declare PtrSafe Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
@@ -22,7 +22,7 @@ Private Declare Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpCl
 #End If
 
 
-'//A few of the available Flags///
+'''A few of the available Flags''/
 Private Const OFN_FILEMUSTEXIST = &H1000
 Private Const OFN_ALLOWMULTISELECT = &H200
 Public Const OFN_PATHMUSTEXIST = &H800
@@ -35,7 +35,7 @@ Public Const OFN_HIDEREADONLY = &H4 '隱蔽只讀複選框
 'Not sure what I mean? Remove it from the flags
 'In the "Show Open" & "Show Save" methods.
 Private Const OFN_EXPLORER As Long = &H80000
-'//The Structure
+'''The Structure
 Private Type OPENFILENAME
     lStructSize As Long
     hwndOwner As Long '擁有對話框的窗口
@@ -71,7 +71,7 @@ Private Sub Class_Initialize()
     strDir = CurDir
     strTitle = "Llamas Rule"
     strFilter = "All Files" _
-    & Chr$(0) & "*.*" & Chr$(0)
+    & chr$(0) & "*.*" & chr$(0)
     lngHwnd = FindWindow(vbNullString, Application.Caption)
     'None of the flags are set here!
 End Sub
@@ -85,7 +85,7 @@ Public Function FindUserForm(objForm As UserForm) As Long
     End If
 End Function
 Public Property Let OwnerHwnd(WindowHandle As Long)
-    '//FOR YOU TODO//
+    '''FOR YOU TODO''
     'Use the API to validate this handle
     lngHwnd = WindowHandle
     'This value is set at startup to the handle of the
@@ -116,13 +116,13 @@ Public Property Let Filter(ByVal FilterString As String)
     Do While InStr(FilterString, "|") > 0
     intPos = InStr(FilterString, "|")
     If intPos > 0 Then
-        FilterString = Left$(FilterString, intPos - 1) _
-        & Chr$(0) & Right$(FilterString, _
+        FilterString = left$(FilterString, intPos - 1) _
+        & chr$(0) & right$(FilterString, _
         Len(FilterString) - intPos)
     End If
     Loop
-    If Right$(FilterString, 2) <> Chr$(0) & Chr$(0) Then
-        FilterString = FilterString & Chr$(0)
+    If right$(FilterString, 2) <> chr$(0) & chr$(0) Then
+        FilterString = FilterString & chr$(0)
     End If
     strFilter = FilterString
 End Property
@@ -133,16 +133,16 @@ Public Property Get Filter() As String
     Dim intPos As Integer
     Dim strTemp As String
     strTemp = strFilter
-    Do While InStr(strTemp, Chr$(0)) > 0
-    intPos = InStr(strTemp, Chr$(0))
+    Do While InStr(strTemp, chr$(0)) > 0
+    intPos = InStr(strTemp, chr$(0))
     If intPos > 0 Then
-        strTemp = Left$(strTemp, intPos - 1) _
-        & "|" & Right$(strTemp, _
+        strTemp = left$(strTemp, intPos - 1) _
+        & "|" & right$(strTemp, _
         Len(strTemp) - intPos)
     End If
     Loop
-    If Right$(strTemp, 1) = "|" Then
-        strTemp = Left$(strTemp, Len(strTemp) - 1)
+    If right$(strTemp, 1) = "|" Then
+        strTemp = left$(strTemp, Len(strTemp) - 1)
     End If
     Filter = strTemp
 End Property
@@ -151,7 +151,7 @@ Public Property Let InitialDir(strFolder As String)
     If Len(dir(strFolder)) > 0 Then
         strDir = strFolder
         Else
-        Err.Raise 514, "FileDialog", "Invalid Initial Directory"
+        err.Raise 514, "FileDialog", "Invalid Initial Directory"
     End If
 End Property
 Public Property Let HideReadOnly(blnVal As Boolean)
@@ -261,7 +261,7 @@ Function GetFile(strTitle As String, strFilter As String, Optional strIniDir As 
      
     lntFile = GetOpenFileName(OFileBox) '執行打開對話框
     If lntFile <> 0 Then
-        FileName = Left(OFileBox.lpstrFile, InStr(OFileBox.lpstrFile, vbNullChar) - 1)
+        FileName = left(OFileBox.lpstrFile, InStr(OFileBox.lpstrFile, vbNullChar) - 1)
         GetFile = FileName
     Else
         GetFile = ""
@@ -290,7 +290,7 @@ Function saveFile(strTitle As String, strFilter As String, Optional strIniDir As
      
     lntFile = GetSaveFileName(OFileBox) '執行打開對話框
     If lntFile <> 0 Then
-        FileName = Left(OFileBox.lpstrFile, InStr(OFileBox.lpstrFile, vbNullChar) - 1)
+        FileName = left(OFileBox.lpstrFile, InStr(OFileBox.lpstrFile, vbNullChar) - 1)
         saveFile = FileName
     Else
         saveFile = ""

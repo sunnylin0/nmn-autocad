@@ -24,7 +24,7 @@ Private Sub CommandButton1_Click()
     'Me.Hide
     ' Define the valid keywords
     Dim keywordList As String
-    keywordList = "1 2 3 4 0"
+    keywordList = "V Q W C 1 2 3 4 0"
     Dim strT As String
     
     Dim textObj As AcadText
@@ -38,25 +38,29 @@ GoToLook:
 On Error Resume Next
 
     ' Call InitializeUserInput to set up the keywords
-    ThisDrawing.Utility.InitializeUserInput 129, keywordList
+    ThisDrawing.Utility.InitializeUserInput 128, keywordList
     ' Get the user input
     Dim returnPnt As Variant
     returnPnt = ThisDrawing.Utility.GetPoint(, "0 1 2 3 4 E(拉) V(推) Q(內) W(外) C(清除): ")
     
-    If Err Then
+    If err Then
         '**Description 這個要改的
-         If StrComp(Err.Description, "使用者輸入的是關鍵字", 1) = 0 Then
+         If StrComp(err.Description, "使用者輸入的是關鍵字", 1) <> 0 Then
          ' One of the keywords was entered
              Dim inputString As String
-             Err.clear
+             err.Clear
              inputString = ThisDrawing.Utility.GetInput
              '取得關鍵字
              Select Case inputString
                 Case "0": strT = "b空絃"  '空弦
-                Case "1": strT = "Ⅰ"
-                Case "2": strT = "Ⅱ"
-                Case "3": strT = "Ⅲ"
-                Case "4": strT = "Ⅳ"
+'                Case "1": strT = "Ⅰ"
+'                Case "2": strT = "Ⅱ"
+'                Case "3": strT = "Ⅲ"
+'                Case "4": strT = "Ⅳ"
+                Case "1": strT = "一"
+                Case "2": strT = "二"
+                Case "3": strT = "三"
+                Case "4": strT = "四"
                 Case Else
                     Dim ss As String
                     Dim data As Double
@@ -95,8 +99,8 @@ On Error Resume Next
              
              GoTo GoToLook
          Else
-             MsgBox "Error selecting the point: " & Err.Description
-             'Err.clear
+             'MsgBox "Error selecting the point: " & Err.Description
+             err.Clear
          End If
     Else
         ' Display point coordinates
@@ -254,7 +258,7 @@ While 1
     Dim pt As Variant
     Dim SStr As String
     Dim insPt(2) As Double
-        If (Object.ObjectName = "AcDbText") Then
+        If (Object.objectName = "AcDbText") Then
             Set objText = Object
             
             If objText.textString = "\U+020A" Then
@@ -263,14 +267,14 @@ While 1
                 insPt(2) = objText.insertionPoint(2)
                 Set objBlock = ThisDrawing.ModelSpace.InsertBlock(insPt, "b推", 4, 4, 4, 0)
                 objBlock.Layer = "裝飾符號"
-                objText.Delete
+                objText.delete
             ElseIf objText.textString = "\U+020C" Then
                 insPt(0) = objText.insertionPoint(0) + 1.51
                 insPt(1) = objText.insertionPoint(1) + 4.65
                 insPt(2) = objText.insertionPoint(2)
                 Set objBlock = ThisDrawing.ModelSpace.InsertBlock(insPt, "b拉", 4, 4, 4, 0)
                 objBlock.Layer = "裝飾符號"
-                objText.Delete
+                objText.delete
             End If
         Else
             Exit Sub

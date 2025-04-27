@@ -8,7 +8,7 @@ Type AMusicType
     
     A_TEXT_WIDTH   As Double   '預設一個字的寬度  字形的 百分比
 
-    LINE_PASE As Double '//這是從原點 要高 字形的 百分比
+    LINE_PASE As Double '''這是從原點 要高 字形的 百分比
     LINE_JUMP   As Double                   '每一個拍線和拍線的間格 字形的 百分比
     LINE_THICKNESS   As Double                   '這是拍線的厚度 字形的 百分比
     LINE_LEN   As Double                   '這是拍線的長度 字形的 百分比
@@ -30,11 +30,12 @@ Type AMusicType
     
     iTONE As Integer         ' * 行
     iFinge As Integer    '這是指法行     _+)(*&
-    iScale  As Integer     '這是過低音行   .,:;
+    iScale  As Integer     '這是過低音行   .,:
     iNote  As Integer      '這為主行       1234567.|l
     iTempo  As Integer    '這是拍子       -=368acefz
     iTowFinge  As Integer     '這是指法行第二行  _+)(*&
     iSlur  As Integer         ' 連音符行    (3456)
+    iAdd As Integer           '這是合音行 [2467]
     
     L_BUF_MD  As Integer   '這是看Buf_md要多少行
     L_WHAT  As Integer    '這是指法看要放在那一行
@@ -66,13 +67,13 @@ Public amt As AMusicType
 Public Type MusicFing
     sTONE As String        ' 升降記號 行
     sFinge As String   '這是指法行     _+)(*&
-    sScale As String   '這是高低音行   .,:;
+    sScale As String   '這是高低音行   .,:
     sNote As String   '這為主行       1234567.|l
     sTempo As String   '這是拍子       -=368acefz
     sTowFinge As String   '這是指法行第二行  _+)(*&
     sSlur As String
     
-    iScale As Integer     '這是高低音行   .,:;
+    iScale As Integer     '這是高低音行   .,:
     iNote As Integer     '這為主行       1234567.|l
     iTempo As Integer    '這是拍子       -=368acefz
     mfPosition As point    '這是看這第一指法字上下移多少
@@ -91,6 +92,34 @@ Public Type GripPoints
 End Type
 
     
+Public Type Glode
+    check1 As Boolean
+    fontName As String
+    FONTSIZE As Double
+    Many As Integer     '幾聲部設定
+    bar As Integer
+    mete As Integer     '3/4 拍號的分子 --> 3
+    mete2 As Integer    '3/4 拍號的分母 --> 4
+    
+    
+    barsperstaff  As Integer '設定每行幾小節
+    durationIndex As Double ''累記 現在已經讀取每小節的音符長度總合
+    currLine As Integer     '現在是第幾行
+    currMeasure As Integer     '現在是 行的第幾小節
+    
+    pagewidth As Double
+    LeftSpace As Double
+    RightSpace As Double
+    BarToNoteSpace As Double     '小節線到音符的空白
+    TrackToTrack As Double
+    LineToLine As Double
+    MIN_X As Double
+    Beat_MIN_X As Double
+    
+    lastRightPoint As New point '計錄最後一個元素的 右邊點
+End Type
+
+
     ''''''''''''''''''''''''''''''''''
 Sub AMT_LOAD()
     Dim DEFINE_TEXT_SIZE  As Double
@@ -113,7 +142,7 @@ Sub AMT_LOAD()
     
     amt.BAR_WITCH = 340 / DEFINE_TEXT_SIZE                '小節線的粗細
 
-    '//bool  IsGiFill    =true;//在閉合的圖形元素上產生填充區域
+    '''bool  IsGiFill    =true ''在閉合的圖形元素上產生填充區域
     amt.IsGiFill = False '是否填充區域
     amt.IsDebugDialog = False      '是否叫出 DebugDialog
 
@@ -123,11 +152,12 @@ Sub AMT_LOAD()
 
     amt.iTONE = 1        ' * 行
     amt.iFinge = 2    '這是指法行     _+)(*&
-    amt.iScale = 3    '這是高低音行   .,:;
+    amt.iScale = 3    '這是高低音行   .,:
     amt.iNote = 4     '這為主行       1234567.|l
     amt.iTempo = 5    '這是拍子       -=368acefz
     amt.iTowFinge = 6    '這是指法行第二行  _+)(*&
     amt.iSlur = 7        ' 連音符行    (3456)
+    amt.iAdd = 8        ' 合音符行    [3456]
     
     amt.L_BUF_MD = 9  '這是看Buf_md要多少行
     amt.L_WHAT = 8    '這是指法看要放在那一行

@@ -7,6 +7,14 @@
 
 
 ## 版本更新
+- 2024.03.29  
+修改 4/4 3/8 拍數對位問題
+vba dll load
+  Microsof VBScript Regular Expressions 5.5
+  Microsoft Visual Basic For Appications Extensibility 5.3
+- 2023.11.13 
+參考 abcjs 程式修改
+使用 Chrome (SeleniumBasic) 失敗
 - 2023.05.01 V1.8 
 修 bug
 - 2013.03.17  

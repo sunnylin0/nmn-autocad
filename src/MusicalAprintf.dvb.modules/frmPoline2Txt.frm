@@ -23,7 +23,7 @@ Function get_mulitpoint() As Integer
     Dim getPT As Double
     Dim ina As Integer
     str = ""
-    If (g_object.ObjectName <> "AcDbPolyline") Then
+    If (g_object.objectName <> "AcDbPolyline") Then
         get_mulitpoint = 1
         Exit Function
     End If
@@ -78,7 +78,7 @@ Sub Example_SelectOnScreen() 'AutoCAD ¾켹 LWPolyLine ず쪾헕
     yAxisPnt(0) = pointG(0): yAxisPnt(1) = pointG(1) + 5: yAxisPnt(2) = pointG(2)
     
     ' Add the UCS to the UserCoordinatesSystems collection
-    Set ucsObj = ThisDrawing.UserCoordinateSystems.add(pointG, xAxisPnt, yAxisPnt, "New_UCS")
+    Set ucsObj = ThisDrawing.UserCoordinateSystems.Add(pointG, xAxisPnt, yAxisPnt, "New_UCS")
     ThisDrawing.ActiveUCS = ucsObj
 
 
@@ -86,11 +86,11 @@ Sub Example_SelectOnScreen() 'AutoCAD ¾켹 LWPolyLine ず쪾헕
     ' Create the selection set
     Dim ssetObj As AcadSelectionSet
     'Set ssetObj = ThisDrawing.SelectionSets.Add("TEST_SSET")
-    If ThisDrawing.SelectionSets.count = 0 Then
-        Set ssetObj = ThisDrawing.SelectionSets.add("TEST_SSET")
+    If ThisDrawing.SelectionSets.Count = 0 Then
+        Set ssetObj = ThisDrawing.SelectionSets.Add("TEST_SSET")
     Else
         Set ssetObj = ThisDrawing.SelectionSets.item(0)
-        ssetObj.clear
+        ssetObj.Clear
     
     End If
     
@@ -103,7 +103,7 @@ Sub Example_SelectOnScreen() 'AutoCAD ¾켹 LWPolyLine ず쪾헕
     Dim i As Integer
     Dim ina As Integer
     Dim counta As Integer
-    counta = ssetObj.count()
+    counta = ssetObj.Count()
     
     str = ""
     strAll = ""
@@ -148,11 +148,11 @@ Sub scale_SelectOnScreen() 'AutoCAD ¾켹 LWPolyLine ず쪾헕
     ' Create the selection set
     Dim ssetObj As AcadSelectionSet
     'Set ssetObj = ThisDrawing.SelectionSets.Add("TEST_SSET")
-    If ThisDrawing.SelectionSets.count = 0 Then
-        Set ssetObj = ThisDrawing.SelectionSets.add("TEST_SSET")
+    If ThisDrawing.SelectionSets.Count = 0 Then
+        Set ssetObj = ThisDrawing.SelectionSets.Add("TEST_SSET")
     Else
         Set ssetObj = ThisDrawing.SelectionSets.item(0)
-        ssetObj.clear
+        ssetObj.Clear
     
     End If
     
@@ -272,7 +272,7 @@ Private Sub CommandButton2_Click()
     yAxisPnt(0) = pointG(0): yAxisPnt(1) = pointG(1) + 5: yAxisPnt(2) = pointG(2)
     
     ' Add the UCS to the UserCoordinatesSystems collection
-    Set ucsObj = ThisDrawing.UserCoordinateSystems.add(pointG, xAxisPnt, yAxisPnt, "New_UCS")
+    Set ucsObj = ThisDrawing.UserCoordinateSystems.Add(pointG, xAxisPnt, yAxisPnt, "New_UCS")
     ThisDrawing.ActiveUCS = ucsObj
     
     

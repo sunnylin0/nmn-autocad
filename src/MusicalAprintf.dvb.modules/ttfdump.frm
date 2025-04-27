@@ -21,18 +21,18 @@ Private Sub comDrawing_Click()
     Dim pt As Variant
     Dim xyString As String
     Dim sX As String
-    Dim sY As String
+    Dim sy As String
     Dim i As Long
     
     Me.Hide
     ' Return a point using a prompt
     pt = ThisDrawing.Utility.GetPoint(, "\n選擇要插入的點 ：Enter insertion point: ")
-    '畫出定位線;
+    '畫出定位線
     
-    For i = 0 To xylist.size - 1
+    For i = 0 To xylist.Size - 1
         sX = xylist.at(i).x + pt(0)
-        sY = xylist.at(i).Y + pt(1)
-        xyString = xyString & sX & "," & sY & " "
+        sy = xylist.at(i).y + pt(1)
+        xyString = xyString & sX & "," & sy & " "
     Next
     
     ThisDrawing.SendCommand "line " & xyString
@@ -40,32 +40,32 @@ Private Sub comDrawing_Click()
 End Sub
 
 Private Sub CommandButton1_Click()
-    Dim ARR As Variant
+    Dim arr As Variant
     Dim SearchString, SearchChar, MyPos
     
     SearchChar = "abs"    ' 要尋找字串 "abs"。
     Dim i As Long
-    Dim Y As Long
+    Dim y As Long
     Dim pt As New point
     Dim SStr As String
-    ARR = Split(Me.TextBox1.text, vbCrLf)
+    arr = Split(Me.TextBox1.text, vbCrLf)
 
     xylist.clean
     Me.TextBox2.text = ""
-    For i = 0 To UBound(ARR) - 1
-        If InStr(1, ARR(i), "ABS", 1) <> 0 Then
-            SearchString = ARR(i)   ' 被搜尋的字串。
+    For i = 0 To UBound(arr) - 1
+        If InStr(1, arr(i), "ABS", 1) <> 0 Then
+            SearchString = arr(i)   ' 被搜尋的字串。
             ' 小寫 p 和大寫 P 在 [文字比對] 下是一樣的。
             MyPos = InStr(1, SearchString, SearchChar, 1)
-            ARR(i) = Mid(ARR(i), MyPos, Len(ARR(i)))    '取得 ABS()的資料
+            arr(i) = Mid(arr(i), MyPos, Len(arr(i)))    '取得 ABS()的資料
             
                 
-            SStr = Replace(ARR(i), " ", "")       '空白移除
+            SStr = Replace(arr(i), " ", "")       '空白移除
             
             Set pt = getABS_XY(SStr)
             Call xylist.addpt(pt)
         End If
-        Me.TextBox2 = Me.TextBox2 & pt.x & "," & pt.Y & vbCrLf
+        Me.TextBox2 = Me.TextBox2 & pt.x & "," & pt.y & vbCrLf
         'Me.TextBox2 = Me.TextBox2.text & vbCrLf & ARR(i) '看資料
     Next
 '
@@ -81,7 +81,7 @@ Private Function getABS_XY(dataXY As String) As point
     Dim lpos As Integer
     Dim i As Integer
     Dim sX As String
-    Dim sY As String
+    Dim sy As String
     Dim tPt As New point
     
     fpos = InStr(1, dataXY, "(")
@@ -89,8 +89,8 @@ Private Function getABS_XY(dataXY As String) As point
     lpos = InStr(fpos, dataXY, ")")
     
     sX = Mid(dataXY, fpos + 1, mpos - fpos - 1)
-    sY = Mid(dataXY, mpos + 1, lpos - mpos - 1)
+    sy = Mid(dataXY, mpos + 1, lpos - mpos - 1)
     tPt.x = CDbl(sX)
-    tPt.Y = CDbl(sY)
+    tPt.y = CDbl(sy)
     Set getABS_XY = tPt
 End Function
