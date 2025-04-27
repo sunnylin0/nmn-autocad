@@ -1,0 +1,991 @@
+Option Explicit
+Sub AllLineAdd()
+'計算線的總長度
+' Have the user enter a point
+
+    
+    ' Create the selection set
+    Dim ssetObj As AcadSelectionSet
+    'Set ssetObj = ThisDrawing.SelectionSets.Add("TEST_SSET")
+    If ThisDrawing.SelectionSets.count = 0 Then
+        Set ssetObj = ThisDrawing.SelectionSets.add("TEST_SSET")
+    Else
+        Set ssetObj = ThisDrawing.SelectionSets.item(0)
+        ssetObj.clear
+    
+    End If
+    
+    ' Add objects to a selection set by prompting user to select on the screen
+    ssetObj.SelectOnScreen
+    ssetObj.item (0)
+    
+    Dim returnPnt As Variant
+    Dim str As String
+    Dim strAll As String
+    Dim i As Integer
+    Dim ina As Integer
+    Dim counta As Integer
+    Dim obj As AcadLine
+    Dim allLine As Double
+    counta = ssetObj.count()
+    
+    
+    ' Return a point using a prompt
+    ' Translate the point into UCS coordinates
+    allLine = 0
+    For i = 0 To counta - 1
+        Set obj = ssetObj.item(i)
+        allLine = allLine + obj.Length
+    Next
+    
+
+    
+    ThisDrawing.Utility.prompt ("Line all length= " & allLine)
+
+End Sub
+Sub InsText()
+    'frmInsText.Show 0
+    frmInsText.Show
+End Sub
+
+Sub MM()
+    TestDll_Print.Show 1
+End Sub
+Sub frmMusic()
+    frmMusical.Show 1
+End Sub
+Sub frmMusicEdit()
+    frmEDIT.Show 1
+End Sub
+Sub easeMusicJoin()
+'清除 MusicText 的鏈結
+On Error Resume Next
+    Dim ent As Object
+
+   
+    Dim SSetColl As AcadSelectionSets
+    Set SSetColl = ThisDrawing.SelectionSets
+    
+    ' Create a SelectionSet named "TEST" in the current drawing
+    Dim ssetObj As AcadSelectionSet
+  
+    If SSetColl.count > 0 Then
+        SSetColl.item(0).Delete
+    End If
+    Set ssetObj = SSetColl.add("TEST")
+    ssetObj.SelectOnScreen
+    
+    '排序陣列
+    Dim TheArray As Variant
+    Dim TheArrayEnt As Variant
+    Dim coI As Integer
+    Dim i As Long
+    
+    ' Add the dimstyle to the dimstyles collection
+    coI = 0
+  ' 找出圖面中的每一個選集
+    For Each ent In ssetObj
+        If (ent.ObjectName = "MusicText") Then
+            ent.RightLink = 0
+            ent.LeftLink = 0
+            ent.data = "b=!3=c"
+            MsgBox ent.data
+        End If
+    Next
+End Sub
+Sub addMusicJoin()
+'取得物件 MusicText
+'用x 軸來鏈結
+On Error Resume Next
+
+    Dim ent As Object
+
+   
+    Dim SSetColl As AcadSelectionSets
+    Set SSetColl = ThisDrawing.SelectionSets
+    
+    ' Create a SelectionSet named "TEST" in the current drawing
+    Dim ssetObj As AcadSelectionSet
+  
+    If SSetColl.count > 0 Then
+        SSetColl.item(0).Delete
+    End If
+    Set ssetObj = SSetColl.add("TEST")
+    ssetObj.SelectOnScreen
+    
+    '排序陣列
+    Dim TheArray As Variant
+    Dim TheArrayEnt As Variant
+    Dim coI As Integer
+    Dim i As Long
+    
+    ' Add the dimstyle to the dimstyles collection
+    coI = 0
+  ' 找出圖面中的每一個選集
+    For Each ent In ssetObj
+        If (ent.ObjectName = "AsdkSmiley") Then
+            coI = coI + 1
+        End If
+    Next
+    ReDim TheArray(coI - 1)
+    ReDim TheArrayEnt(coI - 1)
+    
+    coI = 0
+    Dim MTobj As SmileyEntity
+    Dim pt As Variant
+    For Each ent In ssetObj
+        If (ent.ObjectName = "AsdkSmiley") Then
+            pt = ent.insertionPoint()
+            TheArray(coI) = pt(0)
+            Set TheArrayEnt(coI) = ent
+            coI = coI + 1
+        End If
+    Next
+    
+    
+    '只有一個，不用排序了
+    If UBound(TheArray) = 1 Then
+        Exit Sub
+    End If
+    
+    '排序開始
+    SelectionSortMaxTow TheArray, TheArrayEnt
+    
+    For i = 0 To UBound(TheArray)
+        If i = 0 Then
+            TheArrayEnt(i).LeftLink = 0
+            TheArrayEnt(i).RightLink = TheArrayEnt(i + 1).ObjectID
+        ElseIf i = UBound(TheArray) Then
+            TheArrayEnt(i).LeftLink = TheArrayEnt(i - 1).ObjectID
+            TheArrayEnt(i).RightLink = 0
+        Else
+            TheArrayEnt(i).RightLink = TheArrayEnt(i + 1).ObjectID
+        End If
+    Next
+      
+End Sub
+
+
+
+
+Sub asdfqwe()
+    Dim aas As AcadDatabase
+    'Set aas = New Aprint.INS_Object
+    Dim SEOBJ As SmileyEntity
+    Dim entObj As AcadObject
+    Dim basePnt(0 To 2) As Double
+    
+    ThisDrawing.Utility.GetEntity entObj, basePnt, "\n請選擇要修改的物件"
+    If (entObj.ObjectName = "AsdkSmiley") Then
+        Set SEOBJ = entObj
+        Call SEOBJ.setData(SEOBJ.insertionPoint(), "b !5=z", "MMP2005", 44)
+    End If
+    'Call aas.AddLine(234, 11, 33, 55)
+End Sub
+
+Sub linkRight()
+    Dim SEOBJ As SmileyEntity
+    Dim basePnt(0 To 2) As Double
+    Dim cenPnt(0 To 2) As Double
+    Dim returnPnt As Variant
+    Dim rad As Integer
+    
+    returnPnt = ThisDrawing.Utility.GetPoint(basePnt, "\n選擇要插入的點")
+    
+
+    'Set SEOBJ = New SmileyEntity
+    Dim SSS As New SmileyApplication
+    Dim ss As SmileyUi.SmileyApplication
+    
+    Set SEOBJ = ThisDrawing.ModelSpace.AddCustomObject("ASDKSMILEY")
+    Call SEOBJ.setNewObject(returnPnt, 1)
+    Call SEOBJ.setData(returnPnt, "#f?2=m", "MMP2005", 44)
+    
+    Dim entObj As AcadObject
+    ThisDrawing.Utility.GetEntity entObj, basePnt, "\n請選擇要鏈結的物件"
+    SEOBJ.RightLink = entObj.ObjectID
+    
+    MsgBox Hex(SEOBJ.RightLink)
+End Sub
+
+Sub getlinkRight()
+    Dim SEOBJ As SmileyEntity
+    Dim basePnt(0 To 2) As Double
+    Dim cenPnt(0 To 2) As Double
+    Dim returnPnt As Variant
+    Dim rad As Integer
+
+
+    Dim entObj As AcadObject
+goUP:
+    ThisDrawing.Utility.GetEntity entObj, basePnt, "\n請選擇要鏈結的物件"
+    Set SEOBJ = entObj
+    MsgBox SEOBJ.ObjectID
+    
+    MsgBox "這物件的 id- " & Hex(SEOBJ.ObjectID) & vbCrLf & _
+        " LeftLink 的id- " & Hex(SEOBJ.LeftLink) & vbCrLf & _
+        " RightLink 的id- " & Hex(SEOBJ.RightLink)
+    GoTo goUP
+End Sub
+
+Sub aa()
+    Dim moda As Integer
+    mymode = 0
+    
+    Dim x, Y, z As Double
+    Dim ret As Integer
+    
+    ret = getPT(x, Y, z)
+    
+    Dim abc As AcadEntity
+    Dim pt As Variant
+    ThisDrawing.ActiveSelectionSet.SelectOnScreen
+    
+    Dim oldpt As Variant
+    Dim newpt(2) As Double
+    oldpt = ThisDrawing.Utility.GetPoint(, "\n指定移?起?: ")
+    
+    Dim mylne As AcadLine
+    ret = getPT(x, Y, z)
+    Dim startPt(2) As Double
+    Dim endPt(2) As Double
+    
+    endPt(0) = x: endPt(1) = Y: endPt(2) = z
+    Set mylne = ThisDrawing.ModelSpace.AddLine(oldpt, endPt)
+    Dim tmp(0) As Double
+    
+    Do While ret = 1
+    
+    ret = getPT(x, Y, z)
+    newpt(0) = x: newpt(1) = Y: newpt(2) = z
+    mylne.EndPoint = newpt
+    For Each ent In ThisDrawing.ActiveSelectionSet
+    ent.Move oldpt, newpt
+
+Next
+oldpt(0) = newpt(0): oldpt(1) = newpt(1): oldpt(2) = newpt(2)
+Loop
+mylne.Delete
+End Sub
+
+
+
+Option Explicit
+
+
+''設置指定詞典擴展記錄
+'
+Public Function Dhvb_SetXrecord(objDict As AcadDictionary, _
+        XRecordName As String, _
+        XRecordData As Variant) _
+        As AcadXRecord
+        
+    Dim objXRecord As AcadXRecord
+    Dim XRecordType As Variant
+    Dim i As Long
+    '檢察對象詞典是否有該名擴展記錄,如果已經存在則刪除
+    On Error Resume Next
+    Set objXRecord = objDict.GetObject(XRecordName)
+    If Not objXRecord Is Nothing Then
+        objDict.Remove XRecordName
+    End If
+    On Error GoTo 0
+        '建立擴展記錄數據
+    ReDim XRecordType(0 To UBound(XRecordData)) As Integer
+    
+    For i = 0 To UBound(XRecordData)
+        Select Case VarType(XRecordData(i))
+        Case vbInteger, vbLong
+            XRecordType(i) = 90    '整數組碼=90
+        Case vbSingle, vbDouble
+            XRecordType(i) = 40    '實數組碼=40
+        Case vbString
+            XRecordType(i) = 2    '字符組碼=2
+        End Select
+    Next    '添加擴展記錄到對象詞典
+    Set objXRecord = objDict.AddXRecord(XRecordName)
+    objXRecord.SetXRecordData XRecordType, XRecordData    '返回擴展記錄對象
+    Set Dhvb_SetXrecord = objXRecord
+End Function
+
+Sub Test()
+' 創建直線
+    Dim lineObj As AcadLine
+    Dim startPt(0 To 2) As Double, endPt(0 To 2) As Double
+    startPt(0) = 1#: startPt(1) = 1#: startPt(2) = 0#
+    endPt(0) = 5#: endPt(1) = 5#: endPt(2) = 0#
+    Set lineObj = ThisDrawing.ModelSpace.AddLine(startPt, endPt)
+    ' 創建擴展數據
+    Dim DataType(0 To 1) As Integer
+    Dim data(0 To 1) As Variant
+    Dim reals3(0 To 2) As Double
+    Dim worldPos(0 To 2) As Double
+    DataType(0) = 1001: data(0) = "Test_Application" '應用程序名
+    DataType(1) = 1000: data(1) = "This is a test for xdata" '字符串類型
+    lineObj.SetXData DataType, data '設置擴展數據
+    ' 返回直線的擴展數據
+    Dim xdataOut As Variant
+    Dim xtypeOut As Variant
+    lineObj.GetXData "Test_Application", xtypeOut, xdataOut
+    
+    
+    
+    
+End Sub
+
+
+'以下是一些在開發人員手冊中的關於擴展數據的示例。
+'將擴展數據指定給選擇集中的所有對象
+'本例提示用戶選擇圖形中的對象，然後將選定的對象置於選擇集中，並且指定的擴展數據將附著到該選擇集中的所有對象。
+Sub Ch10_AttachXDataToSelectionSetObjects()
+   'On Error Resume Next
+    ' 創建選擇集
+    
+    Dim sset As AcadSelectionSet
+    Dim i As Integer
+    'sset.Item(1).Delete
+    
+    'For i = 0 To ThisDrawing.SelectionSets.Count - 1
+        ThisDrawing.SelectionSets.item("SS1").Delete
+    'Next
+    Set sset = ThisDrawing.SelectionSets.add("SS1")
+    
+    ' 提示用戶選擇對象
+    sset.SelectOnScreen
+    
+    ' 定義擴展數據
+    Dim appName As String, xdataStr As String
+    
+    appName = "MY_APP"
+    xdataStr = "This is some xdata"
+    
+    Dim xDataType(0 To 2) As Integer
+    Dim xData(0 To 2) As Variant
+    
+    ' 為每個數組定義值
+    '1001 指示 appName
+    xDataType(0) = 1001
+    xData(0) = appName
+    
+    '1000 指示字符串值
+    xDataType(1) = 1000
+    xData(1) = xdataStr
+    
+    ' 遍歷選擇集中的所有圖元
+    ' 將擴展數據設置和指定給每個圖元
+    Dim ent As Object
+    
+    For Each ent In sset
+        '1000 指示字符串值
+        xDataType(2) = 1000
+        xData(2) = ent.ObjectName
+        
+        ent.SetXData xDataType, xData
+    Next ent
+
+End Sub
+
+'查看選擇集中所有對象的擴展數據
+'本例顯示上例所附著的擴展數據。如果附著的擴展數據不是字符串（類型 1000）類型，則需要修改此代碼。
+Sub Ch10_ViewXData()
+
+    ' 查找上例中創建的選擇集
+    
+    Dim sset As Object
+    Set sset = ThisDrawing.SelectionSets.item("SS1")
+    
+    ' 定義擴展數據變量以保存擴展數據信息
+    
+    Dim xDataType As Variant
+    Dim xData As Variant
+    Dim xd As Variant
+    
+    '定義索引計數器
+    Dim xdi As Integer
+    xdi = 0
+    
+    ' 遍歷選擇集中的對象
+    ' 並檢索對象的擴展數據
+    Dim msgstr As String
+    Dim appName As String
+    Dim ent As AcadEntity
+    
+    appName = "MY_APP"
+    For Each ent In sset
+        msgstr = ""
+        xdi = 0
+        
+        ' 檢索 appName 擴展數據類型和值
+        ent.GetXData appName, xDataType, xData
+        ' 如果未初始化 xdataType 變量，
+        ' 則沒有可供該圖元檢索的 appName 擴展數據
+        If VarType(xDataType) <> vbEmpty Then
+        
+            For Each xd In xData
+                msgstr = msgstr & vbCrLf & xDataType(xdi) _
+                & ": " & xd
+                xdi = xdi + 1
+            Next xd
+
+        End If
+    
+        ' 如果 msgstr 變量為 NULL，則沒有擴展數據
+        
+        If msgstr = "" Then msgstr = vbCrLf & "NONE"
+        
+        MsgBox appName & " xdata on " & ent.ObjectName & _
+        ":" & vbCrLf & msgstr
+
+    Next ent
+
+End Sub
+
+'選擇包含擴展數據的圓
+'下例過濾包含由「MY_APP」應用程序添加的擴展數據的圓：
+Sub Ch4_FilterXdata()
+    'On Error Resume Next
+    Dim sstext As AcadSelectionSet
+    Dim mode As Integer
+    Dim pointsArray(0 To 11) As Double
+    
+    mode = acSelectionSetWindowPolygon
+    pointsArray(0) = -12#: pointsArray(1) = -7#: pointsArray(2) = 0
+    pointsArray(3) = -12#: pointsArray(4) = 10#: pointsArray(5) = 0
+    pointsArray(6) = 10#: pointsArray(7) = 10#: pointsArray(8) = 0
+    pointsArray(9) = 10#: pointsArray(10) = -7#: pointsArray(11) = 0
+    
+    Dim FilterType(1) As Integer
+    Dim FilterData(1) As Variant
+    ThisDrawing.SelectionSets.item("SS9").Delete
+    Set sstext = ThisDrawing.SelectionSets.add("SS9")
+
+    FilterType(0) = 0
+    FilterData(0) = "Circle"
+    FilterType(1) = 1001
+    FilterData(1) = "MY_APP"
+    sstext.SelectByPolygon mode, pointsArray, FilterType, FilterData
+
+End Sub
+
+
+Private Sub AcadDocument_Activate()
+
+    Example_SetTools
+    Example_SetMusicTextTools
+End Sub
+
+Private Sub AcadDocument_BeginLisp(ByVal FirstLine As String)
+    Dim ppt As New point
+    Call ppt.c(4, 4, 0)
+    Select Case FirstLine
+        Case "(C:LL)"
+            lineAndWline
+        Case "(C:2L)"
+            line2line
+        Case "(C:L2)"
+            line2
+        Case "(C:ZZ)"
+            Call donut(ppt, 0, 0.95)
+        Case Else
+    End Select
+
+
+End Sub
+Private Function donut(tcen As point, o1 As Double, o2 As Double) As AcadLWPolyline
+'tcen 環的圓心
+'o1 環的內徑
+'o2 環的外徑
+       '聚合線 畫弧
+       Dim plineSlur As AcadLWPolyline
+       Dim points(0 To 3) As Double
+       Dim lenght As Double '環的距離
+       Dim width As Double  '環的寬度
+       Dim islurAddX As Integer
+       Dim islurAddY As Integer
+       lenght = (Abs(o1) + Abs(o2)) / 4
+       width = Abs(o1 - o2) / 2
+       ' Define the 2D polyline points
+       points(0) = tcen.x - lenght
+       points(1) = tcen.Y
+       points(2) = tcen.x + lenght
+       points(3) = tcen.Y
+           
+       ' Create a lightweight Polyline object in model space
+       Set plineSlur = ThisDrawing.ModelSpace.AddLightWeightPolyline(points)
+
+       ' Change the bulge of the third segment
+       plineSlur.SetBulge 0, 1
+       plineSlur.SetBulge 1, 1
+       plineSlur.SetWidth 0, width, width
+       plineSlur.SetWidth 1, width, width
+       plineSlur.Closed = True
+       
+       
+       
+       plineSlur.Update
+                                    
+       Set donut = plineSlur
+                    
+End Function
+Private Sub lineAndWline()
+On Error Resume Next
+    Dim ent As Object
+
+   
+    Dim SSetColl As AcadSelectionSets
+    Set SSetColl = ThisDrawing.SelectionSets
+    
+    ' Create a SelectionSet named "TEST" in the current drawing
+    Dim ssetObj As AcadSelectionSet
+  
+    If SSetColl.count > 0 Then
+        SSetColl.item(0).Delete
+    End If
+    Set ssetObj = SSetColl.add("TEST")
+    ssetObj.SelectOnScreen
+    
+    '排序陣列
+    Dim TheArray As Variant
+    Dim TheArrayEnt As Variant
+    Dim coI As Integer
+    Dim i As Long
+    Dim oLine As AcadPolyline
+    Dim startPt As New point
+    Dim endPt As New point
+    Dim ptlist As New PointList
+    Dim retCoord As Variant
+
+
+    ' Add the dimstyle to the dimstyles collection
+    coI = 0
+  ' 找出圖面中的每一個選集
+    For Each ent In ssetObj
+        If (ent.ObjectName = "AcDb2dPolyline") Then
+            
+            retCoord = ent.Coordinates
+            startPt.x = retCoord(0): startPt.Y = retCoord(1): startPt.z = retCoord(2)
+            endPt.x = retCoord(3): endPt.Y = retCoord(4): endPt.z = retCoord(5)
+            startPt.x = startPt.x + 1
+            endPt.x = endPt.x + 1
+            ptlist.addpt startPt
+            ptlist.addpt endPt
+            Set oLine = ThisDrawing.ModelSpace.AddPolyline(ptlist.list)
+            oLine.Layer = ent.Layer
+            oLine.ConstantWidth = 0.6
+            
+        End If
+    Next
+End Sub
+Private Sub line2line()
+On Error Resume Next
+    Dim ent As Object
+
+   
+    Dim SSetColl As AcadSelectionSets
+    Set SSetColl = ThisDrawing.SelectionSets
+    
+    ' Create a SelectionSet named "TEST" in the current drawing
+    Dim ssetObj As AcadSelectionSet
+  
+    If SSetColl.count > 0 Then
+        SSetColl.item(0).Delete
+    End If
+    Set ssetObj = SSetColl.add("TEST")
+    ssetObj.SelectOnScreen
+    
+    '排序陣列
+    Dim TheArray As Variant
+    Dim TheArrayEnt As Variant
+    Dim coI As Integer
+    Dim i As Long
+    Dim oLine As AcadPolyline
+    Dim startPt As New point
+    Dim endPt As New point
+    Dim ptlist As New PointList
+    Dim retCoord As Variant
+    Dim objDonut As AcadLWPolyline
+
+
+    ' Add the dimstyle to the dimstyles collection
+    coI = 0
+  ' 找出圖面中的每一個選集
+    For Each ent In ssetObj
+        If (ent.ObjectName = "AcDb2dPolyline") Then
+            
+            retCoord = ent.Coordinates
+            startPt.x = retCoord(0): startPt.Y = retCoord(1): startPt.z = retCoord(2)
+            endPt.x = retCoord(3): endPt.Y = retCoord(4): endPt.z = retCoord(5)
+            startPt.x = startPt.x + 1
+            endPt.x = endPt.x + 1
+            ptlist.addpt startPt
+            ptlist.addpt endPt
+            Set oLine = ThisDrawing.ModelSpace.AddPolyline(ptlist.list)
+            oLine.Layer = ent.Layer
+            oLine.ConstantWidth = 0.6
+            
+            '畫第一點
+            startPt.x = startPt.x - 1.39 - 1
+            startPt.Y = startPt.Y - 3.55
+            Set objDonut = donut(startPt, 0, 0.95)
+            objDonut.Layer = ent.Layer
+            
+            '畫第二點
+            startPt.Y = startPt.Y - 3.47
+            Set objDonut = donut(startPt, 0, 0.95)
+            objDonut.Layer = ent.Layer
+        End If
+    Next
+End Sub
+Private Sub line2()
+On Error Resume Next
+    Dim ent As Object
+
+   
+    Dim SSetColl As AcadSelectionSets
+    Set SSetColl = ThisDrawing.SelectionSets
+    
+    ' Create a SelectionSet named "TEST" in the current drawing
+    Dim ssetObj As AcadSelectionSet
+  
+    If SSetColl.count > 0 Then
+        SSetColl.item(0).Delete
+    End If
+    Set ssetObj = SSetColl.add("TEST")
+    ssetObj.SelectOnScreen
+    
+    '排序陣列
+    Dim TheArray As Variant
+    Dim TheArrayEnt As Variant
+    Dim coI As Integer
+    Dim i As Long
+    Dim oLine As AcadPolyline
+    Dim startPt As New point
+    Dim endPt As New point
+    Dim ptlist As New PointList
+    Dim retCoord As Variant
+    Dim objDonut As AcadLWPolyline
+    
+
+
+    ' Add the dimstyle to the dimstyles collection
+    coI = 0
+  ' 找出圖面中的每一個選集
+    For Each ent In ssetObj
+        If (ent.ObjectName = "AcDb2dPolyline") Then
+            
+            retCoord = ent.Coordinates
+            startPt.x = retCoord(0): startPt.Y = retCoord(1): startPt.z = retCoord(2)
+            endPt.x = retCoord(3): endPt.Y = retCoord(4): endPt.z = retCoord(5)
+            startPt.x = startPt.x - 1
+            endPt.x = endPt.x - 1
+            ptlist.addpt startPt
+            ptlist.addpt endPt
+            Set oLine = ThisDrawing.ModelSpace.AddPolyline(ptlist.list)
+            oLine.Layer = ent.Layer
+            oLine.ConstantWidth = 0.6
+            '畫第一點
+            startPt.x = startPt.x + 1.39 + 1
+            startPt.Y = startPt.Y - 3.55
+            Set objDonut = donut(startPt, 0, 0.95)
+            objDonut.Layer = ent.Layer
+            
+            '畫第二點
+            startPt.Y = startPt.Y - 3.47
+            Set objDonut = donut(startPt, 0, 0.95)
+            objDonut.Layer = ent.Layer
+        End If
+    Next
+End Sub
+
+Private Sub AcadDocument_Deactivate()
+
+    Example_SetTools
+    Example_SetMusicTextTools
+End Sub
+
+Sub Load_TTF_QuGin()
+    Call AddFontResource("e:\GuQinKai03.ttf")
+    Call AddFontResource("e:\QIN01.ttf")
+    Call AddFontResource("e:\QIN02.ttf")
+    Call AddFontResource("e:\QIN03.ttf")
+    Call SendMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0)
+End Sub
+
+
+
+
+Sub Example_GetBulge()
+    ' This example creates a lightweight polyline in model space.
+    ' It then finds and changes the bulge for a given segment.
+    '聚合線 畫弧
+    Dim plineObj As AcadLWPolyline
+    Dim points(0 To 7) As Double
+    Dim lenght As Double
+    lenght = 51
+    
+    ' Define the 2D polyline points
+    points(0) = 0: points(1) = 0
+    points(2) = 1.9 * 2: points(3) = 1.3755 * 2
+    points(4) = points(2) + lenght: points(5) = points(3)
+    points(6) = points(4) + points(2): points(7) = points(1)
+        
+    ' Create a lightweight Polyline object in model space
+    Set plineObj = ThisDrawing.ModelSpace.AddLightWeightPolyline(points)
+    ZoomAll
+    
+    ' Find the bulge of the third segment
+    Dim currentBulge As Double
+    currentBulge = plineObj.GetBulge(3)
+    ' Change the bulge of the third segment
+'    plineObj.SetBulge 0, -0.32401
+'    plineObj.SetBulge 2, -0.32401
+    plineObj.SetBulge 0, -0.7
+    plineObj.SetBulge 2, -0.32401
+    plineObj.Update
+    
+End Sub
+Sub Example_GetFont()
+    ' This example find the font information for the active text style.
+    
+    Dim typeFace As String
+    Dim Bold As Boolean
+    Dim Italic As Boolean
+    Dim charSet As Long
+    Dim PitchandFamily As Long
+    
+    ThisDrawing.ActiveTextStyle.GetFont typeFace, Bold, Italic, charSet, PitchandFamily
+    
+    MsgBox "The current text style has the following font properties:" & vbCrLf _
+            & "Typeface: " & typeFace & vbCrLf _
+            & "Bold: " & Bold & vbCrLf _
+            & "Italic: " & Italic & vbCrLf _
+            & "Character set: " & charSet & vbCrLf _
+            & "Pitch and Family: " & PitchandFamily
+    
+End Sub
+
+
+Sub Ch4_ImportingAndExporting()
+
+    '創建圓用於直觀顯示
+    
+    Dim circleObj As AcadCircle
+    
+    Dim centerPt(0 To 2) As Double
+    
+    Dim radius As Double
+    
+    centerPt(0) = 2: centerPt(1) = 2: centerPt(2) = 0
+    
+    radius = 1
+    
+    Set circleObj = ThisDrawing.ModelSpace.AddCircle(centerPt, radius)
+    
+    ThisDrawing.Application.ZoomAll
+    
+    '創建空的選擇集
+    
+    Dim sset As AcadSelectionSet
+    
+    Set sset = ThisDrawing.SelectionSets.add("NEWSSET")
+    
+    '將當前圖形輸出到AutoCAD 臨時文件目錄下的 DXF 文件
+    
+    Dim tempPath As String
+    
+    Dim exportFile As String
+    
+    Const dxfname As String = "DXFExprt"
+    
+    tempPath = ThisDrawing.Application.preferences.Files.TempFilePath
+    
+    exportFile = tempPath & dxfname
+    
+    ThisDrawing.Export exportFile, "DXF", sset
+    
+    '刪除空的選擇集
+    
+    ThisDrawing.SelectionSets.item("NEWSSET").Delete
+    
+    '打開新圖形
+    
+    ThisDrawing.Application.Documents.add "acad.dwt"
+    
+    '定義輸入
+    
+    Dim importFile As String
+    
+    Dim insertPoint(0 To 2) As Double
+    
+    Dim scalefactor As Double
+    
+    importFile = tempPath & dxfname & ".dxf"
+    
+    insertPoint(0) = 0: insertPoint(1) = 0: insertPoint(2) = 0
+    
+    scalefactor = 2#
+    
+    '輸入文件
+    
+    ThisDrawing.Import importFile, insertPoint, scalefactor
+    
+    ThisDrawing.Application.ZoomAll
+
+End Sub
+
+
+
+Sub Ch4_ZoomWindow()
+'將當前圖形縮放至兩點定義的窗口。
+Dim point1(0 To 2) As Double
+
+Dim point2(0 To 2) As Double
+
+point1(0) = 1.3: point1(1) = 7.8: point1(2) = 0
+
+point2(0) = 13.7: point2(1) = -2.6: point2(2) = 0
+
+ThisDrawing.Application.ZoomWindow point1, point2
+
+End Sub
+
+Sub Ch4_PositionApplicationWindow()
+'將 AutoCAD應用程序窗口放在屏幕的左上角，並將其大小調整為寬 400 像素、高 400 像素。
+ThisDrawing.Application.WindowTop = 0
+
+ThisDrawing.Application.WindowLeft = 0
+
+ThisDrawing.Application.width = 400
+
+ThisDrawing.Application.height = 400
+
+End Sub
+
+
+'設置Application對象的WindowState屬性 （acMax、asMin或acNorm）
+
+Sub Ch4_MaximizeApplicationWindow()
+'height= 537
+'width =315
+
+'將當前圖形縮放至兩點定義的窗口。
+    Dim point1(0 To 2) As Double
+    
+    Dim point2(0 To 2) As Double
+
+    ' Return a point using a base point and a prompt
+    Dim onePnt As Variant
+    Dim towPnt As Variant
+    Dim xx As Double
+    Dim yy As Double
+    Dim meScale As Double
+    Dim ptScale As Double
+    
+    onePnt = ThisDrawing.Utility.GetPoint(, "第一點: ")
+    towPnt = ThisDrawing.Utility.GetPoint(onePnt, "第二點: ")
+    point1(0) = onePnt(0): point1(1) = onePnt(1): point1(2) = onePnt(2)
+    
+    point2(0) = towPnt(0): point2(1) = towPnt(1): point2(2) = towPnt(2)
+
+    '改變應用程序窗口 大小。
+    With ThisDrawing
+        .Application.WindowState = acMax
+        .WindowState = acNorm
+        .width = 800
+        .height = 580
+        xx = Abs(point1(0) - point2(0))
+        yy = Abs(point1(1) - point2(1))
+        meScale = .width / .height
+        ptScale = xx / yy
+        
+        If (meScale <= ptScale) Then
+            .height = yy * (.width / xx)
+        .width = 800
+            .height = yy * (.width / xx)
+        Else
+            .width = xx * (.height / yy)
+        .height = 580
+            .width = xx * (.height / yy)
+        End If
+        
+
+        .Application.ZoomWindow point1, point2
+       
+    End With
+
+
+    Dim SSetColl As AcadSelectionSets
+    Set SSetColl = ThisDrawing.SelectionSets
+    
+    ' Create a SelectionSet named "TEST" in the current drawing
+    Dim ssetObj As AcadSelectionSet
+  
+    If SSetColl.count = 2 Then
+        SSetColl.item(0).Delete
+        SSetColl.item(1).Delete
+    ElseIf SSetColl.count > 0 Then
+        SSetColl.item(0).Delete
+    End If
+    Set ssetObj = SSetColl.add("TEST")
+
+    Call ssetObj.Select(acSelectionSetWindow, point1, point2)
+    
+    
+    ' Define the name for the exported file
+    Dim exportFile As String
+
+    exportFile = saveFile("哀哀", _
+    "WMF Files (*.WMF)" & Chr$(0) & "*.WMF" & Chr$(0) _
+    & "X Files (*.x)" & Chr$(0) & "*.x" & Chr$(0) _
+    & "XMesh Files (*.xms)" & Chr$(0) & "*.xms" & Chr$(0) _
+    & "All Files (*.*)" + Chr$(0) + "*.*" + Chr$(0))
+        
+        
+    ' Export the current drawing to the file specified above.
+    ThisDrawing.Export exportFile, "WMF", ssetObj
+
+'若最小化應用程序窗口 , 則按下列語句:
+
+'ThisDrawing.Application.WindowState = acMin
+End Sub
+Public Sub GetAttribute()
+    '本段代碼從選中的圖塊中獲取屬性值，並對其修改
+    Dim entObj As AcadEntity
+    Dim pickPnt As Variant
+    Dim blkRefObj As AcadBlockReference
+    '選擇圖元
+    ThisDrawing.Utility.GetEntity entObj, pickPnt
+    '判斷是否為塊引用
+    If StrComp(entObj.ObjectName, "AcDbBlockReference", 1) <> 0 Then
+        MsgBox "你選擇的不是一個圖塊，程序將退出！"
+        '如果選擇的不是一個塊引用則程序退出運行
+        Exit Sub
+    End If
+    '如果選擇的是塊引用，將其賦給塊引用對象
+    Set blkRefObj = entObj
+    '判斷該塊引用是否含有屬性值
+    If Not blkRefObj.HasAttributes Then
+        MsgBox "你選擇的圖塊沒有塊屬性，程序將退出！"
+        '如果不含由屬性值退出
+        Exit Sub
+    End If
+    Dim attVars As Variant
+    Dim i As Integer
+    Dim SSATT As String
+    '獲取塊引用中的塊屬性對象
+    attVars = blkRefObj.GetAttributes
+    '對塊屬性對象進行遍歷
+    SSATT = ""
+    For i = 0 To UBound(attVars)
+        SSATT = SSATT & vbCrLf & _
+           "Case """ & attVars(i).TagString & """"
+'        MsgBox "第" & I + 1 & "屬性對象的屬性值分別如下：" & Chr(13) & Chr(13) & _
+'               "屬性標籤為：" & attVars(I).TagString & Chr(13) & _
+'               "屬性值為：" & attVars(I).textString
+    Next
+    ThisDrawing.Utility.prompt SSATT
+    '將塊屬性的標籤和值進行修改
+    'attVars(0).TagString = "New Tag"
+    'attVars(0).textString = "New Value"
+    'ThisDrawing.Regen True
+End Sub
