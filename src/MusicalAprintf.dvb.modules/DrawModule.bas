@@ -40,7 +40,7 @@ End Type
 
 Enum spacing
     FONTEM = 360
-    FONTSIZE = 30
+    fontsize = 30
     Step = 30 * 93 / 720 '/*spacing.FONTSIZE*/
     space = 10
     TOPNOTE = 15

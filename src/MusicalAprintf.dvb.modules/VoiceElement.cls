@@ -168,7 +168,7 @@ Public Function insterBar(barId As Integer) As MusicItem
     
     Dim barEle As New MusicItem
     barEle.typs = Cg.bar
-    barEle.w = amt.wBar * G.FONTSIZE
+    barEle.w = amt.wBar * G.fontsize
     barEle.barNumber = barId
     Me.children.Push barEle
     Set insterBar = barEle
@@ -181,7 +181,7 @@ Public Function insterMete(mete As Integer, mete2 As Integer) As MusicItem
     meteObj.typs = Cg.meter
     meteObj.mete = mete
     meteObj.mete2 = mete2
-    meteObj.w = amt.wMete * G.FONTSIZE
+    meteObj.w = amt.wMete * G.fontsize
     Me.children.Push meteObj
 
     Set insterMete = meteObj

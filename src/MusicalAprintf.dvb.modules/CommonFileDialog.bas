@@ -243,7 +243,7 @@ Function GetFile(strTitle As String, strFilter As String, Optional strIniDir As 
  
     On Error Resume Next
     Dim lntFile As Integer
-    Dim FileName As String
+    Dim fileName As String
     Dim OFileBox As OPENFILENAME
     With OFileBox
         .lpstrTitle = strTitle '對話框標題
@@ -261,8 +261,8 @@ Function GetFile(strTitle As String, strFilter As String, Optional strIniDir As 
      
     lntFile = GetOpenFileName(OFileBox) '執行打開對話框
     If lntFile <> 0 Then
-        FileName = left(OFileBox.lpstrFile, InStr(OFileBox.lpstrFile, vbNullChar) - 1)
-        GetFile = FileName
+        fileName = left(OFileBox.lpstrFile, InStr(OFileBox.lpstrFile, vbNullChar) - 1)
+        GetFile = fileName
     Else
         GetFile = ""
     End If
@@ -272,7 +272,7 @@ Function saveFile(strTitle As String, strFilter As String, Optional strIniDir As
  
     On Error Resume Next
     Dim lntFile As Integer
-    Dim FileName As String
+    Dim fileName As String
     Dim OFileBox As OPENFILENAME
     With OFileBox
         .lpstrTitle = strTitle '對話框標題
@@ -290,8 +290,8 @@ Function saveFile(strTitle As String, strFilter As String, Optional strIniDir As
      
     lntFile = GetSaveFileName(OFileBox) '執行打開對話框
     If lntFile <> 0 Then
-        FileName = left(OFileBox.lpstrFile, InStr(OFileBox.lpstrFile, vbNullChar) - 1)
-        saveFile = FileName
+        fileName = left(OFileBox.lpstrFile, InStr(OFileBox.lpstrFile, vbNullChar) - 1)
+        saveFile = fileName
     Else
         saveFile = ""
     End If

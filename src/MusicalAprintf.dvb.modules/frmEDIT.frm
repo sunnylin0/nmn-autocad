@@ -17,6 +17,10 @@ Attribute VB_Exposed = False
 
 
 Option Explicit
+'2024.11.28  isVirtualChar As Boolean '設定空心字符  v2.13
+'2024.11.28  加入 I:setbar 5/3 在台頭設定 "第幾小節開始/每行幾小節"
+'2024.11.27  v2.12 tuplet "{" "}" 加入 3 5 6 7 連音的功能
+'2024.08.27  修改 疊音的高底音點位置
 '2024.08.23  "v2.1" 加入 前綴元素 '>'  後綴元素 '<'
 '2024.03.30  "v2.0" 要加入 拍號 M:3/8 M:4/4 ，大改音符排序方式
 '2024.03.29  修改 4/4 3/8 拍數對位問題
@@ -24,7 +28,7 @@ Option Explicit
 '            多加 iAdd 合音行
 '2013.03.17  V3 正要修改 二胡的版本，因程式之前是用古箏的指法圖，現在改成二胡的指法圖
 
-Const version  As String = "v2.1" '軟體號碼
+Const version  As String = "v2.13" '軟體號碼
 Const c1 As Integer = 60   'C調1的鍵名值
 'Const FOURPAINUM   As Integer = 64 '1/4音符計數
 'Const MIDICLOCK As Integer = 24   '每1/64音符的MIDICLOCK數
@@ -84,7 +88,7 @@ End Sub
 
 Private Sub init()
     G.fontName = Me.cobFontName.text
-    G.FONTSIZE = Me.cobFontSize.text
+    G.fontsize = Me.cobFontSize.text
     
     Dim mete_mete As Variant
     mete_mete = Split(Me.cobMete, "/")
@@ -105,6 +109,7 @@ Private Sub init()
     G.MIN_X = Me.tbMIN_X            '微調
     G.Beat_MIN_X = Me.tbBeat_min_x  '拍微調
     G.IsBarAlign = Me.cbIsBarAlign
+    G.isVirtualChar = Me.cbVirtualChar  '空心字
 End Sub
 
 Private Sub cmOK_Click()
@@ -342,7 +347,7 @@ Private Sub inst_G(the_G As Glode, aPt As point)
     
     ' Define the text object
     textString = version & vbCrLf
-    textString = textString & "size " & the_G.FONTSIZE & vbCrLf
+    textString = textString & "size " & the_G.fontsize & vbCrLf
     
     textString = textString & "左空白 " & the_G.LeftSpace & "mm" & vbCrLf
     textString = textString & "右空白 " & the_G.RightSpace & "mm" & vbCrLf
@@ -362,6 +367,11 @@ Private Sub inst_G(the_G As Glode, aPt As point)
     Set mtxt = ThisDrawing.ModelSpace.AddMText(insertionPt.ToDouble, height, textString)
     mtxt.width = 40
     mtxt.styleName = "Standard"
+    
+    '插入資料
+    insertionPt.x = insertionPt.x - 3
+    Set mtxt = ThisDrawing.ModelSpace.AddMText(insertionPt.ToDouble, 0.01, Me.TextBox8.text)
+    mtxt.height = 0.01
     
 End Sub
 Private Sub drawLayoutStaff(abcTuneLines As TuneLineList)
@@ -388,7 +398,7 @@ Private Sub drawLayoutStaff(abcTuneLines As TuneLineList)
     Dim ooPt As New point
     
     titlePT.x = insPt.x + (G.pagewidth / 2)
-    titlePT.y = insPt.y + G.FONTSIZE * 5.5
+    titlePT.y = insPt.y + G.fontsize * 5.5
     Set objText = ThisDrawing.ModelSpace.AddText(m_buf.getTITLE, titlePT.ToDouble, 6)
     ooPt.a objText.insertionPoint
     objText.Layer = "TEXT"
@@ -434,6 +444,10 @@ Private Sub drawLayoutStaff(abcTuneLines As TuneLineList)
     Dim mt_slur_left As MusicBlockGraphics
     Dim mt_slur_right As MusicBlockGraphics
     Dim plineSlur As AcadLWPolyline
+    Dim mt_tuplet_left As MusicBlockGraphics
+    Dim mt_tuplet_right As MusicBlockGraphics
+    Dim plineTuplet As AcadLWPolyline
+    
     Dim barConfig(1000) As aBarConfig
     Dim barId As Integer
     Dim currStaffGroup As StaffGroupElement
@@ -462,7 +476,7 @@ Private Sub drawLayoutStaff(abcTuneLines As TuneLineList)
     trackY = 0
     iLineToLine = -1
     iTrackToTrack = 0
-    
+    MBG.setVirtualChar True
     For i = 0 To abcTuneLines.Count - 1
         Set currStaffGroup = abcTuneLines(i).staffGroup
         
@@ -505,7 +519,7 @@ Private Sub drawLayoutStaff(abcTuneLines As TuneLineList)
                             endPt.y = currY
                         Else
                             startPt.x = currX + s1.x + s1.w / 2
-                            startPt.y = ((amt.LINE_PASE + amt.DROP_UP) * G.FONTSIZE) + currY
+                            startPt.y = ((amt.LINE_PASE + amt.DROP_UP) * G.fontsize) + currY
                             endPt.x = startPt.x
                             endPt.y = currY
                         
@@ -518,7 +532,7 @@ Private Sub drawLayoutStaff(abcTuneLines As TuneLineList)
                         s1.oX = startPt.x
                         s1.oY = startPt.y
                         Set tmp_pLWPoly = ThisDrawing.ModelSpace.AddPolyline(ptlist.ToXYZList)
-                        tmp_pLWPoly.ConstantWidth = amt.BAR_WITCH * G.FONTSIZE / 4.6
+                        tmp_pLWPoly.ConstantWidth = amt.BAR_WITCH * G.fontsize / 4.6
                         tmp_pLWPoly.Layer = "bar"
                         
                         '繪小節號 ***********************************
@@ -528,9 +542,9 @@ Private Sub drawLayoutStaff(abcTuneLines As TuneLineList)
                             Dim txtmidPT As New point
                             Set ipt(0) = New point: Set ipt(1) = New point: Set ipt(2) = New point: Set ipt(3) = New point
                             ipt(0).x = startPt.x
-                            ipt(0).y = startPt.y + 0.2 * G.FONTSIZE
-                            ipt(1).x = startPt.x: ipt(1).y = startPt.y + (0.2 + amt.barInsterNumberSize * 1.3) * G.FONTSIZE
-                            ipt(2).x = ipt(0).x - amt.barInsterNumberSize * (Len(CStr(s1.barNumber + 1)) * 1.1) * G.FONTSIZE
+                            ipt(0).y = startPt.y + 0.2 * G.fontsize
+                            ipt(1).x = startPt.x: ipt(1).y = startPt.y + (0.2 + amt.barInsterNumberSize * 1.3) * G.fontsize
+                            ipt(2).x = ipt(0).x - amt.barInsterNumberSize * (Len(CStr(s1.barNumber + 1)) * 1.1) * G.fontsize
                             ipt(2).y = ipt(1).y
                             ipt(3).x = ipt(2).x
                             ipt(3).y = ipt(0).y
@@ -545,7 +559,7 @@ Private Sub drawLayoutStaff(abcTuneLines As TuneLineList)
                             
                             txtmidPT.x = ipt(1).x - Abs(ipt(1).x - ipt(2).x) / 2
                             txtmidPT.y = ipt(0).y + Abs(ipt(1).y - ipt(0).y) / 2
-                            Set objT = ThisDrawing.ModelSpace.AddText(CStr(s1.barNumber + 1), txtmidPT.ToDouble, amt.barInsterNumberSize * G.FONTSIZE)
+                            Set objT = ThisDrawing.ModelSpace.AddText(CStr(s1.barNumber + 1), txtmidPT.ToDouble, amt.barInsterNumberSize * G.fontsize)
                             objT.Layer = "Text"
                             objT.styleName = "txt"
                             ooPt.a objT.insertionPoint
@@ -565,15 +579,15 @@ Private Sub drawLayoutStaff(abcTuneLines As TuneLineList)
                         Dim metePt1 As New point
                         Dim metePt2 As New point
                         metePt2.x = currX + s1.x
-                        metePt2.y = currY + 0.3 * G.FONTSIZE
+                        metePt2.y = currY + 0.3 * G.fontsize
                         
                         metePt1.x = currX + s1.x
-                        metePt1.y = currY + 1.3 * G.FONTSIZE
+                        metePt1.y = currY + 1.3 * G.fontsize
                         
-                        Set objText = ThisDrawing.ModelSpace.AddText(s1.mete2, metePt2.ToDouble, G.FONTSIZE * 0.7)
+                        Set objText = ThisDrawing.ModelSpace.AddText(s1.mete2, metePt2.ToDouble, G.fontsize * 0.7)
                         objText.Layer = "裝飾符號":         objText.styleName = "音符_數字"
                         
-                        Set objText = ThisDrawing.ModelSpace.AddText(s1.mete, metePt1.ToDouble, G.FONTSIZE * 0.7)
+                        Set objText = ThisDrawing.ModelSpace.AddText(s1.mete, metePt1.ToDouble, G.fontsize * 0.7)
                         objText.Layer = "裝飾符號":         objText.styleName = "音符_數字"
                         s1.oX = metePt2.x
                         s1.oY = metePt2.y
@@ -586,7 +600,7 @@ Private Sub drawLayoutStaff(abcTuneLines As TuneLineList)
                         startPt.y = currY
                         s1.oX = startPt.x
                         s1.oY = startPt.y
-                        MBG.setDataText startPt, s1, G.FONTSIZE
+                        MBG.setDataText startPt, s1, G.fontsize
                         MBG.nowPartLayer = partLayer
                         Set BNewObj = MBG.InsterEnt '插入音符及指法
                         
@@ -625,6 +639,19 @@ Private Sub drawLayoutStaff(abcTuneLines As TuneLineList)
                             End If
                         End If
                         '*****************************************************************
+                               
+                                        
+                
+                        If s1.tupletStart = True Then
+                            'Set mt_Tuplet_left = New MusicBlockGraphics
+                            Set mt_tuplet_left = MBG.copy
+        
+                        ElseIf s1.tupletEnd = True Then
+        
+                            Set plineTuplet = MBG.drawTuplet(mt_tuplet_left, MBG, s1.tupletCount)
+        
+                        End If
+                
                                
                    Case Else
                 End Select
@@ -672,7 +699,7 @@ Private Sub draw_many_text1()
     Dim ooPt As Variant
     titlePT = insPt
     titlePT(0) = titlePT(0) + (G.pagewidth / 2)
-    titlePT(1) = titlePT(1) + G.FONTSIZE * 5.5
+    titlePT(1) = titlePT(1) + G.fontsize * 5.5
     Set objText = ThisDrawing.ModelSpace.AddText(m_buf.getTITLE, titlePT, 6)
     ooPt = objText.insertionPoint
     objText.Layer = "TEXT"
@@ -715,7 +742,10 @@ Private Sub draw_many_text1()
     Dim midDownPt(2) As Double
     Dim mt_slur_left As MusicBlockGraphics
     Dim mt_slur_right As MusicBlockGraphics
+    Dim mt_trip_left As MusicBlockGraphics
+    Dim mt_trip_right As MusicBlockGraphics
     Dim plineSlur As AcadLWPolyline
+    Dim plineTuplet As AcadLWPolyline
     Dim barConfig(1000) As aBarConfig
     Dim barId As Integer
     
@@ -778,6 +808,10 @@ Private Sub draw_many_text1()
                             Set barConfig(barId) = New aBarConfig
                             barConfig(barId).barId = barId
                             barConfig(barId).barLineQuantity = s1.barsperstaff
+                        If (s1.setbarstaffid > 1) Then
+                            Set barConfig(setbarstaffid) = New aBarConfig
+                            barConfig(setbarstaffid).barId = setbarstaffid
+                            barConfig(setbarstaffid).barLineQuantity = s1.setbarstaff
                         End If
                         GoTo CallBackFor
                    Case Cg.meter:
@@ -826,7 +860,7 @@ Private Sub draw_many_text1()
                     '(古箏用)
                     '圖塊用附號)
                     ppnt.a atPt
-                    MBG.setDataText ppnt, s1, G.FONTSIZE
+                    MBG.setDataText ppnt, s1, G.fontsize
                     Set BNewObj = MBG.InsterEnt '插入音符及指法
 
 
@@ -887,12 +921,12 @@ Private Sub draw_many_text1()
                     ppnt.x = atPt(0)
                     ppnt.y = atPt(1)
                     ppnt.Z = atPt(2)
-                    MBG.setDataText ppnt, s1, G.FONTSIZE
+                    MBG.setDataText ppnt, s1, G.fontsize
                     Set BNewObj = MBG.InsterEnt '插入音符及指法
 
 
                     '插入指法 附號(二胡用)
-                    InsertErhuFinge ppnt, tmp_erhu_fing, G.FONTSIZE
+                    InsertErhuFinge ppnt, tmp_erhu_fing, G.fontsize
 
                 End If
 
@@ -901,20 +935,17 @@ Private Sub draw_many_text1()
 
                 'AMT.iSlur = 7        ' 連音符行    (3456)
                 If s1.slurStart = True Then
-                    Set mt_slur_left = New MusicBlockGraphics
+                    'Set mt_slur_left = New MusicBlockGraphics
                     Set mt_slur_left = MBG.copy
 
                 ElseIf s1.slurEnd = True Then
-'*******聚合線 畫弧'**************************************************************************************'
-
 
                     Set plineSlur = MBG.drawSlur(mt_slur_left, MBG)
 
-
-'*****************************************************************
-
                 End If
-
+                
+                
+'*****************************************************************
                 '連結線用
 
                 tmp_joinIds.Push BNewObj
@@ -1246,8 +1277,8 @@ Private Function atBarXYpos(ByVal the_pt As point, ByVal the_track As Integer, _
     
     '是否2個字太近壓到了
     '移至1個字的寬度
-    If Abs(lastPoint.x - pp.x) <= amt.A_TEXT_WIDTH * G.FONTSIZE Then
-        pp.x = lastPoint.x + amt.A_TEXT_WIDTH * G.FONTSIZE * 1.05
+    If Abs(lastPoint.x - pp.x) <= amt.A_TEXT_WIDTH * G.fontsize Then
+        pp.x = lastPoint.x + amt.A_TEXT_WIDTH * G.fontsize * 1.05
     End If
     
     Set lastPoint = pp  '存入最後的點
@@ -1301,7 +1332,7 @@ Private Function atDraw_BarLine(ByVal the_pt As point, ByVal the_track As Intege
             '這是在畫第一小節
     
             startPt.x = the_pt.x + G.LeftSpace
-            startPt.y = -((amt.LINE_PASE + amt.DROP_UP) * G.FONTSIZE) + tmp_rowspacing * the_line
+            startPt.y = -((amt.LINE_PASE + amt.DROP_UP) * G.fontsize) + tmp_rowspacing * the_line
             startPt.y = -startPt.y + the_pt.y
 
             endPt.x = the_pt.x + G.LeftSpace
@@ -1312,7 +1343,7 @@ Private Function atDraw_BarLine(ByVal the_pt As point, ByVal the_track As Intege
             ptlist.Add startPt
             ptlist.Add endPt
             Set tmp_pLWPoly = ThisDrawing.ModelSpace.AddPolyline(ptlist.ToXYZList)
-            tmp_pLWPoly.ConstantWidth = amt.BAR_WITCH * G.FONTSIZE / 4.6
+            tmp_pLWPoly.ConstantWidth = amt.BAR_WITCH * G.fontsize / 4.6
             tmp_pLWPoly.Layer = "bar"
         
             
@@ -1325,7 +1356,7 @@ Private Function atDraw_BarLine(ByVal the_pt As point, ByVal the_track As Intege
     
                     startPt.x = the_pt.x + G.LeftSpace + tmp_bardist + barIndex * tmp_bardist
     
-                    startPt.y = -((amt.LINE_PASE + amt.DROP_UP) * G.FONTSIZE) + (G.TrackToTrack * j) + (tmp_rowspacing * the_line)
+                    startPt.y = -((amt.LINE_PASE + amt.DROP_UP) * G.fontsize) + (G.TrackToTrack * j) + (tmp_rowspacing * the_line)
     
                     startPt.y = -startPt.y + the_pt.y
     
@@ -1340,7 +1371,7 @@ Private Function atDraw_BarLine(ByVal the_pt As point, ByVal the_track As Intege
                     ptlist.Add startPt
                     ptlist.Add endPt
                     Set tmp_pLWPoly = ThisDrawing.ModelSpace.AddPolyline(ptlist.ToXYZList)
-                    tmp_pLWPoly.ConstantWidth = amt.BAR_WITCH * G.FONTSIZE / 4.6
+                    tmp_pLWPoly.ConstantWidth = amt.BAR_WITCH * G.fontsize / 4.6
                     tmp_pLWPoly.Layer = "bar"
                 Next j
                 'm_pLWPoly->setThickness(plineInfo.m_thick)
@@ -1396,7 +1427,7 @@ Private Function atTableDraw(ByVal the_pt As point, ByVal the_track As Integer, 
     'col 是每一行的第幾拍，是以一拍為單位來數
     'tmp_modCol 是每一拍的第幾個字的位置
     pp.x = G.LeftSpace + G.BarToNoteSpace + Col * tmp_xbarInterval
-    pp.x = pp.x + (CDbl(tmp_modCol) / CDbl(PARTITION_DEF / (4))) * (amt.LINE_LEN * G.FONTSIZE) '除於 4分之一拍 的問題
+    pp.x = pp.x + (CDbl(tmp_modCol) / CDbl(PARTITION_DEF / (4))) * (amt.LINE_LEN * G.fontsize) '除於 4分之一拍 的問題
 
     pp.y = (G.TrackToTrack) * the_track + ((G.TrackToTrack) * (G.Many - 1) + G.LineToLine) * row
     pp.y = -pp.y
@@ -1425,8 +1456,8 @@ Private Function atTableDraw(ByVal the_pt As point, ByVal the_track As Integer, 
     
     '是否2個字太近壓到了
     '移至1個字的寬度
-    If Abs(lastPoint.x - pp.x) <= amt.A_TEXT_WIDTH * G.FONTSIZE Then
-        pp.x = lastPoint.x + amt.A_TEXT_WIDTH * G.FONTSIZE * 1.05
+    If Abs(lastPoint.x - pp.x) <= amt.A_TEXT_WIDTH * G.fontsize Then
+        pp.x = lastPoint.x + amt.A_TEXT_WIDTH * G.fontsize * 1.05
     End If
     
     Set lastPoint = pp
@@ -1472,7 +1503,7 @@ Private Function atTableDraw_bar(ByVal the_pt As point, ByVal the_track As Integ
         If Col = 0 And tmp_modCol = 0 Then '這是在第一小節
 
             startPt.x = the_pt.x + G.LeftSpace
-            startPt.y = -((amt.LINE_PASE + amt.DROP_UP) * G.FONTSIZE) + tmp_rowspacing * row
+            startPt.y = -((amt.LINE_PASE + amt.DROP_UP) * G.fontsize) + tmp_rowspacing * row
             startPt.y = -startPt.y + the_pt.y
 
             endPt.x = the_pt.x + G.LeftSpace
@@ -1483,7 +1514,7 @@ Private Function atTableDraw_bar(ByVal the_pt As point, ByVal the_track As Integ
             ptlist.Add startPt
             ptlist.Add endPt
             Set tmp_pLWPoly = ThisDrawing.ModelSpace.AddPolyline(ptlist.ToXYZList)
-            tmp_pLWPoly.ConstantWidth = amt.BAR_WITCH * G.FONTSIZE / 4.6
+            tmp_pLWPoly.ConstantWidth = amt.BAR_WITCH * G.fontsize / 4.6
             tmp_pLWPoly.Layer = "bar"
         End If
 
@@ -1494,7 +1525,7 @@ Private Function atTableDraw_bar(ByVal the_pt As point, ByVal the_track As Integ
 
                 startPt.x = the_pt.x + G.LeftSpace + tmp_bardist + Col / G.mete * tmp_bardist
 
-                startPt.y = -((amt.LINE_PASE + amt.DROP_UP) * G.FONTSIZE) + (G.TrackToTrack * j) + (tmp_rowspacing * row)
+                startPt.y = -((amt.LINE_PASE + amt.DROP_UP) * G.fontsize) + (G.TrackToTrack * j) + (tmp_rowspacing * row)
 
                 startPt.y = -startPt.y + the_pt.y
 
@@ -1509,7 +1540,7 @@ Private Function atTableDraw_bar(ByVal the_pt As point, ByVal the_track As Integ
                 ptlist.Add startPt
                 ptlist.Add endPt
                 Set tmp_pLWPoly = ThisDrawing.ModelSpace.AddPolyline(ptlist.ToXYZList)
-                tmp_pLWPoly.ConstantWidth = amt.BAR_WITCH * G.FONTSIZE / 4.6
+                tmp_pLWPoly.ConstantWidth = amt.BAR_WITCH * G.fontsize / 4.6
                 tmp_pLWPoly.Layer = "bar"
             Next j
             'm_pLWPoly->setThickness(plineInfo.m_thick)
@@ -1525,15 +1556,6 @@ End Function
 
 
 
-
-
-Private Sub TextBox8_Change()
-
-End Sub
-
-Private Sub TextBox9_Change()
-
-End Sub
 
 Private Sub UserForm_Initialize()
     Set rTime = New runTime
@@ -1575,7 +1597,7 @@ Private Sub UserForm_Initialize()
     Next
     
     Me.cobFontName.text = "EUDC"
-    Me.cobFontSize.text = 3.6
+    Me.cobFontSize.text = 4
     Me.cobMany.text = 1
     Me.cobMete.text = "4/4"
     Me.cobBar.text = 4
@@ -1585,7 +1607,7 @@ Private Sub UserForm_Initialize()
     Me.tbRightSpace = 12
     Me.tbBarToNote = 2
     Me.tbTrackToTrack = 14
-    Me.tbLineToLine = 17
+    Me.tbLineToLine = 19
     Me.tbMIN_X = 0.25
     
     AMT_LOAD '這個重要，設定初始資料

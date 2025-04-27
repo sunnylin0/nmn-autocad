@@ -70,7 +70,7 @@ End Property
 '@DefaultMember
 Public Property Let element(ByVal index As Long, ByVal val As point)
 Attribute element.VB_UserMemId = 0
-  If index = 0 And mainArray.Count = 0 Then
+  If index = 0 And iArray.Count = 0 Then
     Me.Push val
     Exit Property
   End If
@@ -83,7 +83,11 @@ Attribute element.VB_UserMemId = 0
     Exit Property
   End If
   iArray.Remove index + 1
-  iArray.Add val, before:=index + 1
+  If index + 1 >= iArray.Count Then
+    iArray.Add val
+  Else
+    iArray.Add val, before:=index + 1
+  End If
 End Property
 
 ' #############################

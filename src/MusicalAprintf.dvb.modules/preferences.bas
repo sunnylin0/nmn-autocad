@@ -104,7 +104,7 @@ End Type
 Public Type Glode
     check1 As Boolean
     fontName As String
-    FONTSIZE As Double
+    fontsize As Double
     Many As Integer     '幾聲部設定
     bar As Integer
     mete As Integer     '3/4 拍號的分子 --> 3
@@ -125,6 +125,8 @@ Public Type Glode
     MIN_X As Double
     Beat_MIN_X As Double
     IsBarAlign As Boolean       '小節是否對齊
+    
+    isVirtualChar As Boolean    '空心字
     
     lastRightPoint As New point '計錄最後一個元素的 右邊點
 End Type

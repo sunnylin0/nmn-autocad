@@ -24,7 +24,7 @@ Private saIs As New Dictionary
 Private igroup As Integer
 Private ich As Integer
 Private mBuf As DataBuffer
-Private barConfig(1000) As aBarConfig
+Private barConfig() As aBarConfig
     'ReDim barConfig(200)
 
 
@@ -203,7 +203,7 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
     Dim barId As Integer
     Dim barEle As MusicItem
     Dim isMeasureOne As Boolean  '是否小節第一個
-    
+    ReDim barConfig(2000)
 
         For tmp_track = 0 To mBuf.GetTrackSize() - 1
 
@@ -240,6 +240,8 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
                     If barConfig(barId) Is Nothing Then
                         Set barConfig(barId) = New aBarConfig
                         barConfig(barId).barId = barId
+                    ElseIf barConfig(barId).barLineQuantity > 1 Then
+                        G.barsperstaff = barConfig(barId).barLineQuantity
                     End If
 
 
@@ -291,8 +293,15 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
                             barConfig(barId).barId = barId
                             barConfig(barId).barLineQuantity = s1.barsperstaff
                         End If
+                        If (s1.setbarstaffid > 1) Then
+                            If barConfig(s1.setbarstaffid) Is Nothing Then
+                                Set barConfig(s1.setbarstaffid) = New aBarConfig
+                            End If
+                            barConfig(s1.setbarstaffid).barId = s1.setbarstaffid
+                            barConfig(s1.setbarstaffid).barLineQuantity = s1.setbarstaff
+                        End If
                     Case Cg.bar:
-                        s1.w = amt.wBar * G.FONTSIZE
+                        s1.w = amt.wBar * G.fontsize
                         s1.barNumber = barId
                         s1.remark = "t" & tmp_track & "_i" & tmp_track_item
                         vo.children.Push s1
@@ -313,9 +322,9 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
                         End If
                         
                    Case Cg.Rest, Cg.note:
-                        s1.w = amt.wNote * G.FONTSIZE
+                        s1.w = amt.wNote * G.fontsize
                         If s1.dots > 0 Then
-                            s1.w = 2 * amt.wNote * G.FONTSIZE
+                            s1.w = 2 * amt.wNote * G.fontsize
                         End If
                         calExtraw s1 '計算前綴元素
                         s1.remark = "t" & tmp_track & "_i" & tmp_track_item

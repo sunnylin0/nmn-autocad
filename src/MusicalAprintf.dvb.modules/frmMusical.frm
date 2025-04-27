@@ -80,7 +80,7 @@ StartJoin:
   
 
     If SSetColl.Count > 0 Then
-        SSetColl.item(0).delete
+        SSetColl.item(0).Delete
     End If
     Set ssetObj = SSetColl.Add("TEST")
 
@@ -161,7 +161,7 @@ StartJoin:
   
 
     If SSetColl.Count > 0 Then
-        SSetColl.item(0).delete
+        SSetColl.item(0).Delete
     End If
     Set ssetObj = SSetColl.Add("TEST")
 
@@ -214,7 +214,7 @@ On Error Resume Next
     Dim ssetObj As AcadSelectionSet
   
     If SSetColl.Count > 0 Then
-        SSetColl.item(0).delete
+        SSetColl.item(0).Delete
     End If
     Set ssetObj = SSetColl.Add("TEST")
     Me.Hide

@@ -64,9 +64,9 @@ End Property
 
 
 Function c(xPt As Variant, yPt As Variant, Optional zPt As Variant = 0)
-        x = xPt
-        y = yPt
-        Z = zPt
+        x = IIf(IsNumeric(xPt), xPt, 0)
+        y = IIf(IsNumeric(yPt), yPt, 0)
+        Z = IIf(IsNumeric(zPt), zPt, 0)
         Set c = Me
 End Function
 Function a(varPt As Variant)
@@ -112,6 +112,6 @@ Function ToDouble() As Double()
     arrD(0) = x
     arrD(1) = y
     arrD(2) = Z
-     ToDouble = arrD
+    ToDouble = arrD
 End Function
 

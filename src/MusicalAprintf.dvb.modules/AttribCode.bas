@@ -37,7 +37,7 @@ Function GetAttribTextString(entAttrib As AcadEntity, title As String) As String
         End With
 End Function
 
-Function SetAttribTextString(entAttrib As AcadEntity, title As String, sVal As String) As String
+Function SetAttribTextString(entAttrib As AcadEntity, title As String, sval As String) As String
 '設定 屬性(titile)的文字
     Dim Array1 As Variant
     Dim Pnt As Variant
@@ -54,7 +54,7 @@ Function SetAttribTextString(entAttrib As AcadEntity, title As String, sVal As S
                     For Count = LBound(Array1) To UBound(Array1)
                         '如果還沒有標題
                         If Array1(Count).TagString = title Then
-                            Array1(Count).textString = sVal
+                            Array1(Count).textString = sval
                             Exit Function
                         End If
                     Next Count
@@ -73,7 +73,7 @@ Function SetTowAttrib(entAttrib As AcadEntity, towAttrib As AcadEntity) As Strin
     Dim Array1 As Variant
     Dim Pnt As Variant
     Dim title As String
-    Dim sVal As String
+    Dim sval As String
     'Dim entObj As AcadEntity
     Dim Count As Integer
         With entAttrib
@@ -87,9 +87,9 @@ Function SetTowAttrib(entAttrib As AcadEntity, towAttrib As AcadEntity) As Strin
                     For Count = LBound(Array1) To UBound(Array1)
                        
                         title = Array1(Count).TagString
-                        sVal = Array1(Count).textString
+                        sval = Array1(Count).textString
                         
-                        Call SetAttribTextString(towAttrib, title, sVal)
+                        Call SetAttribTextString(towAttrib, title, sval)
                         
                     Next Count
                     

@@ -41,8 +41,8 @@ Public Sub setLineChar(Char As String, mete As Integer)
                                      ' 因為它從 0 開始 所以要加 1
 End Sub
 
-Public Sub setFontSize(FONTSIZE As Integer)
-    mFontSize = FONTSIZE
+Public Sub setFontSize(fontsize As Integer)
+    mFontSize = fontsize
 End Sub
 
 Public Sub TextToMusic()

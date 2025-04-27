@@ -1,4 +1,209 @@
 Option Explicit
+
+
+Sub block_definition_rename()
+'圖塊改名
+    Dim fileName As String
+    Dim oBlkRef As AcadBlockReference
+    Dim oEnt As AcadEntity, oBlock As AcadBlock
+    Dim varPt
+    Dim insVpt, insPt(2) As Double
+    Dim BNAME As String
+    Dim i As Long, j As Long, idpairs As Long
+    Dim expObjs As Variant
+
+    Dim objSelSet As AcadSelectionSet
+    Dim objTarget As AcadDocument
+    Dim currentdrawing As AcadDocument
+    Set currentdrawing = ThisDrawing
+    'Dim documents As AcadDocuments
+    Dim document As AcadDocument
+    Dim objOrgEnts() As Object
+    Dim destEnts As Variant
+    Dim intCnt As Long
+    Dim blo As AcadBlock
+    Dim strFullDef As String
+    Dim objBlock As AcadBlock
+    Dim objBlock1 As AcadBlock
+    Dim colBlocks As AcadBlocks
+    Dim objArray(0) As Object
+
+    Dim oldname As String
+
+    ThisDrawing.SetVariable "DELOBJ", 1
+    On Error Resume Next
+    err.Clear
+    ThisDrawing.Utility.GetEntity oEnt, varPt, "Select block: "
+    If err.Number <> 0 Then
+        On Error GoTo 0
+        Exit Sub
+    End If
+
+    If TypeOf oEnt Is AcadBlockReference Then
+        Set oBlkRef = oEnt
+        oldname = oBlkRef.EffectiveName
+        BNAME = oBlkRef.EffectiveName & "_o"
+        BNAME = InputBox("New block name is: ", "BLOCKRENAM", BNAME)
+
+
+        For Each oBlock In ThisDrawing.Blocks
+            If oBlock.Name = BNAME Then
+                MsgBox "Block " & BNAME & " does already exist"
+                Exit Sub
+            End If
+        Next
+
+        Set colBlocks = ThisDrawing.Blocks
+        Set objBlock = colBlocks.item(oldname)
+        objBlock.Name = BNAME
+
+    End If
+
+Err_Control:
+    If err.Number = 0 Then
+        MsgBox "Done"
+    Else
+        MsgBox err.Description
+    End If
+End Sub
+
+Sub DynBlockRename()
+    'Dim dybprop As Variant, i As Integer
+    Dim dynblock As Object
+    Dim ThisDrawing As AcadDocument
+    Dim dybprop
+    Dim oldname As String
+    Dim BNAME As String
+    Dim objBlock As AcadBlock
+    Dim colBlocks As AcadBlocks
+    'Dim InsertionPoint(0 To 2)  As Double
+    Set ThisDrawing = AcadApplication.ActiveDocument
+    For Each dynblock In ThisDrawing.ModelSpace  'Starts looping through all blocks
+        If dynblock.objectName = "AcDbBlockReference" Then 'Check if BlockRef, yes
+        
+            If dynblock.IsDynamicBlock Then         'Check to see if it is a Dynamic Block
+               dybprop = dynblock.GetDynamicBlockProperties
+                If dynblock.EffectiveName = "FSM4L- INCH INCREMENT_DONE_01" Then 'Finds Dynamic Block NAME
+                    'If dynblock.EffectiveName Like "FSM4L*" Then     THIS WOULD FIND ALL THAT START WITH SAME NAME
+                    dynblock.EffectiveName = "ABC123"
+                            ThisDrawing.Regen acActiveViewport
+                End If
+            End If
+            
+            oldname = dynblock.EffectiveName
+            BNAME = dynblock.EffectiveName & "_o"
+            Set colBlocks = ThisDrawing.Blocks
+            Set objBlock = colBlocks.item(oldname)
+            objBlock.Name = BNAME
+        End If
+    Next
+
+End Sub
+
+
+Sub sinobj()
+Dim i As Integer
+Dim sinobj As AcadLWPolyline
+Dim plist(0 To 180 * 2 + 1) As Double '在一?周期?等分成180份?描述
+For i = 0 To 180 * 2 Step 2
+plist(i) = i '180*2
+plist(i + 1) = Sin(i / 360 * 8 * Atn(1)) * 100 '?定振幅?100
+Next
+Set sinobj = ThisDrawing.ModelSpace.AddLightWeightPolyline(plist)
+End Sub
+
+
+Sub sinobj100()
+Dim i As Integer
+Dim sinobj As AcadLWPolyline
+Dim plist(0 To 180 * 2 + 1) As Double '在一?周期?等分成180份?描述
+For i = 0 To 180 * 2 Step 2
+    plist(i) = i / 100 '180*2
+    plist(i + 1) = Sin(i / 100) '?定振幅?100
+Next
+Set sinobj = ThisDrawing.ModelSpace.AddLightWeightPolyline(plist)
+End Sub
+
+
+Sub sinobj2cos3()
+Dim i As Integer
+Dim sinobj As AcadLWPolyline
+Dim plist() As Double '在一?周期?等分成180份?描述
+Dim sval As Double
+Dim cval As Double
+Dim pos As Integer
+Dim dd  As Integer
+Dim mm As Double
+
+dd = 360
+mm = 36
+
+ReDim plist(0 To (dd * 2) - 1)
+For i = 0 To dd - 1
+    pos = i * 2
+    plist(pos) = i / mm '180*2
+    
+    If Sin(i / mm) <> 0 Then
+        sval = 2 / Sin(i / mm)
+    Else
+        sval = 0
+    End If
+        Debug.Print i & ":sval=" & sval
+    If Cos(i / mm) <> 0 Then
+        cval = 3 / Cos(i / mm)
+    Else
+        cval = 0
+    End If
+    
+        Debug.Print "   cval=" & cval
+    plist(pos + 1) = sval + cval
+Next
+Set sinobj = ThisDrawing.ModelSpace.AddLightWeightPolyline(plist)
+End Sub
+
+Sub ii交點剪段()
+    Dim plineObj As AcadLWPolyline
+    Dim points(0 To 7) As Double
+    
+    ' Define the 2D polyline points
+    points(0) = -4: points(1) = -1
+    points(2) = -4: points(3) = 1
+    points(4) = 4: points(5) = 1
+    points(6) = 4: points(7) = -1
+        
+    ' Create a lightweight Polyline object in model space
+    Set plineObj = ThisDrawing.ModelSpace.AddLightWeightPolyline(points)
+    
+   ' Create the circle
+    Dim circleObj As AcadCircle
+    Dim centerPt(0 To 2) As Double
+    Dim radius As Double
+    centerPt(0) = 0: centerPt(1) = 1: centerPt(2) = 0
+    radius = 1
+    Set circleObj = ThisDrawing.ModelSpace.AddCircle(centerPt, radius)
+    ZoomAll
+      
+    ' Find the intersection points between the line and the circle
+    Dim intPoints As Variant
+    intPoints = plineObj.IntersectWith(circleObj, acExtendNone)
+    
+    ' Print all the intersection points
+    Dim i As Integer, j As Integer, k As Integer
+    Dim str As String
+    If VarType(intPoints) <> vbEmpty Then
+        For i = LBound(intPoints) To UBound(intPoints)
+            str = "Intersection Point[" & k & "] is: " & intPoints(j) & "," & intPoints(j + 1) & "," & intPoints(j + 2)
+            MsgBox str, , "IntersectWith Example"
+            str = ""
+            i = i + 2
+            j = j + 3
+            k = k + 1
+        Next
+    End If
+
+End Sub
+
+
 Public Function GetAcad() As AcadApplication
 
 On Error Resume Next
@@ -238,7 +443,7 @@ On Error Resume Next
     Dim ssetObj As AcadSelectionSet
   
     If SSetColl.Count > 0 Then
-        SSetColl.item(0).delete
+        SSetColl.item(0).Delete
     End If
     Set ssetObj = SSetColl.Add("TEST")
     ssetObj.SelectOnScreen
@@ -276,7 +481,7 @@ On Error Resume Next
     Dim ssetObj As AcadSelectionSet
   
     If SSetColl.Count > 0 Then
-        SSetColl.item(0).delete
+        SSetColl.item(0).Delete
     End If
     Set ssetObj = SSetColl.Add("TEST")
     ssetObj.SelectOnScreen
@@ -433,7 +638,7 @@ Sub aa()
 Next
 oldpt(0) = newpt(0): oldpt(1) = newpt(1): oldpt(2) = newpt(2)
 Loop
-mylne.delete
+mylne.Delete
 End Sub
 
 
@@ -514,7 +719,7 @@ Sub Ch10_AttachXDataToSelectionSetObjects()
     'sset.Item(1).Delete
     
     'For i = 0 To ThisDrawing.SelectionSets.Count - 1
-        ThisDrawing.SelectionSets.item("SS1").delete
+        ThisDrawing.SelectionSets.item("SS1").Delete
     'Next
     Set sset = ThisDrawing.SelectionSets.Add("SS1")
     
@@ -624,7 +829,7 @@ Sub Ch4_FilterXdata()
     
     Dim FilterType(1) As Integer
     Dim FilterData(1) As Variant
-    ThisDrawing.SelectionSets.item("SS9").delete
+    ThisDrawing.SelectionSets.item("SS9").Delete
     Set sstext = ThisDrawing.SelectionSets.Add("SS9")
 
     FilterType(0) = 0
@@ -670,7 +875,7 @@ Public Function GetDVBThis(DVBFileName As String) As String
     Dim strFileName As String
     
     For i = 1 To ThisDrawing.Application.vbe.VBprojects.Count
-        strFileName = ThisDrawing.Application.vbe.VBprojects.item(i).FileName
+        strFileName = ThisDrawing.Application.vbe.VBprojects.item(i).fileName
         If InStr(UCase(strFileName), UCase(DVBFileName)) > 0 Then
             GetDVBThis = strFileName
             Exit For
@@ -684,7 +889,7 @@ Public Function GetDVBPath(DVBFileName As String) As String
     Dim strFileName As String
     
     For i = 1 To ThisDrawing.Application.vbe.VBprojects.Count
-        strFileName = ThisDrawing.Application.vbe.VBprojects.item(i).FileName
+        strFileName = ThisDrawing.Application.vbe.VBprojects.item(i).fileName
         If InStr(UCase(strFileName), UCase(DVBFileName)) > 0 Then
             GetDVBPath = GetPath(strFileName)
             Exit For
@@ -770,7 +975,7 @@ On Error Resume Next
     Dim ssetObj As AcadSelectionSet
   
     If SSetColl.Count > 0 Then
-        SSetColl.item(0).delete
+        SSetColl.item(0).Delete
     End If
     Set ssetObj = SSetColl.Add("TEST")
     ssetObj.SelectOnScreen
@@ -819,7 +1024,7 @@ On Error Resume Next
     Dim ssetObj As AcadSelectionSet
   
     If SSetColl.Count > 0 Then
-        SSetColl.item(0).delete
+        SSetColl.item(0).Delete
     End If
     Set ssetObj = SSetColl.Add("TEST")
     ssetObj.SelectOnScreen
@@ -879,7 +1084,7 @@ On Error Resume Next
     Dim ssetObj As AcadSelectionSet
   
     If SSetColl.Count > 0 Then
-        SSetColl.item(0).delete
+        SSetColl.item(0).Delete
     End If
     Set ssetObj = SSetColl.Add("TEST")
     ssetObj.SelectOnScreen
@@ -1036,7 +1241,7 @@ Sub Ch4_ImportingAndExporting()
     
     '刪除空的選擇集
     
-    ThisDrawing.SelectionSets.item("NEWSSET").delete
+    ThisDrawing.SelectionSets.item("NEWSSET").Delete
     
     '打開新圖形
     
@@ -1152,10 +1357,10 @@ Sub Ch4_MaximizeApplicationWindow()
     Dim ssetObj As AcadSelectionSet
   
     If SSetColl.Count = 2 Then
-        SSetColl.item(0).delete
-        SSetColl.item(1).delete
+        SSetColl.item(0).Delete
+        SSetColl.item(1).Delete
     ElseIf SSetColl.Count > 0 Then
-        SSetColl.item(0).delete
+        SSetColl.item(0).Delete
     End If
     Set ssetObj = SSetColl.Add("TEST")
 

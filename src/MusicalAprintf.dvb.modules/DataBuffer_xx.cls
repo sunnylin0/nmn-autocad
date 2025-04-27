@@ -185,7 +185,7 @@ Sub GetDataToBuf__()
                 PreserveFormatting:=False                                   'Ctrl+F9
                 
                 Selection.MoveLeft Unit:=wdCharacter, Count:=1
-                Selection.delete Unit:=wdCharacter, Count:=2
+                Selection.Delete Unit:=wdCharacter, Count:=2
 
                 Selection.typsText text:="eq \o(" & cNote & "," & cTempo
                 

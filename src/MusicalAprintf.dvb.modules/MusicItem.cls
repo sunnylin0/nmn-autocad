@@ -21,9 +21,9 @@ Option Explicit
  Public a_deco As iArray        '動態指法
  Public slurStart As Boolean           '連音符
  Public slurEnd As Boolean             '連音符
- Public tripStart As Boolean           '3 連音開始
- Public tripEnd As Boolean             '3 連音結束
- Public tripCount As Integer           '是幾連音
+ Public tupletStart As Boolean           '3 連音開始
+ Public tupletEnd As Boolean             '3 連音結束
+ Public tupletCount As Integer           '是幾連音
  
  Public mand As Boolean                  '記錄合音 true為跟後面一音合音 ,false為沒有
  Public what As Integer                 '記錄一些不一樣的指法
@@ -34,6 +34,8 @@ Option Explicit
  Public mete As Integer     '拍號設定改變
  Public mete2 As Integer     '拍號設定改變
  Public barsperstaff  As Integer    '設定每行幾小節
+ Public setbarstaffid   As Integer   '設定每行幾小節  setbarstaffid 是要第幾小節
+ Public setbarstaff   As Integer   '設定每行幾小節  setbarstaff 是設定每行幾小節
  Public barNumber As Integer    '這小節號碼
   
  Public ln As Integer       '要記錄讀進來的資料是在文件裡的第幾 "行"
@@ -281,20 +283,20 @@ Public Sub calMeWidth()
 
         Select Case Me.typs
            Case Cg.bar:
-                Me.w = amt.wBar * G.FONTSIZE
+                Me.w = amt.wBar * G.fontsize
            Case Cg.meter:
-                Me.w = amt.wMete * G.FONTSIZE
+                Me.w = amt.wMete * G.fontsize
            Case Cg.Rest, Cg.note:
                 If Me.dots > 0 Then
-                    Me.w = 3 * amt.wNote * G.FONTSIZE
+                    Me.w = 3 * amt.wNote * G.fontsize
                 Else
-                    Me.w = amt.wNote * G.FONTSIZE
+                    Me.w = amt.wNote * G.fontsize
                 End If
            Case Else
         End Select
         '計算後綴寬度
         If Not Me.rightObjs Is Nothing Then
-            Me.w = Me.w + Me.rightObjs.Count * G.FONTSIZE * amt.extraScale
+            Me.w = Me.w + Me.rightObjs.Count * G.fontsize * amt.extraScale
         End If
 
 End Sub

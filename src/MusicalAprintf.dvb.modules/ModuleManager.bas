@@ -371,7 +371,7 @@ Public Sub ThisImportModules()
     Dim objVBE As vbe
     Set objVBE = ThisDrawing.Application.vbe
     'MsgBox objVBE.ActiveVBProject.FileName
-    Call ImportModules(objVBE.ActiveVBProject.FileName & ".modules", ShowMsgBox:=True)
+    Call ImportModules(objVBE.ActiveVBProject.fileName & ".modules", ShowMsgBox:=True)
 
 End Sub
 Public Sub ThisExportModules()
@@ -380,7 +380,7 @@ Public Sub ThisExportModules()
     Set objVBE = ThisDrawing.Application.vbe
     'MsgBox objVBE.ActiveVBProject.Name
 
-    Call ExportModules(objVBE.ActiveVBProject.FileName & ".modules")
+    Call ExportModules(objVBE.ActiveVBProject.fileName & ".modules")
 End Sub
 
 

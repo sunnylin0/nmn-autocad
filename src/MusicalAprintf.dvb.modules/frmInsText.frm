@@ -267,14 +267,14 @@ While 1
                 insPt(2) = objText.insertionPoint(2)
                 Set objBlock = ThisDrawing.ModelSpace.InsertBlock(insPt, "b推", 4, 4, 4, 0)
                 objBlock.Layer = "裝飾符號"
-                objText.delete
+                objText.Delete
             ElseIf objText.textString = "\U+020C" Then
                 insPt(0) = objText.insertionPoint(0) + 1.51
                 insPt(1) = objText.insertionPoint(1) + 4.65
                 insPt(2) = objText.insertionPoint(2)
                 Set objBlock = ThisDrawing.ModelSpace.InsertBlock(insPt, "b拉", 4, 4, 4, 0)
                 objBlock.Layer = "裝飾符號"
-                objText.delete
+                objText.Delete
             End If
         Else
             Exit Sub

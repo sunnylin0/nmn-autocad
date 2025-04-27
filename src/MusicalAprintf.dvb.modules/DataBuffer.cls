@@ -147,7 +147,8 @@ Private Sub SetMusicNoteFormation(moeList() As MusicNoteItemList)
     Dim pos As Integer
     Dim j As Integer
     Dim lsup As Integer
-    
+    Dim count_tuplet As Integer
+    Dim flueTuplet As Boolean
 
     Dim objMusic As MusicItem
     Dim c As MusicNoteItem
@@ -159,6 +160,8 @@ Private Sub SetMusicNoteFormation(moeList() As MusicNoteItemList)
     Dim extraList As MusicNoteItemList
     Dim isExtra As Boolean
     
+    count_tuplet = 0
+    flueTuplet = False
     For nTrack = 0 To UBound(moeList)
         initMusicMain nTrack
         
@@ -259,6 +262,21 @@ Private Sub SetMusicNoteFormation(moeList() As MusicNoteItemList)
             End If
             
             
+            If c.mslur = "{" Then
+                objMusic.tupletStart = True        '多連音線
+                flueTuplet = True
+                count_tuplet = 1
+            ElseIf c.mslur = "}" Then
+                objMusic.tupletEnd = True
+                count_tuplet = count_tuplet + 1
+                objMusic.tupletCount = count_tuplet
+                count_tuplet = 0
+                flueTuplet = False
+            ElseIf flueTuplet = True Then
+                count_tuplet = count_tuplet + 1
+            End If
+            
+            
             'objMusic.ln = ln  '寫入第幾行
             'objMusic.WD = i   '寫入第幾字
             
@@ -296,15 +314,26 @@ Private Sub noteConfigSet(nTrack As Integer, c As MusicNoteItem)
             Dim regMatches
             Dim rMusicItem As MusicItem
             Set rMusicItem = New MusicItem
-            regEx.Pattern = "bar[\s]+(\d+)"
+            
+            regEx.Pattern = ":setbar[\s]+(\d+)/(\d+)"
             Set regMatches = regEx.Execute(c.configText)
-
+            If regMatches.Count >= 1 Then
+                rMusicItem.typs = Cg.Config
+                rMusicItem.setbarstaffid = regMatches(0).SubMatches(0)
+                rMusicItem.setbarstaff = regMatches(0).SubMatches(1)
+            End If
+        
+            regEx.Pattern = ":bar[\s]+(\d+)"
+            Set regMatches = regEx.Execute(c.configText)
             If regMatches.Count >= 1 Then
                 rMusicItem.typs = Cg.Config
                 rMusicItem.barsperstaff = regMatches(0).SubMatches(0) '設定每行幾小節
-
             End If
+            
             mMusic(nTrack).Push rMusicItem
+            
+            
+
         End If
     End If
 

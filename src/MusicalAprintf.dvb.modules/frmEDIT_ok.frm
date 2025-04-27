@@ -80,7 +80,7 @@ End Sub
 Private Sub cmOK_Click()
 
     G.fontName = Me.cobFontName.text
-    G.FONTSIZE = Me.cobFontSize.text
+    G.fontsize = Me.cobFontSize.text
     
     Dim mete_mete As Variant
     mete_mete = Split(Me.cobMete, "/")
@@ -198,7 +198,7 @@ Private Sub inst_G(the_G As Glode, pt As Variant)
     
     ' Define the text object
     textString = version & vbCrLf
-    textString = textString & "size " & the_G.FONTSIZE & vbCrLf
+    textString = textString & "size " & the_G.fontsize & vbCrLf
     
     textString = textString & "左空白 " & the_G.LeftSpace & "mm" & vbCrLf
     textString = textString & "右空白 " & the_G.RightSpace & "mm" & vbCrLf
@@ -245,7 +245,7 @@ Private Sub draw_many_text1()
     Dim ooPt As Variant
     titlePT = insPt
     titlePT(0) = titlePT(0) + (G.pagewidth / 2)
-    titlePT(1) = titlePT(1) + G.FONTSIZE * 5.5
+    titlePT(1) = titlePT(1) + G.fontsize * 5.5
     Set objText = ThisDrawing.ModelSpace.AddText(m_buf.getTITLE, titlePT, 6)
     ooPt = objText.insertionPoint
     objText.Layer = "TEXT"
@@ -383,7 +383,7 @@ Private Sub draw_many_text1()
                     '(古箏用)
                     '圖塊用附號)
                     ppnt.a atPt
-                    MBG.setDataText ppnt, s1, G.FONTSIZE
+                    MBG.setDataText ppnt, s1, G.fontsize
                     Set BNewObj = MBG.InsterEnt '插入音符及指法
 
 
@@ -444,12 +444,12 @@ Private Sub draw_many_text1()
                     ppnt.x = atPt(0)
                     ppnt.y = atPt(1)
                     ppnt.Z = atPt(2)
-                    MBG.setDataText ppnt, s1, G.FONTSIZE
+                    MBG.setDataText ppnt, s1, G.fontsize
                     Set BNewObj = MBG.InsterEnt '插入音符及指法
 
 
                     '插入指法 附號(二胡用)
-                    InsertErhuFinge ppnt, tmp_erhu_fing, G.FONTSIZE
+                    InsertErhuFinge ppnt, tmp_erhu_fing, G.fontsize
 
                 End If
 
@@ -773,7 +773,7 @@ Private Function atBarXYpos(ByVal the_pt As point, ByVal the_track As Integer, _
     'col 是每一行的第幾拍，是以一拍為單位來數
     'tmp_modCol 是每一拍的第幾個字的位置
     pp.x = G.LeftSpace + the_measure * tmp_barSpaceWidth + G.BarToNoteSpace  '算出小節的位置 + 小節線到音符的空白
-    pp.x = pp.x + (CDbl(tmp_modCol) / CDbl(PARTITION_DEF / (4))) * (amt.LINE_LEN * G.FONTSIZE) '除於 4分之一拍 的問題
+    pp.x = pp.x + (CDbl(tmp_modCol) / CDbl(PARTITION_DEF / (4))) * (amt.LINE_LEN * G.fontsize) '除於 4分之一拍 的問題
 
     pp.y = (G.TrackToTrack) * the_track + ((G.TrackToTrack) * (G.Many - 1) + G.LineToLine) * the_line
     pp.y = -pp.y
@@ -802,8 +802,8 @@ Private Function atBarXYpos(ByVal the_pt As point, ByVal the_track As Integer, _
     
     '是否2個字太近壓到了
     '移至1個字的寬度
-    If Abs(lastPoint.x - pp.x) <= amt.A_TEXT_WIDTH * G.FONTSIZE Then
-        pp.x = lastPoint.x + amt.A_TEXT_WIDTH * G.FONTSIZE * 1.05
+    If Abs(lastPoint.x - pp.x) <= amt.A_TEXT_WIDTH * G.fontsize Then
+        pp.x = lastPoint.x + amt.A_TEXT_WIDTH * G.fontsize * 1.05
     End If
     
     Set lastPoint = pp  '存入最後的點
@@ -853,7 +853,7 @@ Private Function atDraw_BarLine(ByVal the_pt As point, ByVal the_track As Intege
             '這是在畫第一小節
     
             startPt.x = the_pt.x + G.LeftSpace
-            startPt.y = -((amt.LINE_PASE + amt.DROP_UP) * G.FONTSIZE) + tmp_rowspacing * the_line
+            startPt.y = -((amt.LINE_PASE + amt.DROP_UP) * G.fontsize) + tmp_rowspacing * the_line
             startPt.y = -startPt.y + the_pt.y
 
             endPt.x = the_pt.x + G.LeftSpace
@@ -864,7 +864,7 @@ Private Function atDraw_BarLine(ByVal the_pt As point, ByVal the_track As Intege
             ptlist.Add startPt
             ptlist.Add endPt
             Set tmp_pLWPoly = ThisDrawing.ModelSpace.AddPolyline(ptlist.ToXYZList)
-            tmp_pLWPoly.ConstantWidth = amt.BAR_WITCH * G.FONTSIZE / 4.6
+            tmp_pLWPoly.ConstantWidth = amt.BAR_WITCH * G.fontsize / 4.6
             tmp_pLWPoly.Layer = "bar"
         
             
@@ -877,7 +877,7 @@ Private Function atDraw_BarLine(ByVal the_pt As point, ByVal the_track As Intege
     
                     startPt.x = the_pt.x + G.LeftSpace + tmp_bardist + barIndex * tmp_bardist
     
-                    startPt.y = -((amt.LINE_PASE + amt.DROP_UP) * G.FONTSIZE) + (G.TrackToTrack * j) + (tmp_rowspacing * the_line)
+                    startPt.y = -((amt.LINE_PASE + amt.DROP_UP) * G.fontsize) + (G.TrackToTrack * j) + (tmp_rowspacing * the_line)
     
                     startPt.y = -startPt.y + the_pt.y
     
@@ -892,7 +892,7 @@ Private Function atDraw_BarLine(ByVal the_pt As point, ByVal the_track As Intege
                     ptlist.Add startPt
                     ptlist.Add endPt
                     Set tmp_pLWPoly = ThisDrawing.ModelSpace.AddPolyline(ptlist.ToXYZList)
-                    tmp_pLWPoly.ConstantWidth = amt.BAR_WITCH * G.FONTSIZE / 4.6
+                    tmp_pLWPoly.ConstantWidth = amt.BAR_WITCH * G.fontsize / 4.6
                     tmp_pLWPoly.Layer = "bar"
                 Next j
                 'm_pLWPoly->setThickness(plineInfo.m_thick)
@@ -948,7 +948,7 @@ Private Function atTableDraw(ByVal the_pt As point, ByVal the_track As Integer, 
     'col 是每一行的第幾拍，是以一拍為單位來數
     'tmp_modCol 是每一拍的第幾個字的位置
     pp.x = G.LeftSpace + G.BarToNoteSpace + Col * tmp_xbarInterval
-    pp.x = pp.x + (CDbl(tmp_modCol) / CDbl(PARTITION_DEF / (4))) * (amt.LINE_LEN * G.FONTSIZE) '除於 4分之一拍 的問題
+    pp.x = pp.x + (CDbl(tmp_modCol) / CDbl(PARTITION_DEF / (4))) * (amt.LINE_LEN * G.fontsize) '除於 4分之一拍 的問題
 
     pp.y = (G.TrackToTrack) * the_track + ((G.TrackToTrack) * (G.Many - 1) + G.LineToLine) * row
     pp.y = -pp.y
@@ -977,8 +977,8 @@ Private Function atTableDraw(ByVal the_pt As point, ByVal the_track As Integer, 
     
     '是否2個字太近壓到了
     '移至1個字的寬度
-    If Abs(lastPoint.x - pp.x) <= amt.A_TEXT_WIDTH * G.FONTSIZE Then
-        pp.x = lastPoint.x + amt.A_TEXT_WIDTH * G.FONTSIZE * 1.05
+    If Abs(lastPoint.x - pp.x) <= amt.A_TEXT_WIDTH * G.fontsize Then
+        pp.x = lastPoint.x + amt.A_TEXT_WIDTH * G.fontsize * 1.05
     End If
     
     Set lastPoint = pp
@@ -1024,7 +1024,7 @@ Private Function atTableDraw_bar(ByVal the_pt As point, ByVal the_track As Integ
         If Col = 0 And tmp_modCol = 0 Then '這是在第一小節
 
             startPt.x = the_pt.x + G.LeftSpace
-            startPt.y = -((amt.LINE_PASE + amt.DROP_UP) * G.FONTSIZE) + tmp_rowspacing * row
+            startPt.y = -((amt.LINE_PASE + amt.DROP_UP) * G.fontsize) + tmp_rowspacing * row
             startPt.y = -startPt.y + the_pt.y
 
             endPt.x = the_pt.x + G.LeftSpace
@@ -1035,7 +1035,7 @@ Private Function atTableDraw_bar(ByVal the_pt As point, ByVal the_track As Integ
             ptlist.Add startPt
             ptlist.Add endPt
             Set tmp_pLWPoly = ThisDrawing.ModelSpace.AddPolyline(ptlist.ToXYZList)
-            tmp_pLWPoly.ConstantWidth = amt.BAR_WITCH * G.FONTSIZE / 4.6
+            tmp_pLWPoly.ConstantWidth = amt.BAR_WITCH * G.fontsize / 4.6
             tmp_pLWPoly.Layer = "bar"
         End If
 
@@ -1046,7 +1046,7 @@ Private Function atTableDraw_bar(ByVal the_pt As point, ByVal the_track As Integ
 
                 startPt.x = the_pt.x + G.LeftSpace + tmp_bardist + Col / G.mete * tmp_bardist
 
-                startPt.y = -((amt.LINE_PASE + amt.DROP_UP) * G.FONTSIZE) + (G.TrackToTrack * j) + (tmp_rowspacing * row)
+                startPt.y = -((amt.LINE_PASE + amt.DROP_UP) * G.fontsize) + (G.TrackToTrack * j) + (tmp_rowspacing * row)
 
                 startPt.y = -startPt.y + the_pt.y
 
@@ -1061,7 +1061,7 @@ Private Function atTableDraw_bar(ByVal the_pt As point, ByVal the_track As Integ
                 ptlist.Add startPt
                 ptlist.Add endPt
                 Set tmp_pLWPoly = ThisDrawing.ModelSpace.AddPolyline(ptlist.ToXYZList)
-                tmp_pLWPoly.ConstantWidth = amt.BAR_WITCH * G.FONTSIZE / 4.6
+                tmp_pLWPoly.ConstantWidth = amt.BAR_WITCH * G.fontsize / 4.6
                 tmp_pLWPoly.Layer = "bar"
             Next j
             'm_pLWPoly->setThickness(plineInfo.m_thick)

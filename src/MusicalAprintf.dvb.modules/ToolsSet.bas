@@ -293,7 +293,7 @@ Marco(6, 1) = Chr(3) & Chr(3) & Chr(95) & "_addMusicEraseMany "
 Marco(7, 1) = Chr(3) & Chr(3) & Chr(95) & "_IsSet "
 Marco(8, 1) = Chr(3) & Chr(3) & Chr(95) & "_-vbarun ThisDrawing.Example_SelectOnScreen "
 
-    vbaPATH = ThisDrawing.Application.vbe.ActiveVBProject.FileName
+    vbaPATH = ThisDrawing.Application.vbe.ActiveVBProject.fileName
     pos = InStrRev(vbaPATH, "\")
     imagePATH = Mid(vbaPATH, 1, pos) & "image\"
 Marco(0, 2) = imagePATH & "UnLoad.BMP"

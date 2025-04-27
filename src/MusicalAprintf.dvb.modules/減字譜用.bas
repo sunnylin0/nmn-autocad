@@ -19,7 +19,7 @@ For k = 0 To 500
     
   
     If SSetColl.Count > 0 Then
-        SSetColl.item(0).delete
+        SSetColl.item(0).Delete
     End If
     
     Set ssetObj = SSetColl.Add("TEST")

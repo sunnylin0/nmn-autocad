@@ -107,19 +107,19 @@ End Function
     For i = 0 To s1.notes.Count - 1
         c = s1.notes(i).mtone
         If c = "b" Or c = "#" Or c = "o" Then
-            s1.extraw = s1.extraw - 0.3 * G.FONTSIZE
+            s1.extraw = s1.extraw - 0.3 * G.fontsize
             i = s1.notes.Count '離開迴圈
         End If
     Next
     '計算 前墜字
     If Not s1.extraObjs Is Nothing Then
-        s1.extraw = s1.extraw - (s1.extraObjs.Count * G.FONTSIZE * amt.extraScale * amt.wNote)
+        s1.extraw = s1.extraw - (s1.extraObjs.Count * G.fontsize * amt.extraScale * amt.wNote)
     End If
     
     '計算 後墜字
     
     If Not s1.rightObjs Is Nothing Then
-        s1.w = s1.w + (s1.rightObjs.Count * G.FONTSIZE * amt.extraScale * amt.wNote)
+        s1.w = s1.w + (s1.rightObjs.Count * G.fontsize * amt.extraScale * amt.wNote)
     End If
 
 
@@ -183,7 +183,7 @@ End Function
     Dim tempo_flags As Variant
     
     tempo_hj = " -2=4536789aAbBcCdDeEfFgGzZ"
-    'ttaaaaaa= array( , -  2  =  4  5  3  6  7  8   9  a   A   b   B   c   C   d   D  e   e    f   F   g   G   z   Z
+    'ttaaaaaa= array( , -  2  =  4  5  3  6  7  8   9  a   A   b   B   c   C   d   D  e   E    f   F   g   G   z   Z
     tempo_ll = Array(1, 2, 2, 4, 4, 5, 3, 6, 7, 8, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16, 32, 32)
     tempo_flags = Array(0, 1, 1, 2, 2, 2, 1, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5)
     
@@ -218,12 +218,12 @@ End Function
             Next ii
     End Select
     '找3連音
-    Select Case (s1.notes(0).mtempo)
-        Case "3", "5", "6", "7", "9", "a", "A", "c", "C"
-            s1.tripCount = tempo_ll(outcrop)
-        Case Else
-            s1.tripCount = 0
-    End Select
+'    Select Case (s1.notes(0).mtempo)
+'        Case "3", "5", "6", "7", "9", "a", "A", "c", "C", "e", "E"
+'            s1.tupletCount = tempo_ll(outcrop)
+'        Case Else
+'            s1.tupletCount = 0
+'    End Select
     
     For ii = 0 To s1.dots - 1
         tmp_delaytime = tmp_delaytime * 1.5

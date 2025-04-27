@@ -31,10 +31,10 @@ Dim MFS() As MusicFing
 Dim Grippt As GripPoints  '音附指法 狀態
 
 
-    Dim kFing(30 To 255) As String
-    Dim posFing(0 To 255) As point
-    Dim kTowFing(30 To 255) As String
-    Dim posTowFing(0 To 255) As point
+Dim kFing(30 To 255) As String
+Dim posFing(0 To 255) As point
+Dim kTowFing(30 To 255) As String
+Dim posTowFing(0 To 255) As point
     
 Const MAX200 As Integer = 200
 
@@ -124,21 +124,21 @@ Sub setDataText(position As point, musItem As MusicItem, TextSize As Double)
     Dim noteListType As iArray
   
             
-        noteListCode.PushArray Array("0 M-NOTE0", _
-            "1 M-NOTE1", _
-            "2 M-NOTE2", _
-            "3 M-NOTE3", _
-            "4 M-NOTE4", _
-            "5 M-NOTE5", _
-            "6 M-NOTE6", _
-            "7 M-NOTE7", _
-            ". M-NOTE.", _
-            "- M-NOTE-", _
-            "o M-NOTEo", _
-            "x M-NOTEx", _
-            "X M-NOTEX2", _
-            "e M-NOTEe", _
-            "E M-NOTEE2")
+    noteListCode.PushArray Array("0 M-NOTE0", _
+        "1 M-NOTE1", _
+        "2 M-NOTE2", _
+        "3 M-NOTE3", _
+        "4 M-NOTE4", _
+        "5 M-NOTE5", _
+        "6 M-NOTE6", _
+        "7 M-NOTE7", _
+        ". M-NOTE.", _
+        "- M-NOTE-", _
+        "o M-NOTEo", _
+        "x M-NOTEx", _
+        "X M-NOTEX2", _
+        "e M-NOTEe", _
+        "E M-NOTEE2")
             
     Dim iLe As Integer
     Dim cn As String
@@ -174,7 +174,11 @@ Sub setDataText(position As point, musItem As MusicItem, TextSize As Double)
         For i = 0 To noteListCode.Count - 1
             sarr = Split(noteListCode(i), " ")
             If cc = sarr(0) Then
-                MFS(currenCount).sNote = sarr(1)
+                If G.isVirtualChar Then
+                    MFS(currenCount).sNote = sarr(1) & "_o"
+                Else
+                    MFS(currenCount).sNote = sarr(1)
+                End If
                 Exit For
             Else
                 MFS(currenCount).sNote = ""
@@ -300,8 +304,8 @@ Public Function drawSlur(mt_slur_left As MusicBlockGraphics, mt_slur_right As Mu
         Dim islurBx As Double
         Dim islurBy As Double
         
-        islurAddX = 0.6245 * gTextSize
-        islurAddY = 0.4333 * gTextSize
+        islurAddX = 0.45 * gTextSize
+        islurAddY = 0.45 * gTextSize
         
         islurBy = 0.45 * gTextSize
         
@@ -368,8 +372,8 @@ Public Function drawSlurToEnd(mt_slur_left As MusicBlockGraphics, endX As Double
         Dim islurBx As Double
         Dim islurBy As Double
         
-        islurAddX = 0.6245 * gTextSize
-        islurAddY = 0.4333 * gTextSize
+        islurAddX = 0.5 * gTextSize
+        islurAddY = 0.45 * gTextSize
         
         islurBy = 0.45 * gTextSize
         
@@ -420,8 +424,8 @@ Public Function drawSlurStarTo(starX As Double, mt_slur_right As MusicBlockGraph
         Dim sX As Double
         Dim sY As Double
         
-        islurAddX = 0.6245 * gTextSize
-        islurAddY = 0.4333 * gTextSize
+        islurAddX = 0.45 * gTextSize
+        islurAddY = 0.45 * gTextSize
         
         islurBy = 0.45 * gTextSize
         
@@ -458,6 +462,153 @@ Public Function drawSlurStarTo(starX As Double, mt_slur_right As MusicBlockGraph
         Set drawSlurStarTo = plineSlur
 End Function
 
+
+
+Public Function drawTuplet(mt_tuplet_left As MusicBlockGraphics, mt_tuplet_right As MusicBlockGraphics, count_tuplet As Integer)
+    '繪 3 5 6 7 連音線
+    Dim plineTuplet As AcadLWPolyline
+    Dim points(0 To 7) As Double
+    Dim points_s(0 To 5) As Double
+    'Dim lenght As Double
+    ' Find the bulge of the third segment
+    Dim color As New AcadAcCmColor
+        
+    Dim islurAddX As Double
+    Dim islurAddY As Double
+    Dim islurBx As Double
+    Dim islurBy As Double
+    
+    islurAddX = 0.3 * gTextSize
+    islurAddY = 0.3 * gTextSize
+    
+    islurBy = 0.5 * gTextSize
+        
+    '總長度
+    'lenght = Abs(mt_tuplet_left.Grip.gptLeft.x - mt_tuplet_right.Grip.gptRight.x)
+    
+    
+    '畫線段
+    points(0) = mt_tuplet_left.Grip.gptLeft.x + gTextSize * 0.1
+    points(1) = mt_tuplet_left.Grip.gptMidUp.y + islurBy
+    points(2) = points(0)
+    points(3) = points(1) + islurAddY
+    points(4) = mt_tuplet_right.Grip.gptRight.x - gTextSize * 0.1
+    points(5) = points(3)
+    points(6) = points(4)
+    points(7) = points(1)
+    ' Create a lightweight Polyline object in model space
+    Set plineTuplet = ThisDrawing.ModelSpace.AddLightWeightPolyline(points)
+
+    '畫圓取交點
+    Dim circleObj As AcadCircle
+    Dim centerPt(0 To 2) As Double
+    Dim radius As Double
+    centerPt(0) = points(0) + (points(4) - points(0)) / 2
+    centerPt(1) = points(3)
+    centerPt(2) = 0
+    radius = gTextSize / 3
+    Set circleObj = ThisDrawing.ModelSpace.AddCircle(centerPt, radius)
+    
+      
+    ' 找尋線與圓的交點
+    Dim intPoints As Variant
+    Dim intPtLeft(0 To 2) As Double
+    Dim intPtRight(0 To 2) As Double
+    intPoints = plineTuplet.IntersectWith(circleObj, acExtendNone)
+
+
+    Dim Pts As New PointList
+    Dim ip As point
+'    ' Print all the intersection points
+    Dim i As Integer, j As Integer, k As Integer
+'    Dim str As String
+    If VarType(intPoints) <> vbEmpty Then
+        For i = LBound(intPoints) To UBound(intPoints)
+            Set ip = New point
+            ip.x = intPoints(j)
+            ip.y = intPoints(j + 1)
+            ip.Z = intPoints(j + 2)
+            Pts.Push ip
+            i = i + 2
+            j = j + 3
+            k = k + 1
+        Next
+    End If
+    
+    Dim tmpPt As New point
+    
+    '取得2個交點才是對的
+    If (Pts.Count = 2) Then
+        '排序
+        If (Pts(0).x > Pts(1).x) Then
+            Set tmpPt = Pts(0)
+             Pts(0) = Pts(1)
+             Pts(1) = tmpPt
+        End If
+        
+        plineTuplet.Delete
+        circleObj.Delete
+    
+        Dim lo_Tuplet As AcadLWPolyline
+        Dim ro_Tuplet As AcadLWPolyline
+        Dim pt_list(0 To 5) As Double
+        pt_list(0) = points(0): pt_list(1) = points(1)
+        pt_list(2) = points(2): pt_list(3) = points(3)
+        pt_list(4) = Pts(0).x
+        pt_list(5) = Pts(0).y
+        Set lo_Tuplet = ThisDrawing.ModelSpace.AddLightWeightPolyline(pt_list)
+        
+        pt_list(0) = Pts(1).x
+        pt_list(1) = Pts(1).y
+        pt_list(2) = points(4): pt_list(3) = points(5)
+        pt_list(4) = points(6): pt_list(5) = points(7)
+        Set ro_Tuplet = ThisDrawing.ModelSpace.AddLightWeightPolyline(pt_list)
+        
+        lo_Tuplet.ConstantWidth = 0.15
+        lo_Tuplet.Layer = "fige"
+        ro_Tuplet.ConstantWidth = 0.15
+        ro_Tuplet.Layer = "fige"
+        
+        '寫上數字
+        Dim textObj As AcadText
+        Dim textString As String
+        Dim insertionPoint(0 To 2) As Double
+        Dim height As Double
+        
+        ' Define the text object
+        textString = count_tuplet
+        insertionPoint(0) = 0: insertionPoint(1) = 0: insertionPoint(2) = 0
+        height = 0.63 * gTextSize
+        
+        ' Create the text object in model space
+        Set textObj = ThisDrawing.ModelSpace.AddText(textString, insertionPoint, height)
+        textObj.Alignment = acAlignmentMiddleCenter
+        textObj.Move insertionPoint, centerPt
+        textObj.styleName = "音符_數字"
+        textObj.Layer = "TEXT"
+        
+        
+        Set drawTuplet = lo_Tuplet
+    Else
+        circleObj.Delete
+        
+        plineTuplet.setWidth 0, 0.15, 0.15
+        plineTuplet.setWidth 1, 0.15, 0.15
+        plineTuplet.setWidth 2, 0.15, 0.15
+        
+        plineTuplet.Layer = "fige"
+        
+        color.ColorIndex = 3
+        plineTuplet.TrueColor = color
+        plineTuplet.Update
+                        
+        Set drawTuplet = plineTuplet
+    End If
+       
+    
+       
+       
+End Function
 Public Function drawBlockItem(blockName As String, x As Double, y As Double, Optional size As Double = 1, _
     Optional dx As Double = 0, Optional dy As Double = 0, _
     Optional scX As Double = 1, Optional scY As Double = 1, Optional scZ As Double = 1)
@@ -479,6 +630,91 @@ Public Function drawBlockItem(blockName As String, x As Double, y As Double, Opt
         Set drawBlockItem = ThisDrawing.ModelSpace.AddText(blockName, aligPoint, size)
     End If
 End Function
+
+Public Function draw_Scale(isOneItem As Boolean, iScale As Integer, iTempo As Integer, x As Double, y As Double, Optional fontsize As Double = 1, Optional scY As Double = 1) As Double
+    '繪 高低音
+    'isOneItem 是否是第一個元素
+    'iScale
+    '
+    '
+    '
+    Dim mX As Double
+    Dim mY As Double
+    Dim txtScale As String
+    Dim topAdd As Double
+    Dim sbottmAdd As Double
+    If iScale = 0 Then
+        draw_Scale = y + fontsize * scY + 0.2
+        Exit Function
+    End If
+    
+    If iScale < 0 Then
+        Select Case iScale           ' Evaluate Number.
+            Case -1
+                txtScale = "M-OCTAVEa"
+                sbottmAdd = 0.1
+                topAdd = 0.1 + 0.2
+            Case -2
+                txtScale = "M-OCTAVEb"
+                sbottmAdd = 0.4
+                topAdd = 0.4 + 0.2
+            Case -3
+                txtScale = "M-OCTAVEc"
+                sbottmAdd = 0.4
+                topAdd = 0.4 + 0.2
+            Case Else
+                txtScale = "M-OCTAVEa"
+                sbottmAdd = 0.1
+                topAdd = 0.1 + 0.2
+        End Select
+        
+        If isOneItem = True Then
+            '有線時 iTempo >1 要下去的距離
+            
+            mY = -(amt.DROP_ADD_LINE_INTERVAL * iTempo)
+            mY = mY - 0.2
+            
+            Call drawBlockItem(txtScale, x, y, gTextSize, 0, mY)
+            draw_Scale = y + fontsize * scY + 0.2 * gTextSize
+            
+        Else
+        '不是第一個
+            mY = sbottmAdd
+            Call drawBlockItem(txtScale, x, y, gTextSize, 0, mY)
+            
+            draw_Scale = y + topAdd * gTextSize
+            
+        End If
+    
+
+    
+    ElseIf iScale > 0 Then
+    'M-OCTAVE1
+    'M-OCTAVE2
+    'M-OCTAVE3
+        mY = fontsize * scY + 0.2 * gTextSize
+        Select Case iScale    ' Evaluate Number.
+            Case 1
+                txtScale = "M-OCTAVE1"
+                topAdd = 0.2
+            Case 2
+                txtScale = "M-OCTAVE2"
+                topAdd = 0.5
+            Case 3
+                txtScale = "M-OCTAVE3"
+                topAdd = 0.5
+            Case Else
+                txtScale = "M-OCTAVE1"
+                topAdd = 0.2
+        End Select
+        Call drawBlockItem(txtScale, x, y + mY, gTextSize)
+        
+        mY = y + mY + topAdd * gTextSize
+        draw_Scale = mY
+    End If
+    
+End Function
+
 Public Function InsterEnt() As AcadBlockReference '插入音附
     Dim textObj As AcadText
     Dim blockRefObj  As AcadBlockReference
@@ -504,6 +740,7 @@ Public Function InsterEnt() As AcadBlockReference '插入音附
     Dim x As Double, y As Double, Z As Double
     Dim lastOctave As Integer
     Dim scY As Double
+    Dim bottomY As Double
     
     x = Grippt.gptMid.x
     y = Grippt.gptMid.y
@@ -517,37 +754,47 @@ Public Function InsterEnt() As AcadBlockReference '插入音附
          End If
         
         '設訂疊音的 y 軸比例
-        If UBound(MFS) = 3 Then
-            scY = 0.7
-        ElseIf UBound(MFS) >= 4 Then
+        
+        If UBound(MFS) >= 3 Then
             scY = 0.6
+        ElseIf UBound(MFS) >= 2 Then
+            scY = 0.7
+        ElseIf UBound(MFS) >= 1 Then
+            scY = 1
         Else
             scY = 1
         End If
         
-            mX = 0: mY = 0
-                If mItem.iScale <= 0 Then
-                    If ItemCount >= 1 Then
-                        lastOctave = lastOctave + Abs(mItem.iScale)
-                    ElseIf mItem.iTempo >= 1 Then    '下點音附 要移下去一些
-                        '有線時 要下去的距離
-                        mX = 0
-                        mY = -(amt.DROP_ADD_LINE_INTERVAL * mItem.iTempo)
-                    End If
-                    mY = mY - 0.2
-                Else
-                    mY = mY + 1 + 0.2
-                End If
-                
-                If ItemCount > 0 Then
-                    If lastOctave > 0 Then
-                        y = y + (lastOctave * 0.3) * gTextSize - (lastOctave * 0.3) * gTextSize * (1 - scY)
-                    End If
-                    y = y + 1.1 * gTextSize - gTextSize * (1 - scY)
-                End If
-            If mItem.sScale <> "" Then
-                Call drawBlockItem(mItem.sScale, x, y, gTextSize, mX, mY)
-            End If
+
+        
+'            mX = 0: mY = 0
+'                If mItem.iScale <= 0 Then
+'                    If ItemCount >= 1 Then
+'                        lastOctave = lastOctave + Abs(mItem.iScale)
+'                        mY = -0.2
+'                    ElseIf mItem.iTempo >= 1 Then    '下點音附 要移下去一些
+'                        '有線時 要下去的距離
+'                        mX = 0
+'                        mY = -(amt.DROP_ADD_LINE_INTERVAL * mItem.iTempo)
+'                        mY = mY - 0.2
+'                    Else
+'                        mY = -0.2 * scY
+'                    End If
+'                Else
+'                    mY = (mY + 1 + 0.2)
+'                End If
+'
+'                If ItemCount > 0 Then
+'                    If lastOctave > 0 Then
+'                        y = y + (lastOctave * 0.3) * gTextSize - (lastOctave * 0.3) * gTextSize * (1 - scY)
+'                    End If
+'                    y = y + 1.1 * gTextSize - gTextSize * (1 - scY)
+'                End If
+'            If mItem.sScale <> "" Then
+'                '  x  y 是音符的位置
+'                ' mX mY 是高低音位移的位置
+'                Call drawBlockItem(mItem.sScale, x, y, gTextSize, mX, mY)
+'            End If
             
             '計算多音符的 y 軸移動
             If ItemCount = 0 Then lastOctave = 0
@@ -555,20 +802,43 @@ Public Function InsterEnt() As AcadBlockReference '插入音附
         
             '繪主音
             'Y = Y + (gTextSize * itemCount) + totalOctave
-            mX = 0: mY = 0
-'            If (ItemCount = 0) Then
-'                '只取得合音的第一個
-'                Set TheObj = drawBlockItem(mItem.sNote, x, y, gTextSize, mX, mY, 1, 1, 1)
-'            Else
-                 Set TheObj = drawBlockItem(mItem.sNote, x, y, gTextSize, mX, mY, 1, scY, 1)
-'            End If
+        mX = 0: mY = 0
+'        If ItemCount = 0 Then
+'            '只取得合音的第一個
+'            Set TheObj = drawBlockItem(mItem.sNote, x, y, gTextSize, 0, 0, 1, scY, 1)
+'        Else
+'             Set TheObj = drawBlockItem(mItem.sNote, x, bottomY, gTextSize, 0, 0, 1, scY, 1)
+'        End If
+'
+        
+        
+        If mItem.iScale < 0 Then
+            If ItemCount = 0 Then
+                bottomY = Me.draw_Scale(True, mItem.iScale, mItem.iTempo, x, y, gTextSize, scY)
+                Set TheObj = drawBlockItem(mItem.sNote, x, y, gTextSize, 0, 0, 1, scY, 1)
+                bottomY = Me.draw_Scale(True, 0, mItem.iTempo, x, y, gTextSize, scY)
+            Else
+                '計算高低音點後的 文字 y 位置
+                bottomY = Me.draw_Scale(False, mItem.iScale, mItem.iTempo, x, bottomY, gTextSize, scY)
+                Set TheObj = drawBlockItem(mItem.sNote, x, bottomY, gTextSize, 0, 0, 1, scY, 1)
+                bottomY = Me.draw_Scale(False, 0, mItem.iTempo, x, bottomY, gTextSize, scY)
+            End If
+        Else
+            If ItemCount = 0 Then
+                Set TheObj = drawBlockItem(mItem.sNote, x, y, gTextSize, 0, 0, 1, scY, 1)
+                bottomY = Me.draw_Scale(True, mItem.iScale, mItem.iTempo, x, y, gTextSize, scY)
+            Else
+                Set TheObj = drawBlockItem(mItem.sNote, x, bottomY, gTextSize, 0, 0, 1, scY, 1)
+                '計算高低音點後的 文字 y 位置
+                bottomY = Me.draw_Scale(False, mItem.iScale, mItem.iTempo, x, bottomY, gTextSize, scY)
+            End If
+        
+        End If
             
             '繪負點音符
             If (MData.dots > 0) Then
                 Call drawBlockItem("M-NOTE.", x + (amt.wNote * gTextSize), y, gTextSize, mX, mY)
             End If
-                        
-            
             
             If mItem.iScale > 0 Then   '低八度的點
                 lastOctave = mItem.iScale
@@ -578,7 +848,11 @@ Public Function InsterEnt() As AcadBlockReference '插入音附
             
             
             '升降記號
-            Call drawBlockItem(mItem.sTONE, x, y, gTextSize, 0, 0)
+            Dim objPT As Variant
+            Dim ptY As Double
+            objPT = TheObj.insertionPoint
+            ptY = objPT(1)
+            Call drawBlockItem(mItem.sTONE, x, ptY, gTextSize, 0, 0)
         
             
             If frmEDIT.chkOption1.value = True Then
@@ -1245,8 +1519,8 @@ Public Function insterPositionBox(insterPt As point, G As Glode, Optional layerN
     Dim ip As New point
     ip = insterPt
     Pnt.Push ip.c(insterPt.x, insterPt.y - 200, 0).clone
-    Pnt.Push ip.c(insterPt.x, insterPt.y + G.FONTSIZE * 9, 0).clone
-    Pnt.Push ip.c(insterPt.x + G.pagewidth, insterPt.y + G.FONTSIZE * 9, 0).clone
+    Pnt.Push ip.c(insterPt.x, insterPt.y + G.fontsize * 9, 0).clone
+    Pnt.Push ip.c(insterPt.x + G.pagewidth, insterPt.y + G.fontsize * 9, 0).clone
     Pnt.Push ip.c(insterPt.x + G.pagewidth, insterPt.y - 200, 0).clone
     
 '    Call Pnt.Push(.Add(insterPt.X, insterPt.Y - 200, 0)
@@ -1260,12 +1534,8 @@ Public Function insterPositionBox(insterPt As point, G As Glode, Optional layerN
 End Function
 
    
-   
-   
+Public Sub setVirtualChar(isVirtualChar As Boolean)
 
-Private Sub Class_Initialize()
-
-    
     Dim kNUM1 As String, kNUM2 As String, kNUM3 As String, kNUM4 As String
     Dim kNUM5 As String, kNUM6 As String, kNUM7 As String, kNUM0 As String
     Dim k延長一拍 As String
@@ -1279,6 +1549,7 @@ Private Sub Class_Initialize()
     'Dim kFing(30 To 255) As String
     'Dim posFing(0 To 255) As point
     Dim posLinDown As Variant
+    
     
     posLinDown = Array(0, 12, 26, 40)   '這是看低音下點要移多少下去，是當200字型時計算
     
@@ -1295,44 +1566,7 @@ Private Sub Class_Initialize()
     kUP1 = ChrW(&H66E0): kUP2 = ChrW(&H66E3): kDOW1 = ChrW(&H66E6): kDOW2 = ChrW(&H66E8)
     kAdot = ChrW(&H5D3D)            '符點音符
     kBarLine = ChrW(&H601D)
-    kFing(Asc("z")) = "MT" & Format(Asc("z"), "0000") 'ASC_z 122 ChrW(&H6416)  ' z 大指
-    kFing(Asc("x")) = "MT" & Format(Asc("x"), "0000") 'ASC_x 120 ChrW(&H641A)  ' x 食指
-    kFing(Asc("c")) = "MT" & Format(Asc("c"), "0000") 'ASC_c 99 ChrW(&H641C)  ' c 中指
-    kFing(Asc("v")) = "MT" & Format(Asc("v"), "0000") 'ASC_v 118 ChrW(&H641F)  ' v 無名指
-    kFing(Asc("a")) = "MT" & Format(Asc("a"), "0000") 'ASC_a 97 ChrW(&H6421)  ' a 八度
-    kFing(Asc("s")) = "MT" & Format(Asc("s"), "0000") 'ASC_s 115 ChrW(&H66FC)  ' s 王字指法
-    kFing(Asc("d")) = "MT" & Format(Asc("d"), "0000") 'ASC_d 100 ChrW(&H6700)  ' d 搖指
-    'kFing(Asc("p")) = "MT" & Format(Asc("p"), "0000") 'ASC_p 112 ChrW(&H6381)  ' p 卜指法
-    kFing(Asc("Z")) = "MT" & Format(Asc("Z"), "0000") 'ASC_Z 90 ChrW(&H6418)  ' 大寫Z 反大指法
-    kFing(Asc("A")) = "MT" & Format(Asc("A"), "0000") 'ASC_A 65 ChrW(&H6413)  ' 大寫A 反八度
-    kFing(Asc("-")) = "MT" & Format(Asc("-"), "0000") 'ASC_- 45 ChrW(&H66F7)  ' - 間一旋
-    kFing(Asc("=")) = "MT" & Format(Asc("="), "0000") 'ASC_= 61 ChrW(&H66F8)  ' = 間二旋
-    'kFing(Asc("t")) = "MT" & Format(Asc("t"), "0000") 'ASC_t 116 ChrW(&H670B)  ' t 打圓 托勾
-    kFing(Asc("w")) = "MT" & Format(Asc("w"), "0000") 'ASC_w 119 ChrW(&H670B)  ' w 柔音
-    kFing(Asc("@")) = "MT" & Format(Asc("@"), "0000") 'ASC_w 119 ChrW(&H670B)  '
-    
-    
-    kTowFing(Asc("z")) = "MT" & Format(Asc("z"), "0000") 'ASC_z 122 ChrW(&H6416)  ' z 大指
-    kTowFing(Asc("x")) = "MT" & Format(Asc("x"), "0000") 'ASC_x 120 ChrW(&H641A)  ' x 食指
-    kTowFing(Asc("c")) = "MT" & Format(Asc("c"), "0000") 'ASC_c 99 ChrW(&H641C)  ' c 中指
-    kTowFing(Asc("v")) = "MT" & Format(Asc("v"), "0000") 'ASC_v 118 ChrW(&H641F)  ' v 無名指
-    kTowFing(Asc("a")) = "MT" & Format(Asc("a"), "0000") 'ASC_a 97 ChrW(&H6421)  ' a 八度
-    kTowFing(Asc("s")) = "MT" & Format(Asc("s"), "0000") 'ASC_s 115 ChrW(&H66FC)  ' s 王字指法
-    kTowFing(Asc("d")) = "MT" & Format(Asc("d"), "0000") 'ASC_d 100 ChrW(&H6700)  ' d 搖指
-    'kTowFing(Asc("p")) = "MT" & Format(Asc("p"), "0000") 'ASC_p 112 ChrW(&H6381)  ' p 卜指法
-    kTowFing(Asc("Z")) = "MT" & Format(Asc("Z"), "0000") 'ASC_Z 90 ChrW(&H6418)  ' 大寫Z 反大指法
-    kTowFing(Asc("A")) = "MT" & Format(Asc("A"), "0000") 'ASC_A 65 ChrW(&H6413)  ' 大寫A 反八度
-    kTowFing(Asc("-")) = "MT" & Format(Asc("-"), "0000") 'ASC_- 45 ChrW(&H66F7)  ' - 間一旋
-    kTowFing(Asc("=")) = "MT" & Format(Asc("="), "0000") 'ASC_= 61 ChrW(&H66F8)  ' = 間二旋
-    kTowFing(Asc("t")) = "MT" & Format(Asc("t"), "0000") 'ASC_t 116 ChrW(&H670B)  ' t 打圓 托勾
-    kTowFing(Asc("w")) = "MT" & Format(Asc("w"), "0000") 'ASC_w 119 ChrW(&H670B)  ' w 柔音
-    kTowFing(Asc("m")) = "MT" & Format(Asc("m"), "0000") 'ASC_w 119 ChrW(&H670B)  '
-    kTowFing(Asc("e")) = "MT" & Format(Asc("e"), "0000") 'ASC_w 119 ChrW(&H670B)  '
-    kTowFing(Asc("r")) = "MT" & Format(Asc("r"), "0000") 'ASC_w 119 ChrW(&H670B)  '
-    kTowFing(Asc("k")) = "MT" & Format(Asc("k"), "0000") 'ASC_w 119 ChrW(&H670B)  '
-    kTowFing(Asc("n")) = "MT" & Format(Asc("n"), "0000") 'ASC_t 116 ChrW(&H670B)  ' n 按音
-    kTowFing(Asc("f")) = "MT" & Format(Asc("f"), "0000") 'ASC_t 116 ChrW(&H670B)  ' f 吟音
-    kTowFing(Asc("b")) = "MT" & Format(Asc("b"), "0000") 'ASC_t 116 ChrW(&H670B)  ' b 按音
+
     
     '要上下移多少
     Dim ip As Integer
@@ -1340,49 +1574,91 @@ Private Sub Class_Initialize()
         Set posFing(ip) = New point
         Set posTowFing(ip) = New point
     Next
-    
-    posFing(Asc("z")).c -0.363, 1.57, 0 ' z 大指
-    posFing(Asc("x")).c -0.363, 1.65, 0 ' x 食指
-    posFing(Asc("c")).c -0.363, 1.57, 0 ' c 中指
-    posFing(Asc("v")).c -0.363, 1.57, 0 ' v 無名指
-    posFing(Asc("a")).c -0.363, 1.57, 0 ' a 八度
-    posFing(Asc("s")).c -0.363, 1.57, 0 ' s 王字指法
-    posFing(Asc("d")).c -0.363, -0.85, 0 ' d 搖指
-    posFing(Asc("p")).c -0.363, -0.01, 0 ' p 卜指法
-    posFing(Asc("Z")).c -0.363, 1.57, 0 ' 大寫Z 反大指法
-    posFing(Asc("A")).c -0.363, 1.57, 0 ' 大寫A 反八度
-    posFing(Asc("-")).c -0.363, 1.57, 0 ' - 間一旋
-    posFing(Asc("=")).c -0.363, 1.57, 0 ' = 間二旋
-    posFing(Asc("t")).c -0.363, 1.6, 0 ' t 打圓 托勾
-    posFing(Asc("@")).c -0.363, 1.57, 0 ' w
-    
-    
-    posTowFing(Asc("z")).c -0.363, -0.7, 0 ' z 大指
-    posTowFing(Asc("x")).c -0.363, -0.7, 0 ' x 食指
-    posTowFing(Asc("c")).c -0.363, -0.7, 0 ' c 中指
-    posTowFing(Asc("v")).c -0.363, -0.7, 0 ' v 無名指
-    posTowFing(Asc("a")).c -0.363, -0.7, 0 ' a 八度
-    posTowFing(Asc("s")).c -0.363, -0.7, 0 ' s 王字指法
-    'posTowFing(Asc("d")).c -0.363, -0.85, 0 ' d 搖指
-    'posTowFing(Asc("p")).c -0.363, -0.01, 0 ' p 卜指法
-    posTowFing(Asc("Z")).c -0.363, -0.7, 0 ' 大寫Z 反大指法
-    posTowFing(Asc("A")).c -0.363, -0.7, 0 ' 大寫A 反八度
-    posTowFing(Asc("-")).c -0.363, -0.7, 0 ' - 間一旋
-    posTowFing(Asc("=")).c -0.363, -0.7, 0 ' = 間二旋
-    posTowFing(Asc("t")).c -0.363, -0.7, 0 ' t 打圓 托勾
-    posTowFing(Asc("w")).c -0.363, -0.7, 0 ' m
-    posTowFing(Asc("m")).c -0.363, -0.7, 0 ' w
-    posTowFing(Asc("e")).c -0.363, -0.7, 0 ' w
-    posTowFing(Asc("r")).c -0.363, -0.7, 0 ' w
-    posTowFing(Asc("k")).c -0.363, -0.7, 0 ' w
-    posTowFing(Asc("n")).c -0.363, -0.7, 0 ' w
-    posTowFing(Asc("f")).c -0.363, -0.7, 0 ' w
-    posTowFing(Asc("b")).c -0.363, -0.7, 0 ' w
-    
-      'xnote.0': { d: [['M', 7.16, 0], ['C', 8.98, 0, 10.39, 0.91, 11.41, 2.74], ['C', 12, 3.9, 12.3, 5.37, 12.3, 7.15], ['L', 12.3, 9.42], ['C', 12.3, 10.72, 11.93, 12.13, 11.18, 13.64], ['C', 10.47, 15.19, 9.15, 15.98, 7.21, 16], ['C', 5.61, 15.99, 4.5, 15.61, 3.88, 14.87], ['C', 3.26, 14.13, 2.84, 13.42, 2.62, 12.75], ['C', 2.4, 12.07, 2.24, 11.33, 2.14, 10.51], ['C', 2.05, 9.69, 2, 8.61, 2, 7.26], ['C', 2.05, 5.31, 2.34, 3.85, 2.87, 2.88], ['C', 3.7, 0.99, 5.13, 0.03, 7.16, 0], ['Z']], w: 14, h: 16 },
+    Dim posFingListCode As New iArray
+    Dim posTowFingListCode As New iArray
+
+            
+    posFingListCode.Push ("z , -0.363, 1.57, 0") ' z 大指
+    posFingListCode.Push ("x , -0.363, 1.65, 0") ' x 食指
+    posFingListCode.Push ("c , -0.363, 1.57, 0") ' c 中指
+    posFingListCode.Push ("v , -0.363, 1.57, 0") ' v 無名指
+    posFingListCode.Push ("a , -0.363, 1.57, 0") ' a 八度
+    posFingListCode.Push ("s , -0.363, 1.57, 0") ' s 王字指法
+    posFingListCode.Push ("d , -0.363, -0.85,0") ' d 搖指
+    posFingListCode.Push ("p , -0.363, -0.01,0") ' p 卜指法
+    posFingListCode.Push ("Z , -0.363, 1.57, 0") ' 大寫Z 反大指法
+    posFingListCode.Push ("A , -0.363, 1.57, 0") ' 大寫A 反八度
+    posFingListCode.Push ("- , -0.363, 1.57, 0") ' - 間一旋
+    posFingListCode.Push ("= , -0.363, 1.57, 0") ' = 間二旋
+    posFingListCode.Push ("t , -0.363, 1.6, 0 ") ' t 打圓 托勾
+    posFingListCode.Push ("@ , -0.363, 1.57, 0") ' w
+        
+        
+    posTowFingListCode.Push ("z, -0.363, -0.7, 0") ' z 大指
+    posTowFingListCode.Push ("x, -0.363, -0.7, 0") ' x 食指
+    posTowFingListCode.Push ("c, -0.363, -0.7, 0") ' c 中指
+    posTowFingListCode.Push ("v, -0.363, -0.7, 0") ' v 無名指
+    posTowFingListCode.Push ("a, -0.363, -0.7, 0") ' a 八度
+    posTowFingListCode.Push ("s, -0.363, -0.7, 0") ' s 王字指法
+    posTowFingListCode.Push ("d, -0.363, -0.85,0") ' d 搖指
+    posTowFingListCode.Push ("p, -0.363, -0.01,0") ' p 卜指法
+    posTowFingListCode.Push ("Z, -0.363, -0.7, 0") ' 大寫Z 反大指法
+    posTowFingListCode.Push ("A, -0.363, -0.7, 0") ' 大寫A 反八度
+    posTowFingListCode.Push ("-, -0.363, -0.7, 0") ' - 間一旋
+    posTowFingListCode.Push ("=, -0.363, -0.7, 0") ' = 間二旋
+    posTowFingListCode.Push ("t, -0.363, -0.7, 0") ' t 打圓 托勾
+    posTowFingListCode.Push ("w, -0.363, -0.7, 0") ' m
+    posTowFingListCode.Push ("m, -0.363, -0.7, 0") ' w
+    posTowFingListCode.Push ("e, -0.363, -0.7, 0") ' w
+    posTowFingListCode.Push ("r, -0.363, -0.7, 0") ' w
+    posTowFingListCode.Push ("k, -0.363, -0.7, 0") ' w
+    posTowFingListCode.Push ("n, -0.363, -0.7, 0") ' w
+    posTowFingListCode.Push ("f, -0.363, -0.7, 0") ' w
+    posTowFingListCode.Push ("b, -0.363, -0.7, 0") ' w
+                       
+
+    Dim sarr As Variant
+    Dim i As Integer
+    Dim cc As String
+    Dim k As Integer
+    For i = 0 To posFingListCode.Count - 1
+        sarr = Split(posFingListCode(i), ",")
+        cc = Mid(Trim(sarr(0)), 1, 1)
+        k = Asc(cc)
+        '設定空心字符
+        If (isVirtualChar) Then
+            kFing(k) = "MT" & Format(k, "0000") & "_o"
+        Else
+            kFing(k) = "MT" & Format(k, "0000")
+        End If
+        posFing(k).c Trim(sarr(1)), Trim(sarr(2)), Trim(sarr(3))
+    Next
+        
+            
+    For i = 0 To posFingListCode.Count - 1
+        sarr = Split(posFingListCode(i), ",")
+        cc = Mid(Trim(sarr(0)), 1, 1)
+        k = Asc(cc)
+        '設定空心字符
+        If (G.isVirtualChar) Then
+            kTowFing(k) = "MT" & Format(k, "0000") & "_o"
+        Else
+            kTowFing(k) = "MT" & Format(k, "0000")
+        End If
+        posTowFing(k).c Trim(sarr(1)), Trim(sarr(2)), Trim(sarr(3))
+    Next
+            
+       
+    'xnote.0': { d: [['M', 7.16, 0], ['C', 8.98, 0, 10.39, 0.91, 11.41, 2.74], ['C', 12, 3.9, 12.3, 5.37, 12.3, 7.15], ['L', 12.3, 9.42], ['C', 12.3, 10.72, 11.93, 12.13, 11.18, 13.64], ['C', 10.47, 15.19, 9.15, 15.98, 7.21, 16], ['C', 5.61, 15.99, 4.5, 15.61, 3.88, 14.87], ['C', 3.26, 14.13, 2.84, 13.42, 2.62, 12.75], ['C', 2.4, 12.07, 2.24, 11.33, 2.14, 10.51], ['C', 2.05, 9.69, 2, 8.61, 2, 7.26], ['C', 2.05, 5.31, 2.34, 3.85, 2.87, 2.88], ['C', 3.7, 0.99, 5.13, 0.03, 7.16, 0], ['Z']], w: 14, h: 16 },
     'xnote.1': { d: [['M', 6.46, 0], ['L', 8.66, 0], ['L', 8.84, 0.19], ['L', 8.84, 15.8], ['L', 8.66, 16], ['L', 5.37, 16], ['L', 5.17, 15.8], ['L', 5.17, 3.82], ['L', 3.22, 3.82], ['L', 3, 3.65], ['L', 3, 2], ['L', 3.03, 1.97], ['L', 3.25, 1.78], ['C', 4.17, 1.81, 4.85, 1.73, 5.29, 1.56], ['C', 5.72, 1.38, 6.04, 0.91, 6.24, 0.16], ['L', 6.46, 0], ['Z']], w: 14, h: 16 },
   
     
+
+End Sub
+   
+
+Private Sub Class_Initialize()
     
+    setVirtualChar (G.isVirtualChar)    '設字空心字
     
 End Sub

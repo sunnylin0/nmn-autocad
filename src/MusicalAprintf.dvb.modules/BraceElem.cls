@@ -25,7 +25,7 @@ Public Sub setBottomStaff(voice As VoiceElement)
         '' If only the start brace has a name then the name belongs to the brace instead of the staff.
         If (Me.startVoice.header And Me.endVoice.header) Then
             Me.header = Me.startVoice.header
-            delete Me.startVoice.header
+            Delete Me.startVoice.header
         End If
 End Sub
 
