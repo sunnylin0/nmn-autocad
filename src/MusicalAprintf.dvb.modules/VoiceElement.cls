@@ -9,11 +9,12 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-Public i As Double             ''站存設定現在要作用的子元素
-Public durationIndex As Double ''累記 現在已經讀取每小節的音符長度總合
-Public startX As Double        ''樂器名後 的 x 為開始位置
+Public i As Double                  ''站存設定現在要作用的子元素
+Public durationIndex As Double      ''累記 現在已經讀取每音符長度總合
+Public barDurationIndex As Double   ''累記 每小節內的音符長度總合
+Public startX As Double             ''樂器名後 的 x 為開始位置
 Public minX As Double
-Public nextX As Double         ''下一個子元素的位置，是用子元素的時長(duration)*8 開跟號 * spacing
+Public nextX As Double              ''下一個子元素的位置，是用子元素的時長(duration)*8 開跟號 * spacing
      ''如子元素 (bar) 沒時長則用 前一次取到的 (note) 時長 spacingduration
 Public spacingduration As Double
 Public header As String     ''每段頭的樂器名
@@ -52,6 +53,9 @@ Public staffInfo As vStaffInfo
      ''engraver 加的
 Public isPercussion As Boolean  '' 是否是打擊樂
 Public isJianpu As Boolean      '' 是否是簡譜
+Public meteA As Integer         '記錄現在小節的拍號
+Public meteB As Integer         '記錄現在小節的拍號
+
 
 
 
@@ -69,6 +73,8 @@ Public Sub init(voicenumber As Integer, voicetotal As Integer)
         Me.top = 7
         Dim spY As Dictionary
         Set spY = New Dictionary
+        Me.meteA = 4
+        Me.meteB = 4
         
         spY("tempoHeightAbove") = 0
         spY("partHeightAbove") = 0
@@ -158,4 +164,25 @@ End Sub
 Public Sub setWidth(width As Double)
         Me.w = width
 End Sub
+Public Function insterBar(barId As Integer) As MusicItem
+    
+    Dim barEle As New MusicItem
+    barEle.typs = Cg.bar
+    barEle.w = amt.wBar * G.FONTSIZE
+    barEle.barNumber = barId
+    Me.children.Push barEle
+    Set insterBar = barEle
+End Function
 
+Public Function insterMete(mete As Integer, mete2 As Integer) As MusicItem
+
+    '還要插入一個 mete
+    Dim meteObj As New MusicItem
+    meteObj.typs = Cg.meter
+    meteObj.mete = mete
+    meteObj.mete2 = mete2
+    meteObj.w = amt.wMete * G.FONTSIZE
+    Me.children.Push meteObj
+
+    Set insterMete = meteObj
+End Function

@@ -13,7 +13,6 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-
 Option Explicit
 
 
@@ -54,11 +53,11 @@ Function get_mulitpoint() As Integer
             str = str & "," & ina
         End If
         If Len(str) > 200 Then
-            ThisDrawing.Utility.prompt (str)
+            ThisDrawing.Utility.Prompt (str)
             str = ""
         End If
     Next
-    ThisDrawing.Utility.prompt (str)
+    ThisDrawing.Utility.Prompt (str)
     Me.TextBox1 = Me.TextBox1 & str
     get_mulitpoint = 0
 End Function
@@ -108,7 +107,7 @@ Sub Example_SelectOnScreen() 'AutoCAD ¾켹 LWPolyLine ず쪾헕
     
     str = ""
     strAll = ""
-    ThisDrawing.Utility.prompt ("drawXY=")
+    ThisDrawing.Utility.Prompt ("drawXY=")
     
     ' Return a point using a prompt
     ' Translate the point into UCS coordinates
@@ -116,7 +115,7 @@ Sub Example_SelectOnScreen() 'AutoCAD ¾켹 LWPolyLine ず쪾헕
         Set g_object = ssetObj.item(i)
         ina = get_mulitpoint
         If (i <> counta - 1) And (ina = 0) Then
-            ThisDrawing.Utility.prompt (",o,")
+            ThisDrawing.Utility.Prompt (",o,")
             
             Me.TextBox1 = Me.TextBox1 & ",o,"
         End If

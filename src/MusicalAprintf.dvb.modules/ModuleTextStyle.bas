@@ -166,7 +166,7 @@ Public Function GetWindowsFonts() As Variant
     Dim WinFontPath As String     ' Windows 的字體文件路徑
     
     ' 獲得所有的支持文件路徑
-    WinFontPath = left(WindowsDirectory, InStr(WindowsDirectory, chr(0)) - 1)
+    WinFontPath = left(WindowsDirectory, InStr(WindowsDirectory, Chr(0)) - 1)
     WinFontPath = Trim(WinFontPath) & "\Fonts\"
     
     ' 遍歷所有的支持文件路徑
@@ -241,7 +241,7 @@ Public Function CreateTextStyle(ByVal fontName As String, ByVal styleName As Str
         Dim WinFontPath As String     ' Windows 的字體文件路徑
         
         ' 獲得所有的支持文件路徑
-        WinFontPath = left(WindowsDirectory, InStr(WindowsDirectory, chr(0)) - 1)
+        WinFontPath = left(WindowsDirectory, InStr(WindowsDirectory, Chr(0)) - 1)
         WinFontPath = Trim(WinFontPath) & "\Fonts\"
         ' 判斷字體的類型
         If InStr(1, UCase(fontName), "TTF") <> 0 Then

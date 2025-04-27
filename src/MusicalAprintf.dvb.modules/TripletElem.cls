@@ -44,7 +44,7 @@ Public Sub setCloseAnchor(anchor2 As RelativeElement)
         End If
 End Sub
 
-Public Function Clone() As TripletElem
+Public Function clone() As TripletElem
     Dim cope As New TripletElem
     
     cope.typs = Me.typs

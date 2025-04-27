@@ -13,7 +13,7 @@ Dim mChar As String          '資料的前面字元有那些
 Dim mCharI() As Integer
 Dim mMete As Integer        '每小節有幾拍
 Dim mFontSize As Integer
-Dim mTextNote() As String       '把每行資料放進來 這是有陣列的
+Dim mTextnote() As String       '把每行資料放進來 這是有陣列的
 Dim mmsa(0 To 1) As String
 
 Dim i As Integer
@@ -37,7 +37,7 @@ Public Sub setLineChar(Char As String, mete As Integer)
     mMete = mete
     ReDim mCharI(Len(mChar))
     mHowData = Len(mChar)
-    ReDim mTextNote(mHowData + 1)    ' 陳述式將重新調整陣列的大小，且將所有元素內容清除。
+    ReDim mTextnote(mHowData + 1)    ' 陳述式將重新調整陣列的大小，且將所有元素內容清除。
                                      ' 因為它從 0 開始 所以要加 1
 End Sub
 
@@ -106,14 +106,14 @@ Public Sub TextToMusic()
     
     Dim c() As String
     ReDim c(Len(mChar))
-    ReDim mMusic(Len(mTextNote(MkDoc.iNote)) * 2)
+    ReDim mMusic(Len(mTextnote(MkDoc.iNote)) * 2)
     Dim lsup As Integer
     Dim pos As Integer
     pos = 1
     Call atImputer(mMete)  '這是要加入小節線 ,排拍子
-    For i = 1 To Len(mTextNote(MkDoc.iNote))  ' 迴圈每個字
+    For i = 1 To Len(mTextnote(MkDoc.iNote))  ' 迴圈每個字
         For j = 1 To Len(mChar)
-            c(j) = Mid(mTextNote(j), i, 1)
+            c(j) = Mid(mTextnote(j), i, 1)
         Next j
         
         Select Case c(MkDoc.iFinge)     '這是指法
@@ -215,9 +215,9 @@ Private Sub atImputer(iMete As Integer)
     Dim chackFor As Boolean
     Const A_TEMPO As Integer = 240  '一拍的數值
     
-    For i = 1 To Len(mTextNote(MkDoc.iNote))  ' 迴圈每個字
+    For i = 1 To Len(mTextnote(MkDoc.iNote))  ' 迴圈每個字
         For j = 1 To Len(mChar)
-            c(j) = Mid(mTextNote(j), i, 1)
+            c(j) = Mid(mTextnote(j), i, 1)
         Next j
         
         If num >= A_TEMPO * iMete Then
@@ -280,7 +280,7 @@ Private Sub atImputer(iMete As Integer)
     Next i
     
     For j = 1 To Len(mChar)
-        mTextNote(j) = testTXT(j)
+        mTextnote(j) = testTXT(j)
     Next j
 End Sub
 Private Function intComp(myInt1 As Integer, myInt2 As Integer) As Integer
@@ -299,14 +299,14 @@ Private Sub mTextNoteLenAdd()
     Dim BigInt As Integer
     BigInt = 0
     For x = 1 To mHowData
-        BigInt = intComp(BigInt, Len(mTextNote(x)))
+        BigInt = intComp(BigInt, Len(mTextnote(x)))
     Next
     If BigInt <> 0 Then
         
         For x = 1 To mHowData
             str = space(BigInt)
-            LSet str = mTextNote(x)
-            mTextNote(x) = str
+            LSet str = mTextnote(x)
+            mTextnote(x) = str
         Next
     
     End If
@@ -325,7 +325,7 @@ Public Sub setSaveString(tObject As String)
                 Call mTextNoteLenAdd    '這函式是要 mTextNote(?) 中的每個長度一樣，不一樣補空白
             End If
             If mCharI(i) <> 1 Then
-                mTextNote(i) = mTextNote(i) + tObject
+                mTextnote(i) = mTextnote(i) + tObject
                 mCharI(i) = 1
                 Exit For
             End If
@@ -336,7 +336,7 @@ Public Sub setSaveString(tObject As String)
 End Sub
 
 Public Property Get TextNote(ii As Integer) As String
-    TextNote = mTextNote(ii)
+    TextNote = mTextnote(ii)
 End Property
 
 Public Sub Show()
@@ -353,7 +353,7 @@ Public Sub ShowData()
     
     For i = 1 To mHowData
         ccc = ccc + vbCrLf
-        ccc = ccc & mTextNote(i)
+        ccc = ccc & mTextnote(i)
     Next i
     MsgBox " 全部資料的 內容是" & ccc
 
@@ -378,6 +378,6 @@ Public Function getMFingPosition(ii As Integer) As Double
 End Function
 
 Public Function getSaveString(ii As Integer) As String
-    getSaveString = mTextNote(ii)
+    getSaveString = mTextnote(ii)
 End Function
 

@@ -1,14 +1,45 @@
 Option Explicit
-Function javascript__hta()
-    'hta測試
-    Dim aa(2) As Double
-    Dim bb(2) As Double
-    aa(0) = 33
-    aa(1) = 33
-    aa(2) = 0
-    Dim ms
-        Set ms = ThisDrawing.ModelSpace.AddLine(aa, bb)
+Public Function GetAcad() As AcadApplication
+
+On Error Resume Next
+
+Dim acApp As AcadApplication
+
+Set acApp = GetObject(, "AutoCAD.Application") '<---- without debug generates Runtime Error 13 - Type mismatch
+
+If acApp Is Nothing Then
+
+Set acApp = CreateObject("AutoCAD.Application") '<---- always returns 'Nothing' when triggered
+
+End If
+
+Set GetAcad = acApp
+
 End Function
+Sub emptytt()
+
+    Dim ee
+    ee = 33
+    If Not IsEmpty(ee) Then
+        Debug.Print True
+    Else
+        Debug.Print "no"
+    End If
+
+End Sub
+
+
+Sub runtime_test()
+    Dim runT As New runTime
+    runT ("asdfyy")
+    Dim i As Long
+    For i = 0 To 5000
+        i = i
+        Debug.Print i
+    Next
+    runT ("asdfyy")
+    runT.ToList
+End Sub
 Function asdf()
     '測式 json
     MsgBox 33
@@ -177,7 +208,7 @@ Sub AllLineAdd()
     
 
     
-    ThisDrawing.Utility.prompt ("Line all length= " & allLine)
+    ThisDrawing.Utility.Prompt ("Line all length= " & allLine)
 
 End Sub
 Sub InsText()
@@ -638,8 +669,8 @@ Public Function GetDVBThis(DVBFileName As String) As String
     Dim i As Integer
     Dim strFileName As String
     
-    For i = 1 To ThisDrawing.Application.vbe.VBProjects.Count
-        strFileName = ThisDrawing.Application.vbe.VBProjects.item(i).FileName
+    For i = 1 To ThisDrawing.Application.vbe.VBprojects.Count
+        strFileName = ThisDrawing.Application.vbe.VBprojects.item(i).FileName
         If InStr(UCase(strFileName), UCase(DVBFileName)) > 0 Then
             GetDVBThis = strFileName
             Exit For
@@ -652,8 +683,8 @@ Public Function GetDVBPath(DVBFileName As String) As String
     Dim i As Integer
     Dim strFileName As String
     
-    For i = 1 To ThisDrawing.Application.vbe.VBProjects.Count
-        strFileName = ThisDrawing.Application.vbe.VBProjects.item(i).FileName
+    For i = 1 To ThisDrawing.Application.vbe.VBprojects.Count
+        strFileName = ThisDrawing.Application.vbe.VBprojects.item(i).FileName
         If InStr(UCase(strFileName), UCase(DVBFileName)) > 0 Then
             GetDVBPath = GetPath(strFileName)
             Exit For
@@ -1135,10 +1166,10 @@ Sub Ch4_MaximizeApplicationWindow()
     Dim exportFile As String
 
     exportFile = saveFile("哀哀", _
-    "WMF Files (*.WMF)" & chr$(0) & "*.WMF" & chr$(0) _
-    & "X Files (*.x)" & chr$(0) & "*.x" & chr$(0) _
-    & "XMesh Files (*.xms)" & chr$(0) & "*.xms" & chr$(0) _
-    & "All Files (*.*)" + chr$(0) + "*.*" + chr$(0))
+    "WMF Files (*.WMF)" & Chr$(0) & "*.WMF" & Chr$(0) _
+    & "X Files (*.x)" & Chr$(0) & "*.x" & Chr$(0) _
+    & "XMesh Files (*.xms)" & Chr$(0) & "*.xms" & Chr$(0) _
+    & "All Files (*.*)" + Chr$(0) + "*.*" + Chr$(0))
         
         
     ' Export the current drawing to the file specified above.
@@ -1183,7 +1214,7 @@ Public Sub GetAttribute()
 '               "屬性標籤為：" & attVars(I).TagString & Chr(13) & _
 '               "屬性值為：" & attVars(I).textString
     Next
-    ThisDrawing.Utility.prompt SSATT
+    ThisDrawing.Utility.Prompt SSATT
     '將塊屬性的標籤和值進行修改
     'attVars(0).TagString = "New Tag"
     'attVars(0).textString = "New Value"

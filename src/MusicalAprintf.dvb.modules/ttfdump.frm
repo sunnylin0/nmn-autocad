@@ -13,7 +13,6 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-
 Option Explicit
 
 Dim xylist As New PointList
@@ -22,7 +21,7 @@ Private Sub comDrawing_Click()
     Dim pt As Variant
     Dim xyString As String
     Dim sX As String
-    Dim sy As String
+    Dim sY As String
     Dim i As Long
     
     Me.Hide
@@ -32,8 +31,8 @@ Private Sub comDrawing_Click()
     
     For i = 0 To xylist.size - 1
         sX = xylist.at(i).x + pt(0)
-        sy = xylist.at(i).y + pt(1)
-        xyString = xyString & sX & "," & sy & " "
+        sY = xylist.at(i).y + pt(1)
+        xyString = xyString & sX & "," & sY & " "
     Next
     
     ThisDrawing.SendCommand "line " & xyString
@@ -82,7 +81,7 @@ Private Function getABS_XY(dataXY As String) As point
     Dim lpos As Integer
     Dim i As Integer
     Dim sX As String
-    Dim sy As String
+    Dim sY As String
     Dim tPt As New point
     
     fpos = InStr(1, dataXY, "(")
@@ -90,8 +89,8 @@ Private Function getABS_XY(dataXY As String) As point
     lpos = InStr(fpos, dataXY, ")")
     
     sX = Mid(dataXY, fpos + 1, mpos - fpos - 1)
-    sy = Mid(dataXY, mpos + 1, lpos - mpos - 1)
+    sY = Mid(dataXY, mpos + 1, lpos - mpos - 1)
     tPt.x = CDbl(sX)
-    tPt.y = CDbl(sy)
+    tPt.y = CDbl(sY)
     Set getABS_XY = tPt
 End Function

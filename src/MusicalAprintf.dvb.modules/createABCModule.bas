@@ -7,7 +7,7 @@ Attribute VB_Name = "createABCModule"
 'import glyphs from './glyphs'
 'import RelativeElement from './elements/relative-element'
 
-Public n As New newABCModule
+Public N As New newABCModule
 Private glyphs As New GlyphsModule
 Function createClef(elem As vClefProperties, tuneNumber As Integer) As AbsoluteElement
     Dim clef As String
@@ -15,7 +15,7 @@ Function createClef(elem As vClefProperties, tuneNumber As Integer) As AbsoluteE
     Dim abselem As AbsoluteElement
     octave = 0
     elem.el_typs = "clef"
-    Set abselem = n.AbsoluteElem(elem, 0, 10, "staff-extra clef", tuneNumber)
+    Set abselem = N.AbsoluteElem(elem, 0, 10, "staff-extra clef", tuneNumber)
     abselem.isClef = True
     Select Case elem.typs
         Case "treble": clef = "clefs.G"
@@ -37,7 +37,7 @@ Function createClef(elem As vClefProperties, tuneNumber As Integer) As AbsoluteE
         Dim rElem As New RelativeElement
         Dim opt As oRelativeOptions
         opt.typs = "debug"
-        abselem.addFixed n.RelativeElem("clef=" + elem.typs, 0, 0, 0, opt)
+        abselem.addFixed N.RelativeElem("clef=" + elem.typs, 0, 0, 0, opt)
         
         
     End Select
@@ -59,7 +59,7 @@ Function createClef(elem As vClefProperties, tuneNumber As Integer) As AbsoluteE
         opt2.top = height + elem.clefPos + ofs
         opt2.bottom = elem.clefPos + ofs
         
-        abselem.addRight n.RelativeElem(clef, dx, glyphs.getSymbolWidth(clef), elem.clefPos, opt2)
+        abselem.addRight N.RelativeElem(clef, dx, glyphs.getSymbolWidth(clef), elem.clefPos, opt2)
         
         If (octave <> 0) Then
             scale_ = 2 / 3
@@ -77,7 +77,7 @@ Function createClef(elem As vClefProperties, tuneNumber As Integer) As AbsoluteE
             opt3.scaley = scale_
             opt3.top = top
             opt3.bottom = bottom
-            abselem.addRight n.RelativeElem("8", dx + adjustspacing, glyphs.getSymbolWidth("8") * scale_, pitch, opt3)
+            abselem.addRight N.RelativeElem("8", dx + adjustspacing, glyphs.getSymbolWidth("8") * scale_, pitch, opt3)
             ''abselem.top += 2
         End If
     End If
@@ -110,7 +110,7 @@ Function createKeySignature(elem As vKeySignature, tuneNumber As Integer) As Abs
             Exit Function
         End If
     End If
-    Set abselem = n.AbsoluteElem(elem, 0, 10, "staff-extra key-signature", tuneNumber)
+    Set abselem = N.AbsoluteElem(elem, 0, 10, "staff-extra key-signature", tuneNumber)
     abselem.isKeySig = True
     dx = 0
     For i = 0 To elem.accidentals.Count - 1
@@ -130,7 +130,7 @@ Function createKeySignature(elem As vKeySignature, tuneNumber As Integer) As Abs
         opt.top = acc.verticalPos + glyphs.symbolHeightInPitches(symbol) + fudge
         opt.bottom = acc.verticalPos + fudge
         
-        abselem.addRight n.RelativeElem(symbol, dx, glyphs.getSymbolWidth(symbol), acc.verticalPos, opt)
+        abselem.addRight N.RelativeElem(symbol, dx, glyphs.getSymbolWidth(symbol), acc.verticalPos, opt)
         dx = dx + glyphs.getSymbolWidth(symbol) + 2
     Next
     Set createKeySignature = abselem
@@ -150,13 +150,13 @@ Function createTimeSignature(elem As vMeter, tuneNumber As Integer) As AbsoluteE
     Dim optO As oRelativeOptions
     
     elem.el_typs = "timeSignature"
-    Set abselem = n.AbsoluteElem(elem, 0, 10, "staff-extra time-signature", tuneNumber)
+    Set abselem = N.AbsoluteElem(elem, 0, 10, "staff-extra time-signature", tuneNumber)
     If (elem.typs = "specified") Then
         x = 0
         For i = 0 To elem.value.Count - 1
             If (i <> 0) Then
                 opt.thickness = glyphs.symbolHeightInPitches("+")
-                abselem.addRight n.RelativeElem("+", x + 1, glyphs.getSymbolWidth("+"), 6, opt)
+                abselem.addRight N.RelativeElem("+", x + 1, glyphs.getSymbolWidth("+"), 6, opt)
                 x = x + glyphs.getSymbolWidth("+") + 2
             End If
             If (elem.value(i).den) Then
@@ -174,9 +174,9 @@ Function createTimeSignature(elem As vMeter, tuneNumber As Integer) As AbsoluteE
                 maxWidth = Math.max(numWidth, denWidth)
                 Set opt = New oRelativeOptions
                 opt.thickness = glyphs.symbolHeightInPitches(elem.value(i).num)
-                abselem.addRight n.RelativeElem(elem.value(i).num, x + (maxWidth - numWidth) / 2, numWidth, 8, opt)
+                abselem.addRight N.RelativeElem(elem.value(i).num, x + (maxWidth - numWidth) / 2, numWidth, 8, opt)
                 opt.thickness = glyphs.symbolHeightInPitches(elem.value(i).den)
-                abselem.addRight n.RelativeElem(elem.value(i).den, x + (maxWidth - denWidth) / 2, denWidth, 4, opt)
+                abselem.addRight N.RelativeElem(elem.value(i).den, x + (maxWidth - denWidth) / 2, denWidth, 4, opt)
                 x = x + maxWidth
             Else
                 thisWidth = 0
@@ -185,29 +185,29 @@ Function createTimeSignature(elem As vMeter, tuneNumber As Integer) As AbsoluteE
                     thisWidth = thisWidth + glyphs.getSymbolWidth(Mid(ss, i3 + 1, 1))
                 Next
                 opt.thickness = glyphs.symbolHeightInPitches(elem.value(i).num)
-                abselem.addRight n.RelativeElem(elem.value(i).num, x, thisWidth, 6, opt)
+                abselem.addRight N.RelativeElem(elem.value(i).num, x, thisWidth, 6, opt)
                 x = x + thisWidth
             End If
         Next
      ElseIf (elem.typs = "common_time") Then
         opt.thickness = glyphs.symbolHeightInPitches("timesig.common")
-        abselem.addRight n.RelativeElem("timesig.common", 0, glyphs.getSymbolWidth("timesig.common"), 6, opt)
+        abselem.addRight N.RelativeElem("timesig.common", 0, glyphs.getSymbolWidth("timesig.common"), 6, opt)
 
      ElseIf (elem.typs = "cut_time") Then
         opt.thickness = glyphs.symbolHeightInPitches("timesig.cut")
-        abselem.addRight n.RelativeElem("timesig.cut", 0, glyphs.getSymbolWidth("timesig.cut"), 6, opt)
+        abselem.addRight N.RelativeElem("timesig.cut", 0, glyphs.getSymbolWidth("timesig.cut"), 6, opt)
      ElseIf (elem.typs = "tempus_imperfectum") Then
         opt.thickness = glyphs.symbolHeightInPitches("timesig.imperfectum")
-        abselem.addRight n.RelativeElem("timesig.imperfectum", 0, glyphs.getSymbolWidth("timesig.imperfectum"), 6, opt)
+        abselem.addRight N.RelativeElem("timesig.imperfectum", 0, glyphs.getSymbolWidth("timesig.imperfectum"), 6, opt)
      ElseIf (elem.typs = "tempus_imperfectum_prolatio") Then
         opt.thickness = glyphs.symbolHeightInPitches("timesig.imperfectum2")
-        abselem.addRight n.RelativeElem("timesig.imperfectum2", 0, glyphs.getSymbolWidth("timesig.imperfectum2"), 6, opt)
+        abselem.addRight N.RelativeElem("timesig.imperfectum2", 0, glyphs.getSymbolWidth("timesig.imperfectum2"), 6, opt)
      ElseIf (elem.typs = "tempus_perfectum") Then
         opt.thickness = glyphs.symbolHeightInPitches("timesig.perfectum")
-        abselem.addRight n.RelativeElem("timesig.perfectum", 0, glyphs.getSymbolWidth("timesig.perfectum"), 6, opt)
+        abselem.addRight N.RelativeElem("timesig.perfectum", 0, glyphs.getSymbolWidth("timesig.perfectum"), 6, opt)
      ElseIf (elem.typs = "tempus_perfectum_prolatio") Then
         opt.thickness = glyphs.symbolHeightInPitches("timesig.perfectum2")
-        abselem.addRight n.RelativeElem("timesig.perfectum2", 0, glyphs.getSymbolWidth("timesig.perfectum2"), 6, opt)
+        abselem.addRight N.RelativeElem("timesig.perfectum2", 0, glyphs.getSymbolWidth("timesig.perfectum2"), 6, opt)
      Else
        Debug.Print ("time signature:" + elem)
     End If
@@ -323,7 +323,7 @@ Public Function addChord(gTextSize As getTextSize, abselem As AbsoluteElement, e
                     rOpt.dime = attr
                     rOpt.position = "left"
                     
-                    abselem.addExtra n.RelativeElem(chord, x, chordWidth + 4, y, rOpt)
+                    abselem.addExtra N.RelativeElem(chord, x, chordWidth + 4, y, rOpt)
                     break
                 Case "right":
                     roomTakenRight = roomTakenRight + 4
@@ -334,7 +334,7 @@ Public Function addChord(gTextSize As getTextSize, abselem As AbsoluteElement, e
                     rOpt.height = chordHeight
                     rOpt.dime = attr
                     rOpt.position = "right"
-                    abselem.addRight n.RelativeElem(chord, x, chordWidth + 4, y, rOpt)
+                    abselem.addRight N.RelativeElem(chord, x, chordWidth + 4, y, rOpt)
                 Case "below":
                     '' setting the y-coordinate to undefined for now: it will be overwritten later on, after we figure out what the highest element on the line is.
                     Set rOpt = New oRelativeOptions
@@ -344,7 +344,7 @@ Public Function addChord(gTextSize As getTextSize, abselem As AbsoluteElement, e
                     rOpt.position = "below"
                     rOpt.realWidth = chordWidth
                     
-                    abselem.addRight n.RelativeElem(chord, 0, 0, 0, rOpt)
+                    abselem.addRight N.RelativeElem(chord, 0, 0, 0, rOpt)
 
                 Case "above":
                     '' setting the y-coordinate to undefined for now: it will be overwritten later on, after we figure out what the highest element on the line is.
@@ -354,7 +354,7 @@ Public Function addChord(gTextSize As getTextSize, abselem As AbsoluteElement, e
                     rOpt.dime = attr
                     rOpt.position = "above"
                     rOpt.realWidth = chordWidth
-                    abselem.addRight n.RelativeElem(chord, 0, 0, 0, rOpt)
+                    abselem.addRight N.RelativeElem(chord, 0, 0, 0, rOpt)
                 Case Else:
                     If (rel_position) Then
                         Dim relPositionY As Double
@@ -364,7 +364,7 @@ Public Function addChord(gTextSize As getTextSize, abselem As AbsoluteElement, e
                         rOpt.height = chordHeight
                         rOpt.dime = attr
                         rOpt.position = "relative"
-                        abselem.addRight n.RelativeElem(chord, x + rel_position.x, 0, elem.minPitch + relPositionY / spacing.Step, rOpt)
+                        abselem.addRight N.RelativeElem(chord, x + rel_position.x, 0, elem.minPitch + relPositionY / spacing.Step, rOpt)
                      Else
                         '' setting the y-coordinate to undefined for now: it will be overwritten later on, after we figure out what the highest element on the line is.
                         Dim pos2 As String
@@ -379,7 +379,7 @@ Public Function addChord(gTextSize As getTextSize, abselem As AbsoluteElement, e
                             rOpt.dime = attr
                             rOpt.position = pos2
                             rOpt.realWidth = chordWidth
-                            abselem.addCentered n.RelativeElem(chord, noteheadWidth / 2, chordWidth, 0, rOpt)
+                            abselem.addCentered N.RelativeElem(chord, noteheadWidth / 2, chordWidth, 0, rOpt)
                         End If
                     End If
             End Select
@@ -427,13 +427,13 @@ Function createNoteHead(abselem As AbsoluteElement, c As String, pitchelem, opti
     accidentalshiftx = 0
     newDotShiftX = 0
     extraLeft = 0
-    If (c = Empty) Then
+    If c = Empty Then
         Set rOpt = New oRelativeOptions
         rOpt.typs = "debug"
-        abselem.addFixed n.RelativeElem("pitch is undefined", 0, 0, 0, rOpt)
+        abselem.addFixed N.RelativeElem("pitch is undefined", 0, 0, 0, rOpt)
     
     ElseIf (c = "") Then
-        Set notehead = n.RelativeElem(Empty, 0, 0, pitch)
+        Set notehead = N.RelativeElem(Empty, 0, 0, pitch)
     Else
         shiftheadx = headx
 'line        If (pitchelem.printer_shift) Then
@@ -445,7 +445,7 @@ Function createNoteHead(abselem As AbsoluteElement, c As String, pitchelem, opti
         opts.scaley = scale_
         opts.thickness = glyphs.symbolHeightInPitches(c) * scale_
         opts.Name = pitchelem.Name
-        Set notehead = n.RelativeElem(c, shiftheadx, glyphs.getSymbolWidth(c) * scale_, pitch, opts)
+        Set notehead = N.RelativeElem(c, shiftheadx, glyphs.getSymbolWidth(c) * scale_, pitch, opts)
         notehead.stemdir = dir
         ''這邊是看是否要加入單個 1/4 1/8 1/16 的符桿符號
         If (flag <> "") Then
@@ -460,12 +460,12 @@ Function createNoteHead(abselem As AbsoluteElement, c As String, pitchelem, opti
             Set opts = New oRelativeOptions
             opts.scalex = scale_
             opts.scaley = scale_
-            abselem.addRight n.RelativeElem(flag, xdelta, glyphs.getSymbolWidth(flag) * scale_, pos, opts)
+            abselem.addRight N.RelativeElem(flag, xdelta, glyphs.getSymbolWidth(flag) * scale_, pos, opts)
         End If
         newDotShiftX = notehead.w + dotshiftx - 2 + 5 * dot
         For dot = dot To 0 Step -1
             dotadjusty = (1 - Abs(pitch) Mod 2)  ''PER: take abs value of the pitch. And the shift still happens on ledger lines.
-            abselem.addRight n.RelativeElem("dots.dot", notehead.w + dotshiftx - 2 + 5 * dot, glyphs.getSymbolWidth("dots.dot"), pitch + dotadjusty)
+            abselem.addRight N.RelativeElem("dots.dot", notehead.w + dotshiftx - 2 + 5 * dot, glyphs.getSymbolWidth("dots.dot"), pitch + dotadjusty)
         Next
     End If
     If Not (notehead Is Nothing) Then
@@ -512,7 +512,7 @@ Function createNoteHead(abselem As AbsoluteElement, c As String, pitchelem, opti
          opt3.top = pitch + h / 2
          opt3.bottom = pitch - h / 2
         
-        abselem.addExtra n.RelativeElem(symb, accPlace, glyphs.getSymbolWidth(symb), pitch + 3, opt3)
+        abselem.addExtra N.RelativeElem(symb, accPlace, glyphs.getSymbolWidth(symb), pitch + 3, opt3)
         extraLeft = glyphs.getSymbolWidth(symb) / 2  '' TODO-PER: We need a little extra width if there is an accidental, but I'm not sure why it isn't the full width of the accidental.
     End If
     Dim retDict As New Dictionary

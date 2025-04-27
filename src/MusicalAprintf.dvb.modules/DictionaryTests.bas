@@ -245,9 +245,9 @@ Attribute TestDictionary_AddBulkCountKeys.VB_Description = "Add bulk items to th
     For i = 1 To Len(HDRS)
         Dim j As Long
         For j = 1 To CLng(Mid(VALS, i, 1))
-            Dim n As Long
-            n = n + 1
-            bulkData(n, 1) = Mid(HDRS, i, 1)
+            Dim N As Long
+            N = N + 1
+            bulkData(N, 1) = Mid(HDRS, i, 1)
         Next j
     Next i
 
@@ -264,10 +264,10 @@ Attribute TestDictionary_AddBulkCountKeys.VB_Description = "Add bulk items to th
     If tr.AssertAreEqual(Len(HDRS), d.Count, "count keys") Then GoTo Finally
 
     For i = 1 To Len(HDRS)
-        Dim h As String, V As Long
+        Dim h As String, v As Long
         h = Mid(HDRS, i, 1)
-        V = CLng(Mid(VALS, i, 1))
-        If tr.AssertAreEqual(V, d(h), h) Then Exit For
+        v = CLng(Mid(VALS, i, 1))
+        If tr.AssertAreEqual(v, d(h), h) Then Exit For
     Next i
 
 Finally:
@@ -290,9 +290,9 @@ Attribute TestDictionary_AddBulkCountKeysRowMode.VB_Description = "Github issue 
     For i = 1 To Len(HDRS)
         Dim j As Long
         For j = 1 To CLng(Mid(VALS, i, 1))
-            Dim n As Long
-            n = n + 1
-            bulkData(n, 1) = Mid(HDRS, i, 1)
+            Dim N As Long
+            N = N + 1
+            bulkData(N, 1) = Mid(HDRS, i, 1)
         Next j
     Next i
 
@@ -311,10 +311,10 @@ Attribute TestDictionary_AddBulkCountKeysRowMode.VB_Description = "Github issue 
     If tr.AssertAreEqual(Len(HDRS), d.Count, "count keys") Then GoTo Finally
 
     For i = 1 To Len(HDRS)
-        Dim h As String, V As Long
+        Dim h As String, v As Long
         h = Mid(HDRS, i, 1)
-        V = CLng(Mid(VALS, i, 1))
-        If tr.AssertAreEqual(V, d(h), h) Then Exit For
+        v = CLng(Mid(VALS, i, 1))
+        If tr.AssertAreEqual(v, d(h), h) Then Exit For
     Next i
 
 Finally:
@@ -438,7 +438,7 @@ Attribute TestDictionary_GetKeysReturnsKeys.VB_Description = "Test Keys returns 
 
 '   Act
     Dim result As Variant
-    result = d.Keys()
+    result = d.keys()
 
 '   Assert
     On Error Resume Next
@@ -753,7 +753,7 @@ Attribute TestDictionary_ForEach.VB_Description = "Tests the For Each functional
 '   Act and Assert
     i = 0
     Dim k As Variant
-    For Each k In d.Keys
+    For Each k In d.keys
         If Not tr.AssertAreEqual(inpKeys(i), k) Then GoTo Finally
         If Not tr.AssertAreEqual(inpVals(i), d(k)) Then GoTo Finally
         i = i + 1

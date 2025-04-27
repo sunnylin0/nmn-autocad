@@ -190,13 +190,13 @@ Public Function getMeasureWidths(abcTune As Dictionary) As iArray
                     needNewSection = False
                 End If
                 '' At this point, the voices are laid out so that the bar lines are even with each other. So we just need to get the placement of the first voice.
-                If (abcLine.StaffGroup.voices.Length > 0) Then
+                If (abcLine.staffGroup.voices.Length > 0) Then
                     Dim voice As VoiceElement
                     Dim foundNotStaffExtra  As Boolean
                     Dim lastXPosition As Double
                     Dim k As Integer
                     Dim child As AbsoluteElement
-                    Set voice = abcLine.StaffGroup.voices(0)
+                    Set voice = abcLine.staffGroup.voices(0)
                     foundNotStaffExtra = False
                     lastXPosition = 0
                     For k = 0 To voice.children.Count - 1
@@ -223,7 +223,7 @@ End Function
 Public Function setupTune(abcTune As TuneData, tuneNumber As Integer) As Double
         'line Me.classes.reset
 
-        If (abcTune.formatting.jazzchords = Empty) Then
+        If IsEmpty(abcTune.formatting.jazzchords) Then
             Me.jazzchords = abcTune.formatting.jazzchords
         End If
         
@@ -236,7 +236,7 @@ Public Function setupTune(abcTune As TuneData, tuneNumber As Integer) As Double
         tDic("initialClef") = Me.initialClef
         tDic("jazzchords") = Me.jazzchords
         tDic("germanAlphabet") = Me.germanAlphabet
-        Set Me.engraver = n.AbstractEng(Me.getTxtSize, tuneNumber, tDic)
+        Set Me.engraver = N.AbstractEng(Me.getTxtSize, tuneNumber, tDic)
         Me.engraver.setStemHeight Me.renderer.spacingRenderer.stemHeight
         Me.engraver.measureLength = abcTune.getMeterFraction().num / abcTune.getMeterFraction().den
         If (abcTune.formatting.staffwidth <> 0) Then
@@ -288,7 +288,7 @@ Public Sub constructTuneElements(abcTune As TuneData)
         
         '¦Û­q
         Set abcLine = New TuneLine
-        Set abcLine.StaffGroup = Me.engraver.createABCLine(abcTune.lines(0).Staffs, tmpPrintTempo, i)
+        Set abcLine.staffGroup = Me.engraver.createABCLine(abcTune.lines(0).Staffs, tmpPrintTempo, i)
         
 '        for (i = 0  i < abcTune.lines.length  i++) {
 '            abcLine = abcTune.lines[i]
@@ -356,7 +356,7 @@ Public Function getDim(historyEl As Dictionary) As Dictionary
 
 
         '' Get the dimensions on demand because the getBBox call is expensive.
-        If (historyEl("dim") = Empty) Then
+        If IsEmpty(historyEl("dim")) Then
             Dim sRect As Dictionary
             Dim tdict As New Dictionary
             sRect = historyEl.svgEl.getBBox()

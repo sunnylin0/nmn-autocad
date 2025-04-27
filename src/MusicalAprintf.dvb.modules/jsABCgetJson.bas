@@ -46,7 +46,7 @@ Function childGetTsItem(prod) As voiceItem
     
     Set vItem = New voiceItem
     Set Json = JsonConverter.ParseJson(prod)
-    For Each key In Json.Keys
+    For Each key In Json.keys
         Select Case key    ' Evaluate Number.
             Case "notes":
                 Set getArrList = objArrayItem(Json.item(key), AbcObject.noteItem)
@@ -109,7 +109,7 @@ Function objArrayItem(ListObject, ByVal objectEnum As AbcObject) As iArray
         Else
             For Each o In ListObject
                 Set aObj = newObjectItem(objectEnum)
-                For Each ks In o.Keys
+                For Each ks In o.keys
                     CallByName aObj, ks, VbLet, o.item(ks)
                     Select Case key    ' Evaluate Number.
                         Case "font":

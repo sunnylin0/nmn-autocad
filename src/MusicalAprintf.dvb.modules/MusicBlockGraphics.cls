@@ -218,7 +218,7 @@ Sub setDataText(position As point, musItem As MusicItem, TextSize As Double)
         Select Case cc
             Case "a" To "z", "A" To "Z", "-", "=", "@"
                 MFS(currenCount).sFinge = kFing(Asc(cc))
-                Set MFS(currenCount).mfPosition = posFing(Asc(cc)).Clone
+                Set MFS(currenCount).mfPosition = posFing(Asc(cc)).clone
             Case Else
             MFS(currenCount).sFinge = ""
             Set MFS(currenCount).mfPosition = New point
@@ -232,7 +232,7 @@ Sub setDataText(position As point, musItem As MusicItem, TextSize As Double)
         Select Case cc
             Case "a" To "z", "A" To "Z", "-", "=", "@"
                 MFS(currenCount).sTowFinge = kTowFing(Asc(cc))
-                Set MFS(currenCount).mfTowPosition = posTowFing(Asc(cc)).Clone
+                Set MFS(currenCount).mfTowPosition = posTowFing(Asc(cc)).clone
             Case Else
             MFS(currenCount).sTowFinge = ""
             Set MFS(currenCount).mfTowPosition = New point
@@ -324,9 +324,9 @@ Public Function drawSlur(mt_slur_left As MusicBlockGraphics, mt_slur_right As Mu
            ' Change the bulge of the third segment
            plineSlur.SetBulge 0, (-0.5858 / 1.4142)
            plineSlur.SetBulge 2, (-0.5858 / 1.4142)
-           plineSlur.setWidth 0, 0, 0.1
-           plineSlur.setWidth 1, 0.1, 0.1
-           plineSlur.setWidth 2, 0.1, 0
+           plineSlur.setWidth 0, 0, 0.15
+           plineSlur.setWidth 1, 0.15, 0.15
+           plineSlur.setWidth 2, 0.15, 0
                            
         Else
         '距離太近的畫線
@@ -342,8 +342,8 @@ Public Function drawSlur(mt_slur_left As MusicBlockGraphics, mt_slur_right As Mu
            plineSlur.SetBulge 0, (-0.5858 / 1.4142)
            plineSlur.SetBulge 1, (-0.5858 / 1.4142)
            
-           plineSlur.setWidth 0, 0, 0.1
-           plineSlur.setWidth 1, 0.1, 0
+           plineSlur.setWidth 0, 0, 0.15
+           plineSlur.setWidth 1, 0.15, 0
         End If
     plineSlur.Layer = "fige"
     
@@ -353,7 +353,113 @@ Public Function drawSlur(mt_slur_left As MusicBlockGraphics, mt_slur_right As Mu
                         
     Set drawSlur = plineSlur
 End Function
-Public Function drawBlockItem(blockName As String, x As Double, y As Double, Optional size As Double = 1, Optional dx As Double = 0, Optional dy As Double = 0)
+Public Function drawSlurToEnd(mt_slur_left As MusicBlockGraphics, endX As Double)
+    '繪圓滑線 到尾部
+        Dim plineSlur As AcadLWPolyline
+        Dim points(0 To 5) As Double
+        Dim sLenght As Double
+        ' Find the bulge of the third segment
+        Dim color As New AcadAcCmColor
+        
+        
+        Dim islurAddX As Double
+        Dim islurAddY As Double
+        Dim islurBx As Double
+        Dim islurBy As Double
+        
+        islurAddX = 0.6245 * gTextSize
+        islurAddY = 0.4333 * gTextSize
+        
+        islurBy = 0.45 * gTextSize
+        
+        '看是否弧線的距離太近
+        
+        sLenght = Abs(mt_slur_left.Grip.gptMid.x - endX) - islurAddX
+        If sLenght < 1 Then
+            sLenght = 1
+        End If
+        
+        points(0) = mt_slur_left.Grip.gptMid.x
+        points(1) = mt_slur_left.Grip.gptMidUp.y + islurBy
+        points(2) = points(0) + islurAddX
+        points(3) = points(1) + islurAddY
+        points(4) = points(0) + sLenght + islurAddX
+        points(5) = points(3)
+        ' Create a lightweight Polyline object in model space
+        Set plineSlur = ThisDrawing.ModelSpace.AddLightWeightPolyline(points)
+        
+        
+        ' Change the bulge of the third segment
+        plineSlur.SetBulge 0, (-0.5858 / 1.4142)
+        plineSlur.setWidth 0, 0, 0.15
+        plineSlur.setWidth 1, 0.15, 0.15
+                           
+        plineSlur.Layer = "fige"
+        
+        color.ColorIndex = 3
+        plineSlur.TrueColor = color
+        plineSlur.Update
+                        
+        Set drawSlurToEnd = plineSlur
+End Function
+
+Public Function drawSlurStarTo(starX As Double, mt_slur_right As MusicBlockGraphics)
+    '繪圓滑線 從頭 到 元素
+        Dim plineSlur As AcadLWPolyline
+        Dim points(0 To 5) As Double
+        Dim sLenght As Double
+        ' Find the bulge of the third segment
+        Dim color As New AcadAcCmColor
+        
+        
+        Dim islurAddX As Double
+        Dim islurAddY As Double
+        Dim islurBx As Double
+        Dim islurBy As Double
+        Dim sX As Double
+        Dim sY As Double
+        
+        islurAddX = 0.6245 * gTextSize
+        islurAddY = 0.4333 * gTextSize
+        
+        islurBy = 0.45 * gTextSize
+        
+        '看是否弧線的距離太近
+        
+        sLenght = Abs(starX - mt_slur_right.Grip.gptMid.x) - islurAddX
+        If sLenght < 1 Then
+            sLenght = 1
+        End If
+            sX = mt_slur_right.Grip.gptMid.x - islurAddX - sLenght
+            sY = mt_slur_right.Grip.gptMidUp.y + islurBy + islurAddY
+        
+            points(0) = sX
+            points(1) = sY
+            points(2) = points(0) + sLenght
+            points(3) = points(1)
+            points(4) = points(2) + islurAddX
+            points(5) = points(3) - islurAddY
+        ' Create a lightweight Polyline object in model space
+        Set plineSlur = ThisDrawing.ModelSpace.AddLightWeightPolyline(points)
+        
+        
+        ' Change the bulge of the third segment
+        plineSlur.SetBulge 1, (-0.5858 / 1.4142)
+        plineSlur.setWidth 0, 0.15, 0.15
+        plineSlur.setWidth 1, 0.15, 0
+                           
+        plineSlur.Layer = "fige"
+        
+        color.ColorIndex = 3
+        plineSlur.TrueColor = color
+        plineSlur.Update
+                        
+        Set drawSlurStarTo = plineSlur
+End Function
+
+Public Function drawBlockItem(blockName As String, x As Double, y As Double, Optional size As Double = 1, _
+    Optional dx As Double = 0, Optional dy As Double = 0, _
+    Optional scX As Double = 1, Optional scY As Double = 1, Optional scZ As Double = 1)
     '繪 圖塊
     Dim textObj As AcadText
     Dim blockRefObj  As AcadBlockReference
@@ -364,10 +470,11 @@ Public Function drawBlockItem(blockName As String, x As Double, y As Double, Opt
     aligPoint(1) = y + (size * dy)
     aligPoint(2) = 0
     
-    If blockName <> "" And checkBlockName(blockName) Then
-        Set drawBlockItem = ThisDrawing.ModelSpace.InsertBlock(aligPoint, blockName, size, size, size, 0)
+    If checkBlockName(blockName) Then
+        Set drawBlockItem = ThisDrawing.ModelSpace.InsertBlock(aligPoint, blockName, size * scX, size * scY, size * scZ, 0)
         drawBlockItem.Layer = MAINLAYER
     Else
+        If blockName = "" Then blockName = " "
         Set drawBlockItem = ThisDrawing.ModelSpace.AddText(blockName, aligPoint, size)
     End If
 End Function
@@ -388,13 +495,14 @@ Public Function InsterEnt() As AcadBlockReference '插入音附
     Dim TheObj As AcadEntity
     Dim towPos As Double
     Dim cc As String
-    Dim mx As Double
-    Dim my As Double
+    Dim mX As Double
+    Dim mY As Double
     Dim mItem As MusicFing
     Dim ItemCount As Integer
     Dim currentY As Double
     Dim x As Double, y As Double, Z As Double
     Dim lastOctave As Integer
+    Dim scY As Double
     
     x = Grippt.gptMid.x
     y = Grippt.gptMid.y
@@ -407,28 +515,37 @@ Public Function InsterEnt() As AcadBlockReference '插入音附
          cc = cc
          End If
         
-            mx = 0: my = 0
+        '設訂疊音的 y 軸比例
+        If UBound(MFS) = 3 Then
+            scY = 0.7
+        ElseIf UBound(MFS) >= 4 Then
+            scY = 0.6
+        Else
+            scY = 1
+        End If
+        
+            mX = 0: mY = 0
                 If mItem.iScale <= 0 Then
                     If ItemCount >= 1 Then
                         lastOctave = lastOctave + Abs(mItem.iScale)
                     ElseIf mItem.iTempo >= 1 Then    '下點音附 要移下去一些
                         '有線時 要下去的距離
-                            mx = 0
-                            my = -(amt.DROP_ADD_LINE_INTERVAL * mItem.iTempo)
+                        mX = 0
+                        mY = -(amt.DROP_ADD_LINE_INTERVAL * mItem.iTempo)
                     End If
-                    my = my - 0.2
+                    mY = mY - 0.2
                 Else
-                    my = my + 1 + 0.2
+                    mY = mY + 1 + 0.2
                 End If
                 
                 If ItemCount > 0 Then
                     If lastOctave > 0 Then
-                        y = y + (lastOctave * 0.3) * gTextSize
+                        y = y + (lastOctave * 0.3) * gTextSize - (lastOctave * 0.3) * gTextSize * (1 - scY)
                     End If
-                    y = y + 1.1 * gTextSize
+                    y = y + 1.1 * gTextSize - gTextSize * (1 - scY)
                 End If
             If mItem.sScale <> "" Then
-                Call drawBlockItem(mItem.sScale, x, y, gTextSize, mx, my)
+                Call drawBlockItem(mItem.sScale, x, y, gTextSize, mX, mY)
             End If
             
             '計算多音符的 y 軸移動
@@ -437,13 +554,19 @@ Public Function InsterEnt() As AcadBlockReference '插入音附
         
             '繪主音
             'Y = Y + (gTextSize * itemCount) + totalOctave
-            mx = 0: my = 0
-            If (ItemCount = 0) Then
-                '只取得合音的第一個
-                Set TheObj = drawBlockItem(mItem.sNote, x, y, gTextSize, mx, my)
-            Else
-                Call drawBlockItem(mItem.sNote, x, y, gTextSize, mx, my)
+            mX = 0: mY = 0
+'            If (ItemCount = 0) Then
+'                '只取得合音的第一個
+'                Set TheObj = drawBlockItem(mItem.sNote, x, y, gTextSize, mX, mY, 1, 1, 1)
+'            Else
+                 Set TheObj = drawBlockItem(mItem.sNote, x, y, gTextSize, mX, mY, 1, scY, 1)
+'            End If
+            
+            '繪負點音符
+            If (MData.dots > 0) Then
+                Call drawBlockItem("M-NOTE.", x + (amt.wNote * gTextSize), y, gTextSize, mX, mY)
             End If
+                        
             
             
             If mItem.iScale > 0 Then   '低八度的點
@@ -453,23 +576,22 @@ Public Function InsterEnt() As AcadBlockReference '插入音附
             End If
             
             
-            
             '升降記號
             Call drawBlockItem(mItem.sTONE, x, y, gTextSize, 0, 0)
         
             
             If frmEDIT.chkOption1.value = True Then
                 '古箏指法 1
-                mx = mItem.mfPosition.x
-                my = mItem.mfPosition.y
-                Call drawBlockItem(mItem.sFinge, x, y, gTextSize, mx, my)
+                mX = mItem.mfPosition.x
+                mY = mItem.mfPosition.y
+                Call drawBlockItem(mItem.sFinge, x, y, gTextSize, mX, mY)
                 
                 '古箏指法 2
                 towPos = 0
                 If mItem.sTowFinge <> "" Then
                     
-                    mx = mItem.mfTowPosition.x
-                    my = mItem.mfTowPosition.y
+                    mX = mItem.mfTowPosition.x
+                    mY = mItem.mfTowPosition.y
                     
                     '減 拍線
                     towPos = (amt.DROP_ADD_LINE_INTERVAL * mItem.iTempo)
@@ -478,12 +600,12 @@ Public Function InsterEnt() As AcadBlockReference '插入音附
                         towPos = towPos + (amt.DROP_INTERVAL * (-mItem.iScale))
                     End If
                     If towPos > 0.3 Then
-                        my = my - towPos
+                        mY = mY - towPos
                     Else
-                        my = my - 0.3
+                        mY = mY - 0.3
                     End If
                     
-                    Call drawBlockItem(mItem.sTowFinge, x, y, gTextSize, mx, my)
+                    Call drawBlockItem(mItem.sTowFinge, x, y, gTextSize, mX, mY)
                     
                 End If
                 
@@ -707,13 +829,13 @@ On Error Resume Next
         For i = 0 To TheArray.Count - 1
             If tempo_num(i) >= x Then
                 If stPt.x = 0 Then
-                    Set stPt = ptTheArr(i).Clone '取得第一個位置
+                    Set stPt = ptTheArr(i).clone '取得第一個位置
                 Else
-                    Set endPt = ptTheArr(i).Clone '取得第 後面的位置
+                    Set endPt = ptTheArr(i).clone '取得第 後面的位置
                 End If
                 If i = TheArray.Count - 1 Then '如是最後一個就畫出來
                     If endPt.x = 0 Then
-                        Set endPt = stPt.Clone
+                        Set endPt = stPt.clone
                     End If
                     line_link x - 1, stPt, endPt
                     stPt.c 0, 0, 0
@@ -722,7 +844,7 @@ On Error Resume Next
             Else
                 If stPt.x <> 0 Then
                     If endPt.x = 0 Then
-                        Set endPt = stPt.Clone
+                        Set endPt = stPt.clone
                     End If
                     line_link x - 1, stPt, endPt
                     stPt.c 0, 0, 0
@@ -985,10 +1107,10 @@ Public Function insterPositionBox(insterPt As point, G As Glode, Optional layerN
     Dim Pnt As New PointList
     Dim ip As New point
     ip = insterPt
-    Pnt.Push ip.c(insterPt.x, insterPt.y - 200, 0).Clone
-    Pnt.Push ip.c(insterPt.x, insterPt.y + G.FONTSIZE * 9, 0).Clone
-    Pnt.Push ip.c(insterPt.x + G.pagewidth, insterPt.y + G.FONTSIZE * 9, 0).Clone
-    Pnt.Push ip.c(insterPt.x + G.pagewidth, insterPt.y - 200, 0).Clone
+    Pnt.Push ip.c(insterPt.x, insterPt.y - 200, 0).clone
+    Pnt.Push ip.c(insterPt.x, insterPt.y + G.FONTSIZE * 9, 0).clone
+    Pnt.Push ip.c(insterPt.x + G.pagewidth, insterPt.y + G.FONTSIZE * 9, 0).clone
+    Pnt.Push ip.c(insterPt.x + G.pagewidth, insterPt.y - 200, 0).clone
     
 '    Call Pnt.Push(.Add(insterPt.X, insterPt.Y - 200, 0)
 '    Call Pnt.Add(insterPt.X, insterPt.Y + G.FontSize * 9, 0)
@@ -1073,6 +1195,7 @@ Private Sub Class_Initialize()
     kTowFing(Asc("k")) = "MT" & Format(Asc("k"), "0000") 'ASC_w 119 ChrW(&H670B)  '
     kTowFing(Asc("n")) = "MT" & Format(Asc("n"), "0000") 'ASC_t 116 ChrW(&H670B)  ' n 按音
     kTowFing(Asc("f")) = "MT" & Format(Asc("f"), "0000") 'ASC_t 116 ChrW(&H670B)  ' f 吟音
+    kTowFing(Asc("b")) = "MT" & Format(Asc("b"), "0000") 'ASC_t 116 ChrW(&H670B)  ' b 按音
     
     '要上下移多少
     Dim ip As Integer
@@ -1117,6 +1240,7 @@ Private Sub Class_Initialize()
     posTowFing(Asc("k")).c -0.363, -0.7, 0 ' w
     posTowFing(Asc("n")).c -0.363, -0.7, 0 ' w
     posTowFing(Asc("f")).c -0.363, -0.7, 0 ' w
+    posTowFing(Asc("b")).c -0.363, -0.7, 0 ' w
     
       'xnote.0': { d: [['M', 7.16, 0], ['C', 8.98, 0, 10.39, 0.91, 11.41, 2.74], ['C', 12, 3.9, 12.3, 5.37, 12.3, 7.15], ['L', 12.3, 9.42], ['C', 12.3, 10.72, 11.93, 12.13, 11.18, 13.64], ['C', 10.47, 15.19, 9.15, 15.98, 7.21, 16], ['C', 5.61, 15.99, 4.5, 15.61, 3.88, 14.87], ['C', 3.26, 14.13, 2.84, 13.42, 2.62, 12.75], ['C', 2.4, 12.07, 2.24, 11.33, 2.14, 10.51], ['C', 2.05, 9.69, 2, 8.61, 2, 7.26], ['C', 2.05, 5.31, 2.34, 3.85, 2.87, 2.88], ['C', 3.7, 0.99, 5.13, 0.03, 7.16, 0], ['Z']], w: 14, h: 16 },
     'xnote.1': { d: [['M', 6.46, 0], ['L', 8.66, 0], ['L', 8.84, 0.19], ['L', 8.84, 15.8], ['L', 8.66, 16], ['L', 5.37, 16], ['L', 5.17, 15.8], ['L', 5.17, 3.82], ['L', 3.22, 3.82], ['L', 3, 3.65], ['L', 3, 2], ['L', 3.03, 1.97], ['L', 3.25, 1.78], ['C', 4.17, 1.81, 4.85, 1.73, 5.29, 1.56], ['C', 5.72, 1.38, 6.04, 0.91, 6.24, 0.16], ['L', 6.46, 0], ['Z']], w: 14, h: 16 },

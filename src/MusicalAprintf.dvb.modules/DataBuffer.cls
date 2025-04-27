@@ -18,7 +18,7 @@ Const TRACK_MAX As Integer = 5      '最大的音軌數
 Dim mCharI() As Integer
 Dim mMete As Integer        '每小節有幾拍
 Dim mFontSize As Integer
-Dim mTextNote() As String       '把每行資料放進來 這是有陣列的
+Dim mTextnote() As String       '把每行資料放進來 這是有陣列的
 Dim mmsa(0 To 1) As String
 Dim mOpenATable_ As Boolean
 
@@ -91,22 +91,212 @@ Private Sub Class_Initialize()
     Set mMusic(0) = New MusicItemList
     
     
-    ReDim mTextNote(amt.mHowData)
+    ReDim mTextnote(amt.mHowData)
     ReDim mCharI(amt.mHowData)
 End Sub
 Sub Clear()
     Class_Initialize
 End Sub
-Private Sub remMusic(ntrack As Integer)
-    If UBound(mMusic) < ntrack Then
-        ReDim Preserve mMusic(ntrack)
+Private Sub initMusicMain(nTrack As Integer)
+    If UBound(mMusic) < nTrack Then
+        ReDim Preserve mMusic(nTrack)
         
-        Set mMusic(ntrack) = New MusicItemList
+        Set mMusic(nTrack) = New MusicItemList
     
     End If
 End Sub
+Private Function joinFormation(mTextnote() As String) As MusicNoteItemList
+    Dim moeList As New MusicNoteItemList
+    Dim moe As MusicNoteItem
+    Dim c() As String
+    ReDim c(UBound(mTextnote))
+    Dim j As Integer
+    Dim pos As Integer
+    '取得資料
+    For pos = 1 To Len(mTextnote(amt.iNote))
+        For j = amt.iTONE To Len(mChar)
+            c(j) = Mid(mTextnote(j), pos, 1)
+            If c(j) = "" Then c(j) = " "
+        Next
 
-Private Sub SetMusicItem(ntrack As Integer, ln As Integer, WD As Integer)
+        If c(amt.iNote) <> "" Then
+            Set moe = New MusicNoteItem
+            moe.typs = Cg.note
+            moe.mtone = c(amt.iTONE)             ' * 行
+            moe.mnote = c(amt.iNote)                  '這為主行       1234567.|l
+            moe.mfingering = c(amt.iFinge)       '這是指法行     _+)(*&
+            moe.mtow_fingering = c(amt.iTowFinge) '這是指法行第二行  _+)(*&
+            moe.mtempo = c(amt.iTempo)            '這是拍子       -=368acefz
+            moe.mscale = c(amt.iScale)            '這是高低音行   .,:
+            moe.mslur = c(amt.iSlur)
+            moe.mand = c(amt.iAdd)
+            
+            moeList.Push moe
+        End If
+        
+    Next
+    Set joinFormation = moeList
+
+End Function
+
+Private Sub SetMusicNoteFormation(moeList() As MusicNoteItemList)
+'nTrack as integer '要轉換到第幾個音軌資料
+'ln As Integer   '要記錄讀進來的資料是在文件裡的第幾 "行"
+'wd As Integer   '要記錄貢進來的資料是在文件要的第幾 "字"
+    Dim nTrack As Integer
+    Dim pos As Integer
+    Dim j As Integer
+    Dim lsup As Integer
+    
+
+    Dim objMusic As MusicItem
+    Dim c As MusicNoteItem
+    Dim sc As MusicNoteItem
+    Dim isAdd As Boolean
+    Dim isDots As Boolean
+    
+    For nTrack = 0 To UBound(moeList)
+        initMusicMain nTrack
+        
+        For pos = 0 To moeList(nTrack).Count - 1
+'            Debug.Print "sMNFOR  ", , nTrack, "  ", pos
+'            If pos = 1503 Then
+'                pos = pos
+'            End If
+            '取得資料
+            Set c = moeList(nTrack)(pos)
+            isDots = False
+
+            If c.typs = Cg.Config Then
+                noteConfigSet nTrack, c
+                GoTo nogood
+            End If
+            Select Case c.mnote  '這是音階
+                Case "."
+                    isDots = True
+                Case "|"
+                        GoTo nogood
+                Case " ", ""
+                        GoTo nogood
+            End Select
+            
+            If c.mand = "]" Then
+                isAdd = False
+                If isDots Then
+                    objMusic.dots = 1
+                Else
+                    objMusic.typs = Cg.note
+                    objMusic.notes.Push c
+                End If
+                
+                Set objMusic = calDuration2(objMusic, lastDuration)
+                mMusic(nTrack).Push objMusic
+                
+            ElseIf c.mand = "[" Or isAdd = True Then
+                If c.mand = "[" Then
+                    Set objMusic = New MusicItem
+                    Set objMusic.notes = New MusicNoteItemList
+                End If
+                If isDots Then
+                    objMusic.dots = 1
+                Else
+                    objMusic.typs = Cg.note
+                    objMusic.notes.Push c
+                End If
+                
+                isAdd = True
+                Set objMusic = calDuration2(objMusic, lastDuration)
+            Else
+                If isDots Then
+                    Set objMusic = mMusic(nTrack).Last
+                    objMusic.dots = 1
+                Set objMusic = calDuration2(objMusic, lastDuration)
+                Else
+                    
+                    Set objMusic = New MusicItem
+                    Set objMusic.notes = New MusicNoteItemList
+                    
+                    objMusic.typs = Cg.note
+                    objMusic.notes.Push c
+                    Set objMusic = calDuration2(objMusic, lastDuration)
+                    mMusic(nTrack).Push objMusic
+                End If
+            End If
+            calExtraw objMusic
+        
+            If c.mslur = "[" Or c.mslur = "(" Then
+                objMusic.slurStart = True       '二胡連音線，(古箏是合音)
+            ElseIf c.mslur = "]" Or c.mslur = ")" Then
+                objMusic.slurEnd = True
+            End If
+            
+            
+            'objMusic.ln = ln  '寫入第幾行
+            'objMusic.WD = i   '寫入第幾字
+            
+nogood:
+        Next pos
+    Next nTrack
+End Sub
+
+Private Sub noteConfigSet(nTrack As Integer, c As MusicNoteItem)
+    
+    Dim kk As String
+    Dim regEx As New RegExp
+    regEx.Global = True
+    
+    If c.configText <> "" Or c.configText <> " " Then
+        kk = Mid(c.configText, 1, 1)
+        If kk = "M" Then
+            '記錄拍號
+
+            Dim meteMatches
+            Dim musicIt As MusicItem
+            Set musicIt = New MusicItem
+            regEx.Pattern = "(\d+)/(\d+)"
+            Set meteMatches = regEx.Execute(c.configText)
+
+            If meteMatches.Count >= 1 Then
+                musicIt.typs = Cg.meter
+                musicIt.mete = meteMatches(0).SubMatches(0)
+                musicIt.mete2 = meteMatches(0).SubMatches(1)
+            End If
+            mMusic(nTrack).Push musicIt
+        ElseIf kk = "I" Then
+            '設定每行幾小節
+            
+            Dim regMatches
+            Dim rMusicItem As MusicItem
+            Set rMusicItem = New MusicItem
+            regEx.Pattern = "bar[\s]+(\d+)"
+            Set regMatches = regEx.Execute(c.configText)
+
+            If regMatches.Count >= 1 Then
+                rMusicItem.typs = Cg.Config
+                rMusicItem.barsperstaff = regMatches(0).SubMatches(0) '設定每行幾小節
+
+            End If
+            mMusic(nTrack).Push rMusicItem
+        End If
+    End If
+
+
+End Sub
+
+
+Private Function getChars(mTextnote() As String, pos As Integer) As String()
+    Dim c() As String
+    ReDim c(UBound(mTextnote))
+    Dim j As Integer
+            '取得資料
+        For j = amt.iTONE To Len(mChar)
+            
+            c(j) = Mid(mTextnote(j), pos, 1)
+            If c(j) = "" Then c(j) = " "
+        Next j
+        getChars = c
+End Function
+Private Sub SetMusicItem(nTrack As Integer, ln As Integer, WD As Integer)
 'nTrack as integer '要轉換到第幾個音軌資料
 'ln As Integer   '要記錄讀進來的資料是在文件裡的第幾 "行"
 'wd As Integer   '要記錄貢進來的資料是在文件要的第幾 "字"
@@ -116,10 +306,7 @@ Private Sub SetMusicItem(ntrack As Integer, ln As Integer, WD As Integer)
     Dim j As Integer
     Dim lsup As Integer
     
-    '看陣列夠不夠
-'    If mSize(ntrack) + Len(mTextNote(amt.iNote)) > UBound(mMusic, 2) Then
-'        ReDim Preserve mMusic(TRACK_MAX, UBound(mMusic, 2) * 2)
-'    End If
+
     
     '迴圈每個字
     Dim a As String
@@ -139,15 +326,14 @@ Private Sub SetMusicItem(ntrack As Integer, ln As Integer, WD As Integer)
     Dim c_Slur As String
     Dim c_Add As String
     Dim isAdd As Boolean
-    remMusic ntrack
-    For i = 1 To Len(mTextNote(amt.iNote))
-        
+    remMusic nTrack
+    For i = 1 To Len(mTextnote(amt.iNote))
         '取得資料
-        For j = amt.iTONE To Len(mChar)
-            c(j) = Mid(mTextNote(j), i, 1)
-            If c(j) = "" Then c(j) = " "
-        Next j
-        
+        c = getChars(mTextnote, i)
+        Debug.Print "mTextnote(amt.iNote) i: " & i
+        If i = 3 Then
+            i = i
+        End If
         
 '        c_TONE = c(AMT.iTONE)      ' * 行
 '        c_Note = c(AMT.iNote)      '這為主行       1234567.|l
@@ -162,7 +348,17 @@ Private Sub SetMusicItem(ntrack As Integer, ln As Integer, WD As Integer)
             Case "0", "1", "2", "3", "4", "5", "6", "7"
                 c_Note = c(amt.iNote)
             Case "."
-                c_Note = c(amt.iNote)
+                'c_Note = c(amt.iNote)
+                Dim uu As Integer
+                For uu = mMusic(nTrack).Count - 1 To 0 Step -1
+                    If mMusic(nTrack)(uu).duration > 0 Then
+                        Set objMusic = mMusic(nTrack)(uu)
+                        objMusic.identify_Duration objMusic.duration * 1.5
+                        objMusic.calMeWidth
+                        GoTo nogood
+                    End If
+                Next
+
             Case "-"
                 c_Note = c(amt.iNote)
             Case "|"
@@ -185,7 +381,7 @@ Private Sub SetMusicItem(ntrack As Integer, ln As Integer, WD As Integer)
             Case "|"
             
             Case "a" To "z", "A" To "Z", "-", "="
-            Case chr(21) To chr(125)
+            Case Chr(21) To Chr(125)
                 c_Finge = c(amt.iFinge)
             Case Else
                 c_Finge = c(amt.iFinge)
@@ -203,18 +399,14 @@ Private Sub SetMusicItem(ntrack As Integer, ln As Integer, WD As Integer)
         End Select
         
 
-        lsup = 0
         Select Case c(amt.iTempo)     '這是拍子
             Case " "
                 c_Tempo = c(amt.iTempo)
             Case "-", "2"
-                lsup = 1
                 c_Tempo = c(amt.iTempo)
             Case "=", "4", "3"
-                lsup = 2
                 c_Tempo = c(amt.iTempo)
             Case "6", "8", "A"
-                lsup = 3
                 c_Tempo = c(amt.iTempo)
             Case "|"
                 c_Tempo = c(amt.iTempo)
@@ -249,7 +441,7 @@ Private Sub SetMusicItem(ntrack As Integer, ln As Integer, WD As Integer)
             objMusic.mtempo = c_Tempo   '這是拍子       -=368acefz
             lastDuration = calDuration(objMusic, lastDuration)
             objMusic.identify_Duration lastDuration
-            mMusic(ntrack).Push objMusic
+            mMusic(nTrack).Push objMusic
         ElseIf c_Add = "[" Or isAdd = True Then
             If c_Add = "[" Then
                 Set objMusic = New MusicItem
@@ -270,8 +462,9 @@ Private Sub SetMusicItem(ntrack As Integer, ln As Integer, WD As Integer)
             objMusic.mtempo = c_Tempo   '這是拍子       -=368acefz
             lastDuration = calDuration(objMusic, lastDuration)
             objMusic.identify_Duration lastDuration
-            mMusic(ntrack).Push objMusic
+            mMusic(nTrack).Push objMusic
         End If
+        calExtraw objMusic
     
         If c_Slur = "[" Or c_Slur = "(" Then
             objMusic.slurStart = True       '二胡連音線，(古箏是合音)
@@ -286,116 +479,210 @@ Private Sub SetMusicItem(ntrack As Integer, ln As Integer, WD As Integer)
 nogood:
     Next i
 End Sub
+Private Sub clearTextNote(mTextnote() As String)
+    Dim i As Integer
+    For i = 0 To UBound(mTextnote) - 1
+        mTextnote(i) = ""
+    Next
+End Sub
  Public Sub LoadDataToBuf(the_data As String)
 ' 從檔案中讀取一列字串放到特定位置,讀到'*'離開
-    Dim ntrack As Integer
+    Dim nTrack As Integer
     Dim tmp_ntrack As Integer
-    Dim buf_i(1000) As String
-    Dim i As Integer, tab_m As Integer, vol As Integer
-    Dim Name(256) As String
-    Dim p As String
     
     
     Dim cc As String
     Dim mcc As String
     '一行一行的分開，放入 tmp_str
     Dim valText As Variant
-    Dim numPC As Integer
-    If the_data = "" Then
-        MsgBox ("沒有資料")
-        Exit Sub
-    End If
     
-    valText = Split(the_data, vbCrLf)
-    ntrack = -1
-    tmp_ntrack = -1
-    numPC = UBound(valText)
+    Dim ln As Integer
+    
+    
     Dim pos As Integer
     Dim ko As Integer
     Dim findSt As Integer
     Dim findEnd As Integer
     Dim regEx As New RegExp
     regEx.Global = True
+    Dim MusicNoteFormation() As New MusicNoteItemList
+    Dim moe As MusicNoteItem
     
-    For i = 0 To numPC
-        cc = VBA.Mid(valText(i), 1, 1)
-        mcc = valText(i)
-        
+    
+    
+    If the_data = "" Then
+        MsgBox ("沒有資料")
+        Exit Sub
+    End If
+    
+    valText = Split(the_data, vbCrLf)
+    nTrack = -1
+    tmp_ntrack = -1
+    
+    For ln = 0 To UBound(valText)
+        cc = VBA.Mid(valText(ln), 1, 1)
+        mcc = valText(ln)
         If cc = "<" Then
-            If ntrack >= 0 Then
-                Call SetMusicItem(ntrack, i, 1) '轉換成物件資料
-                'Call SetMusicItemToABC(ntrack, i, 1)
+            If nTrack >= 0 Then
+                MusicNoteFormation(nTrack).PushArray joinFormation(mTextnote)
             End If
-            If ntrack = -1 Then
+            If nTrack = -1 Then
                 findSt = InStr(1, mcc, "<")
                 findEnd = InStr(1, mcc, ">")
                 title = Mid(mcc, findSt + 1, findEnd - findSt - 1)
-            End If
-            For ko = 0 To amt.mHowData
-                mTextNote(ko) = ""
-            Next
-            ntrack = ntrack + 1
-        ElseIf cc = "*" Then
-            Call SetMusicItem(ntrack, i, 1) '轉換成物件資料
-            'Call SetMusicItemToABC(ntrack, i, 1)
-            For ko = 0 To amt.mHowData
-                mTextNote(ko) = ""
-            Next
-            
-            pos = amt.iTONE
-            mTextNote(pos) = mcc
-        ElseIf cc = "|" Then
-            pos = pos + 1
-            mTextNote(pos) = mcc
-                        
-        ElseIf cc = "M" Then
-            '記錄拍號
-            Call SetMusicItem(ntrack, i, 1) '轉換成物件資料
-            'Call SetMusicItemToABC(ntrack, i, 1)
-            For ko = 0 To amt.mHowData
-                mTextNote(ko) = ""
-            Next
-            
-            Dim meteMatches
-            Dim musicIt As MusicItem
-            Set musicIt = New MusicItem
-            regEx.Pattern = "(\d+)/(\d+)"
-            Set meteMatches = regEx.Execute(valText(i))
-            
-            If meteMatches.Count >= 1 Then
-                musicIt.typs = Cg.meter
-                musicIt.mete = meteMatches(0).SubMatches(0)
-                musicIt.mete2 = meteMatches(0).SubMatches(1)
-            End If
-            mMusic(ntrack).Push musicIt
-        ElseIf cc = "I" Then
-            '設定每行幾小節
-            Call SetMusicItem(ntrack, i, 1) '轉換成物件資料
-            For ko = 0 To amt.mHowData
-                mTextNote(ko) = ""
-            Next
-            Dim regMatches
-            Dim rMusicItem As MusicItem
-            Set rMusicItem = New MusicItem
-            regEx.Pattern = "bar[\s]+(\d+)"
-            Set regMatches = regEx.Execute(valText(i))
-            
-            If regMatches.Count >= 1 Then
-                rMusicItem.typs = Cg.Config
-                rMusicItem.barsperstaff = regMatches(0).SubMatches(0) '設定每行幾小節
                 
             End If
-            mMusic(ntrack).Push rMusicItem
+            
+            clearTextNote mTextnote
+            nTrack = nTrack + 1
+            ReDim Preserve MusicNoteFormation(nTrack)
+            Set MusicNoteFormation(nTrack) = New MusicNoteItemList
+        ElseIf cc = "*" Then
+            MusicNoteFormation(nTrack).PushArray joinFormation(mTextnote)
+            clearTextNote mTextnote
+            
+            pos = amt.iTONE
+            mTextnote(pos) = mcc
+        ElseIf cc = "|" Then
+            pos = pos + 1
+            mTextnote(pos) = mcc
+                        
+        ElseIf cc = "M" Or cc = "I" Then
+            MusicNoteFormation(nTrack).PushArray joinFormation(mTextnote)
+            clearTextNote mTextnote
+            
+            Set moe = New MusicNoteItem
+            moe.typs = Cg.Config
+            moe.configText = mcc
+            '記錄拍號
+            MusicNoteFormation(nTrack).Push moe
+            
         End If
     Next
-    
-    Call SetMusicItem(ntrack, i, 1) '轉換成物件資料
+    MusicNoteFormation(nTrack).PushArray joinFormation(mTextnote)
+    clearTextNote mTextnote
+    SetMusicNoteFormation MusicNoteFormation
+    'Call SetMusicItem(nTrack, ln, 1) '轉換成物件資料
     'Call SetMusicItemToABC(ntrack, i, 1)
     
     
     
     
 End Sub
+'
+' Public Sub LoadDataToBuf(the_data As String)
+'' 從檔案中讀取一列字串放到特定位置,讀到'*'離開
+'    Dim ntrack As Integer
+'    Dim tmp_ntrack As Integer
+'    Dim buf_i(2000) As String
+'    Dim tab_m As Integer, vol As Integer
+'    Dim name(256) As String
+'    Dim p As String
+'
+'
+'    Dim cc As String
+'    Dim mcc As String
+'    '一行一行的分開，放入 tmp_str
+'    Dim valText As Variant
+'    Dim numPC As Integer
+'    Dim ln As Integer
+'    If the_data = "" Then
+'        MsgBox ("沒有資料")
+'        Exit Sub
+'    End If
+'
+'    valText = Split(the_data, vbCrLf)
+'    ntrack = -1
+'    tmp_ntrack = -1
+'    numPC = UBound(valText)
+'    Dim pos As Integer
+'    Dim ko As Integer
+'    Dim findSt As Integer
+'    Dim findEnd As Integer
+'    Dim regEx As New RegExp
+'    regEx.Global = True
+'    Dim MusicNoteFormation As New MusicNoteItemList
+'
+'
+'
+'
+'    For ln = 0 To numPC
+'        cc = VBA.Mid(valText(ln), 1, 1)
+'        mcc = valText(ln)
+'        Debug.Print "ln: " & ln
+'
+'        If cc = "<" Then
+'            If ntrack >= 0 Then
+'                MusicNoteFormation.PushArray joinFormation(mTextnote)
+'                'Call SetMusicItem(ntrack, ln, 1) '轉換成物件資料
+'                'Call SetMusicItemToABC(ntrack, i, 1)
+'            End If
+'            If ntrack = -1 Then
+'                findSt = InStr(1, mcc, "<")
+'                findEnd = InStr(1, mcc, ">")
+'                title = Mid(mcc, findSt + 1, findEnd - findSt - 1)
+'            End If
+'
+'            clearTextNote mTextnote
+'            ntrack = ntrack + 1
+'        ElseIf cc = "*" Then
+'            MusicNoteFormation.PushArray joinFormation(mTextnote)
+'            'Call SetMusicItem(ntrack, ln, 1) '轉換成物件資料
+'            'Call SetMusicItemToABC(ntrack, i, 1)
+'            clearTextNote mTextnote
+'
+'            pos = amt.iTONE
+'            mTextnote(pos) = mcc
+'        ElseIf cc = "|" Then
+'            pos = pos + 1
+'            mTextnote(pos) = mcc
+'
+'        ElseIf cc = "M" Then
+'            '記錄拍號
+'            MusicNoteFormation.PushArray joinFormation(mTextnote)
+'            'Call SetMusicItem(ntrack, ln, 1) '轉換成物件資料
+'            'Call SetMusicItemToABC(ntrack, i, 1)
+'            clearTextNote mTextnote
+'
+'            Dim meteMatches
+'            Dim musicIt As MusicItem
+'            Set musicIt = New MusicItem
+'            regEx.Pattern = "(\d+)/(\d+)"
+'            Set meteMatches = regEx.Execute(valText(ln))
+'
+'            If meteMatches.Count >= 1 Then
+'                musicIt.typs = Cg.meter
+'                musicIt.mete = meteMatches(0).SubMatches(0)
+'                musicIt.mete2 = meteMatches(0).SubMatches(1)
+'            End If
+'            mMusic(ntrack).Push musicIt
+'        ElseIf cc = "I" Then
+'            '設定每行幾小節
+'            MusicNoteFormation.PushArray joinFormation(mTextnote)
+'            'Call SetMusicItem(ntrack, ln, 1) '轉換成物件資料
+'            clearTextNote mTextnote
+'            Dim regMatches
+'            Dim rMusicItem As MusicItem
+'            Set rMusicItem = New MusicItem
+'            regEx.Pattern = "bar[\s]+(\d+)"
+'            Set regMatches = regEx.Execute(valText(ln))
+'
+'            If regMatches.Count >= 1 Then
+'                rMusicItem.typs = Cg.Config
+'                rMusicItem.barsperstaff = regMatches(0).SubMatches(0) '設定每行幾小節
+'
+'            End If
+'            mMusic(ntrack).Push rMusicItem
+'        End If
+'    Next
+'
+'    Call SetMusicItem(ntrack, ln, 1) '轉換成物件資料
+'    'Call SetMusicItemToABC(ntrack, i, 1)
+'
+'
+'
+'
+'End Sub
 
 
 Function GetTrackSize() As Integer
@@ -422,9 +709,9 @@ Function GetData(the_track As Integer, the_item As Long) As MusicItem
     Dim i As Integer
     Dim musList As MusicItemList
     If UBound(mMusic) >= the_track Then
-        Set musList = mMusic(the_track)
-        If musList.Count >= the_item Then
-            Set GetData = musList(the_item)
+        'Set musList = mMusic(the_track)
+        If mMusic(the_track).Count >= the_item Then
+            Set GetData = mMusic(the_track)(the_item)
             Exit Function
         End If
     End If
@@ -469,7 +756,7 @@ Private Function getTextNoteNextKF() As KeyFormat
     Dim c() As String
     ReDim c(amt.mHowData)
         For j = amt.iTONE To Len(mChar)
-            c(j) = Mid(mTextNote(j), currentTextNotePos, 1)
+            c(j) = Mid(mTextnote(j), currentTextNotePos, 1)
             If c(j) = "" Then c(j) = " "
         Next j
         Dim kg As KeyFormat
@@ -484,7 +771,7 @@ Private Function getTextNoteNextKF() As KeyFormat
         getTextNoteNextKF = kg
 End Function
 Private Function updateTextNoteData() As Boolean
-        If currentTextNotePos <= Len(mTextNote(amt.iNote)) Then
+        If currentTextNotePos <= Len(mTextnote(amt.iNote)) Then
             currentTextNotePos = currentTextNotePos + 1
             updateTextNoteData = True
         Else
@@ -624,7 +911,7 @@ Private Function converMITABC(GroupABCs As VoiceABCList, vABC As VoiceABC, kf As
 
         Set converMITABC = vABC
 End Function
-Private Function SetMusicItemToABC(ntrack As Integer, ln As Integer, WD As Integer) As VoiceABCList
+Private Function SetMusicItemToABC(nTrack As Integer, ln As Integer, WD As Integer) As VoiceABCList
 'nTrack as integer '要轉換到第幾個音軌資料
 'ln As Integer   '要記錄讀進來的資料是在文件裡的第幾 "行"
 'wd As Integer   '要記錄貢進來的資料是在文件要的第幾 "字"
@@ -669,11 +956,11 @@ Private Function SetMusicItemToABC(ntrack As Integer, ln As Integer, WD As Integ
     Dim lastPitch As vpitchesNote
     Dim curABCList As VoiceABCList
     
-    If GroupABCLists(ntrack) Is Nothing Then
-        Set GroupABCLists(ntrack) = New VoiceABCList
+    If GroupABCLists(nTrack) Is Nothing Then
+        Set GroupABCLists(nTrack) = New VoiceABCList
     End If
     
-        Set curABCList = GroupABCLists(ntrack)
+        Set curABCList = GroupABCLists(nTrack)
     
     initTextNoteData
     Do

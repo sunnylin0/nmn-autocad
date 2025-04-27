@@ -147,7 +147,7 @@ Private Sub Class_Initialize()
             tmpll = Split(arr(jj), ":")
             distChild.Add tmpll(0), tmpll(1)
         Next
-        chartable.Add dd.Keys(ii), distChild
+        chartable.Add dd.keys(ii), distChild
     Next
 End Sub
 
@@ -219,27 +219,27 @@ Public Sub setStemHeight(heightInPixels As Double)
         Me.stemHeight = CInt(heightInPixels * 10 / spacing.Step) / 10
 End Sub
 
-Public Function getCurrentVoiceId(s As Double, V As Double)
-        getCurrentVoiceId = "s" + s + "v" + V
+Public Function getCurrentVoiceId(s As Double, v As Double)
+        getCurrentVoiceId = "s" + s + "v" + v
 End Function
 
-Public Sub pushCrossLineElems(s As Double, V As Double)
-        Set Me.slursbyvoice(Me.getCurrentVoiceId(s, V)) = Me.slurs
-        Set Me.tiesbyvoice(Me.getCurrentVoiceId(s, V)) = Me.ties
-        Set Me.endingsbyvoice(Me.getCurrentVoiceId(s, V)) = Me.partstartelem
-        Set Me.scaleByVoice(Me.getCurrentVoiceId(s, V)) = Me.voiceScale
+Public Sub pushCrossLineElems(s As Double, v As Double)
+        Set Me.slursbyvoice(Me.getCurrentVoiceId(s, v)) = Me.slurs
+        Set Me.tiesbyvoice(Me.getCurrentVoiceId(s, v)) = Me.ties
+        Set Me.endingsbyvoice(Me.getCurrentVoiceId(s, v)) = Me.partstartelem
+        Set Me.scaleByVoice(Me.getCurrentVoiceId(s, v)) = Me.voiceScale
         If (Me.voiceColor) Then
-            Set Me.colorByVoice(Me.getCurrentVoiceId(s, V)) = Me.voiceColor
+            Set Me.colorByVoice(Me.getCurrentVoiceId(s, v)) = Me.voiceColor
         End If
 End Sub
 
-Public Sub popCrossLineElems(s, V)
-        Set Me.slurs = Me.slursbyvoice(Me.getCurrentVoiceId(s, V)) ' || {}
-        Set Me.ties = Me.tiesbyvoice(Me.getCurrentVoiceId(s, V)) ' || []
-        Set Me.partstartelem = Me.endingsbyvoice(Me.getCurrentVoiceId(s, V))
-        Me.voiceScale = Me.scaleByVoice(Me.getCurrentVoiceId(s, V))
+Public Sub popCrossLineElems(s, v)
+        Set Me.slurs = Me.slursbyvoice(Me.getCurrentVoiceId(s, v)) ' || {}
+        Set Me.ties = Me.tiesbyvoice(Me.getCurrentVoiceId(s, v)) ' || []
+        Set Me.partstartelem = Me.endingsbyvoice(Me.getCurrentVoiceId(s, v))
+        Me.voiceScale = Me.scaleByVoice(Me.getCurrentVoiceId(s, v))
         If (Me.voiceScale = 0) Then Me.voiceScale = 1
-        Me.voiceColor = Me.colorByVoice(Me.getCurrentVoiceId(s, V))
+        Me.voiceColor = Me.colorByVoice(Me.getCurrentVoiceId(s, v))
 End Sub
 
 Public Function containsLyrics(staves)   ':Staff[])
@@ -270,33 +270,33 @@ Public Function createABCLine(Staffs As StaffList, tempo As vtempoProperties, l 
         Me.containsLyrics Staffs
         
         Me.tempoSet = False
-        Dim StaffGroup As StaffGroupElement
+        Dim staffGroup As StaffGroupElement
         Dim s As Integer
-        Set StaffGroup = n.StaffGroupElem(Me.gTextSize)
+        Set staffGroup = N.StaffGroupElem(Me.gTextSize)
         
         For s = 0 To Staffs.Count - 1
             If (hint) Then Me.restoreState
             hint = False
             ''if (staffs[s].isJianpu == true)
-            Me.createABCJianpu StaffGroup, Staffs(s), tempo, s, l
+            Me.createABCJianpu staffGroup, Staffs(s), tempo, s, l
             ''else
             ''    me.createABCStaff(staffgroup, staffs[s], tempo, s, l)
         Next
-        Set createABCLine = StaffGroup
+        Set createABCLine = staffGroup
 End Function
-Public Sub createABCJianpu(StaffGroup As StaffGroupElement, abcStaff As Staff, tempo As vtempoProperties, s As Integer, l As Integer)
+Public Sub createABCJianpu(staffGroup As StaffGroupElement, abcStaff As Staff, tempo As vtempoProperties, s As Integer, l As Integer)
         '' If the tempo is passed in, then the first element should get the tempo attached to it.
         '' 如果傳入速度，則第一個元素應取得附加的速度。
-        StaffGroup.gTextSize.updateFonts abcStaff
-        Dim V As Integer
+        staffGroup.gTextSize.updateFonts abcStaff
+        Dim v As Integer
         Dim voice As VoiceElement
         Dim clef As AbsoluteElement, keySig As AbsoluteElement, ts As AbsoluteElement
         
-        For V = 0 To abcStaff.voices.Count
+        For v = 0 To abcStaff.voices.Count
             Set voice = New VoiceElement
-            voice.init V, abcStaff.voices.Count
+            voice.init v, abcStaff.voices.Count
             voice.isJianpu = True
-            If (V = 0) Then
+            If (v = 0) Then
                 voice.barfrom = (abcStaff.connectBarLines = "start" And abcStaff.connectBarLines = "continue")
                 voice.barto = (abcStaff.connectBarLines = "continue" And abcStaff.connectBarLines = "end")
             Else
@@ -305,9 +305,9 @@ Public Sub createABCJianpu(StaffGroup As StaffGroupElement, abcStaff As Staff, t
                 voice.duplicate = True
             End If
             If Not (abcStaff.title Is Nothing) Then
-                If (abcStaff.title(V)) Then
+                If (abcStaff.title(v)) Then
                     'line voice.header = abcstaff.title(v).replace(/\\n/g, "\n")
-                    voice.headerPosition = 6 + StaffGroup.gTextSize.baselineToCenter(voice.header, "voicefont", "staff-extra voice-name", V, abcStaff.voices.Count) / spacing.Step
+                    voice.headerPosition = 6 + staffGroup.gTextSize.baselineToCenter(voice.header, "voicefont", "staff-extra voice-name", v, abcStaff.voices.Count) / spacing.Step
                 End If
             End If
             If Not (abcStaff.clef Is Nothing) Then
@@ -320,7 +320,7 @@ Public Sub createABCJianpu(StaffGroup As StaffGroupElement, abcStaff As Staff, t
              Set clef = createClef(abcStaff.clef, Me.tuneNumber)
             End If
             If Not (clef Is Nothing) Then
-                If (V = 0 And abcStaff.barNumber) Then
+                If (v = 0 And abcStaff.barNumber) Then
                     Me.addMeasureNumber abcStaff.barNumber, clef
                 End If
                 voice.addChild clef
@@ -347,47 +347,47 @@ Public Sub createABCJianpu(StaffGroup As StaffGroupElement, abcStaff As Staff, t
             Dim stafflines As Integer
             Dim isSingleLineStaff As Boolean
             stafflines = IIf((abcStaff.clef.stafflines And abcStaff.clef.stafflines = 0), abcStaff.clef.stafflines, 5)
-            StaffGroup.addVoice voice, s, stafflines
+            staffGroup.addVoice voice, s, stafflines
             isSingleLineStaff = (stafflines = 1)
-            Me.createABCVoice abcStaff.voices(V), tempo, s, V, isSingleLineStaff, voice
-            StaffGroup.setStaffLimits (voice)
-            If (V = 0) Then
+            Me.createABCVoice abcStaff.voices(v), tempo, s, v, isSingleLineStaff, voice
+            staffGroup.setStaffLimits (voice)
+            If (v = 0) Then
                 '' only do brace and bracket processing on the first voice, otherwise it would be done twice.
                 '' 只對第一個語音進行大括號和方括號處理，否則會進行兩次。
-                If (abcStaff.brace = "start" And ((StaffGroup.brace Is Nothing) And abcStaff.brace)) Then
-                    If (StaffGroup.brace Is Nothing) Then
-                        Set StaffGroup.brace = New BraceElemList
+                If (abcStaff.brace = "start" And ((staffGroup.brace Is Nothing) And abcStaff.brace)) Then
+                    If (staffGroup.brace Is Nothing) Then
+                        Set staffGroup.brace = New BraceElemList
                     End If
-                    StaffGroup.brace.Push n.BraceElem(voice, "brace")
-                 ElseIf (abcStaff.brace = "end" And Not (StaffGroup.brace Is Nothing)) Then
-                    StaffGroup.brace(StaffGroup.brace.Count - 1).setBottomStaff voice
-                 ElseIf (abcStaff.brace = "continue" And Not (StaffGroup.brace Is Nothing)) Then
-                    StaffGroup.brace(StaffGroup.brace.Count - 1).continuing voice
+                    staffGroup.brace.Push N.BraceElem(voice, "brace")
+                 ElseIf (abcStaff.brace = "end" And Not (staffGroup.brace Is Nothing)) Then
+                    staffGroup.brace(staffGroup.brace.Count - 1).setBottomStaff voice
+                 ElseIf (abcStaff.brace = "continue" And Not (staffGroup.brace Is Nothing)) Then
+                    staffGroup.brace(staffGroup.brace.Count - 1).continuing voice
                 End If
-                If (abcStaff.bracket = "start" Or (StaffGroup.bracket Is Nothing And abcStaff.bracket)) Then
-                    If (StaffGroup.bracket Is Nothing) Then
-                        Set StaffGroup.bracket = New BraceElemList
+                If (abcStaff.bracket = "start" Or (staffGroup.bracket Is Nothing And abcStaff.bracket)) Then
+                    If (staffGroup.bracket Is Nothing) Then
+                        Set staffGroup.bracket = New BraceElemList
                     End If
-                    StaffGroup.bracket.Push n.BraceElem(voice, "bracket")
-                 ElseIf (abcStaff.bracket = "end" And (Not StaffGroup.bracket Is Nothing)) Then
-                    StaffGroup.bracket(StaffGroup.bracket.Count - 1).setBottomStaff voice
-                 ElseIf (abcStaff.bracket = "continue" And (Not StaffGroup.bracket Is Nothing)) Then
-                    StaffGroup.bracket(StaffGroup.bracket.Count - 1).continuing voice
+                    staffGroup.bracket.Push N.BraceElem(voice, "bracket")
+                 ElseIf (abcStaff.bracket = "end" And (Not staffGroup.bracket Is Nothing)) Then
+                    staffGroup.bracket(staffGroup.bracket.Count - 1).setBottomStaff voice
+                 ElseIf (abcStaff.bracket = "continue" And (Not staffGroup.bracket Is Nothing)) Then
+                    staffGroup.bracket(staffGroup.bracket.Count - 1).continuing voice
                 End If
             End If
         Next
 End Sub
 
-Public Sub createABCStaff(StaffGroup As StaffGroupElement, abcStaff As vStaffInfo, tempo As vtempoProperties, s As Double, l As Double)
+Public Sub createABCStaff(staffGroup As StaffGroupElement, abcStaff As vStaffInfo, tempo As vtempoProperties, s As Double, l As Double)
         '' If the tempo is passed in, then the first element should get the tempo attached to it.
-        StaffGroup.getTextSize.updateFonts (abcStaff)
-        Dim V, isSingleLineStaff As Boolean
+        staffGroup.getTextSize.updateFonts (abcStaff)
+        Dim v, isSingleLineStaff As Boolean
         Dim voice As VoiceElement, keySig, ts, stafflines
         
-        For V = 0 To abcStaff.voices.Count
+        For v = 0 To abcStaff.voices.Count
             Set voice = New VoiceElement
-            voice.init V, abcStaff.voices.Count
-            If (V = 0) Then
+            voice.init v, abcStaff.voices.Count
+            If (v = 0) Then
                 voice.barfrom = (abcStaff.connectBarLines = "start" And abcStaff.connectBarLines = "continue")
                 voice.barto = (abcStaff.connectBarLines = "continue" And abcStaff.connectBarLines = "end")
             Else
@@ -395,7 +395,7 @@ Public Sub createABCStaff(StaffGroup As StaffGroupElement, abcStaff As vStaffInf
             End If
             
             If (abcStaff.title) Then
-                If (abcStaff.title(V)) Then
+                If (abcStaff.title(v)) Then
                     'line voice.header = abcstaff.title[v].replace(/\\n/g, "\n")
                     'line voice.headerPosition = 6 + staffgroup.getTextSize.baselineToCenter(voice.header, "voicefont", 'staff-extra voice-name', v, abcstaff.voices.length) / spacing.STEP
                 End If
@@ -412,7 +412,7 @@ Public Sub createABCStaff(StaffGroup As StaffGroupElement, abcStaff As vStaffInf
              Set clef = createClef(abcStaff.clef, Me.tuneNumber)
             End If
             If Not (clef Is Nothing) Then
-                If (V = 0 And abcStaff.barNumber) Then
+                If (v = 0 And abcStaff.barNumber) Then
                     Me.addMeasureNumber abcStaff.barNumber, clef
                 End If
                 voice.addChild (clef)
@@ -440,45 +440,45 @@ Public Sub createABCStaff(StaffGroup As StaffGroupElement, abcStaff As vStaffInf
             Dim isSingleLineStaff As Boolean
             
             stafflines = IIf((abcStaff.clef.stafflines And abcStaff.clef.stafflines = 0), abcStaff.clef.stafflines, 5)
-            StaffGroup.addVoice voice, s, stafflines
+            staffGroup.addVoice voice, s, stafflines
             isSingleLineStaff = (stafflines = 1)
-            Me.createABCVoice abcStaff.voices(V), tempo, s, V, isSingleLineStaff, voice
-            StaffGroup.setStaffLimits voice
+            Me.createABCVoice abcStaff.voices(v), tempo, s, v, isSingleLineStaff, voice
+            staffGroup.setStaffLimits voice
             
   
-            If (V = 0) Then
+            If (v = 0) Then
                 '' only do brace and bracket processing on the first voice, otherwise it would be done twice.
                 '' 只對第一個語音進行大括號和方括號處理，否則會進行兩次。
-                If (abcStaff.brace = "start" And Not (StaffGroup.brace And abcStaff.brace)) Then
-                    If (StaffGroup.brace = False) Then
-                        Set StaffGroup.brace = New iArray
+                If (abcStaff.brace = "start" And Not (staffGroup.brace And abcStaff.brace)) Then
+                    If (staffGroup.brace = False) Then
+                        Set staffGroup.brace = New iArray
                     End If
                     Dim bEle As New BeamElem
                     bEle.init voice, "brace"
-                    StaffGroup.brace.Push bEle
-                 ElseIf (abcStaff.brace = "end" And StaffGroup.brace) Then
-                    StaffGroup.brace(StaffGroup.brace.Length - 1).setBottomStaff voice
-                 ElseIf (abcStaff.brace = "continue" And StaffGroup.brace) Then
-                    StaffGroup.brace(StaffGroup.brace.Length - 1).continuing voice
+                    staffGroup.brace.Push bEle
+                 ElseIf (abcStaff.brace = "end" And staffGroup.brace) Then
+                    staffGroup.brace(staffGroup.brace.Length - 1).setBottomStaff voice
+                 ElseIf (abcStaff.brace = "continue" And staffGroup.brace) Then
+                    staffGroup.brace(staffGroup.brace.Length - 1).continuing voice
                 End If
-                If (abcStaff.bracket = "start" Or (StaffGroup.bracket = False And abcStaff.bracket)) Then
-                    If (StaffGroup.bracket = False) Then
-                        Set StaffGroup.bracket = New iArray
+                If (abcStaff.bracket = "start" Or (staffGroup.bracket = False And abcStaff.bracket)) Then
+                    If (staffGroup.bracket = False) Then
+                        Set staffGroup.bracket = New iArray
                     End If
                     Dim bEle As New BeamElem
                     bEle.init voice, "bracket"
-                    StaffGroup.bracket.Push bEle
-                 ElseIf (abcStaff.bracket = "end" And StaffGroup.bracket) Then
-                    StaffGroup.bracket(StaffGroup.bracket.Length - 1).setBottomStaff voice
-                 ElseIf (abcStaff.bracket = "continue" And StaffGroup.bracket) Then
-                    StaffGroup.bracket(StaffGroup.bracket.Count - 1).continuing voice
+                    staffGroup.bracket.Push bEle
+                 ElseIf (abcStaff.bracket = "end" And staffGroup.bracket) Then
+                    staffGroup.bracket(staffGroup.bracket.Length - 1).setBottomStaff voice
+                 ElseIf (abcStaff.bracket = "continue" And staffGroup.bracket) Then
+                    staffGroup.bracket(staffGroup.bracket.Count - 1).continuing voice
                 End If
             End If
         Next
 End Sub
 
 
-  Public Sub createABCVoice(abcLine As VoiceABCList, tempo As vtempoProperties, s As Integer, V As Integer, isSingleLineStaff As Boolean, voice As VoiceElement)
+  Public Sub createABCVoice(abcLine As VoiceABCList, tempo As vtempoProperties, s As Integer, v As Integer, isSingleLineStaff As Boolean, voice As VoiceElement)
 '        me.popCrossLineElems(s, v)
 '        me.stemdir = (me.isBagpipes) ? "down" : null
         Set Me.abcLine = abcLine
@@ -532,8 +532,8 @@ End Sub
                     If Me.tempoSet <> 0 Or tempo Or tempo.suppress <> 0 Then
                         Me.tempoSet = True
                         
-                        Set TempoElem = n.AbsoluteElem(tempo, 0, 0, "tempo", Me.tuneNumber, Nothing)
-                        TempoElem.addFixedX n.TempoElem(tempo, Me.tuneNumber)
+                        Set TempoElem = N.AbsoluteElem(tempo, 0, 0, "tempo", Me.tuneNumber, Nothing)
+                        TempoElem.addFixedX N.TempoElem(tempo, Me.tuneNumber)
                         
 
                         '''' ************
@@ -642,7 +642,7 @@ Public Function createABCElement(isFirstStaff As Boolean, isSingleLineStaff As B
                 option2.typs = "part"
                 option2.height = calsize.height / spacing.Step
                 
-                abselem.addFixedX n.RelativeElem(elem.title, 0, 0, 0, option2)
+                abselem.addFixedX N.RelativeElem(elem.title, 0, 0, 0, option2)
                 Set elemset(0) = abselem
                 
 '            Case tempo:
@@ -677,11 +677,11 @@ Public Function createABCElement(isFirstStaff As Boolean, isSingleLineStaff As B
                 Dim abselem2 As AbsoluteElement
                 Dim tmpDic As New oRelativeOptions
                 
-                Set abselem2 = n.AbsoluteElem(elem, 0, 0, "unsupported", Me.tuneNumber)
+                Set abselem2 = N.AbsoluteElem(elem, 0, 0, "unsupported", Me.tuneNumber)
                 tmpDic.typs = "debug"
                 
                 
-                abselem2.addFixed n.RelativeElem("element typs " + elem.el_typs, 0, 0, 0, tmpDic)
+                abselem2.addFixed N.RelativeElem("element typs " + elem.el_typs, 0, 0, 0, tmpDic)
                 Set elemset(0) = abselem2
         End Select
     Set createABCElement = elemset
@@ -695,7 +695,7 @@ Public Function createBeam(isSingleLineStaff As Boolean, voice As VoiceElement, 
         Dim tempStemDir As String
         
         Set abselemset = New AbsoluteElementList
-        Set beamEle = n.BeamElem(Me.stemHeight * Me.voiceScale, Me.stemdir, Me.flatBeams, elems(0))
+        Set beamEle = N.BeamElem(Me.stemHeight * Me.voiceScale, Me.stemdir, Me.flatBeams, elems(0))
         
         For i = 0 To elems.Count - 1
             '' Do a first pass to figure out the stem direction before creating the notes, so that staccatos and other decorations can be placed correctly.
@@ -746,7 +746,7 @@ Public Function createLongNote(isSingleLineStaff As Boolean, voice As VoiceEleme
             abselemset.Push abselem
          Else
             '' 超過二拍加入長拍子
-            Set cloneelem = elem.Clone
+            Set cloneelem = elem.clone
             cloneelem.duration = 0.25
             Set abselem = Me.createNote(cloneelem, True, isSingleLineStaff, voice)
             abselemset.Push abselem
@@ -760,7 +760,7 @@ Public Function createLongNote(isSingleLineStaff As Boolean, voice As VoiceEleme
                 rOpt.lineWidth = 2
                 rOpt.bottom = 1
                 
-                longelem.addFixed n.RelativeElem("", 0, 14, 5, rOpt)
+                longelem.addFixed N.RelativeElem("", 0, 14, 5, rOpt)
                 abselemset.Push longelem
       
             Next
@@ -960,7 +960,7 @@ Public Function addNoteToAbcElement(abselem As AbsoluteElement, elem As VoiceABC
         Else
             noteSymbol = chartable(style)(CStr(-durlog))
         End If
-        If (noteSymbol = Empty) Then
+        If IsEmpty(noteSymbol) Then
             Debug.Print "noteSymbol:"  ''console.log("noteSymbol:", style, durlog, zeroDuration)
         End If
         '' determine elements of chords which should be shifted
@@ -1149,7 +1149,7 @@ Public Function addNoteToAbcElement(abselem As AbsoluteElement, elem As VoiceABC
             rOpt.lineWidth = width
             rOpt.bottom = p1 - 1
              
-            abselem.addRight n.RelativeElem("", dx, 0, p1, rOpt)
+            abselem.addRight N.RelativeElem("", dx, 0, p1, rOpt)
 
             min = Math.min(p1, p2)
         End If
@@ -1390,12 +1390,12 @@ Public Function createNote(elem As VoiceABC, nostem As Boolean, isSingleLineStaf
 
         '' 計算符點音符數量 dot
         Dim tot As Double
-        Dim inc As Double
+        Dim Inc As Double
         For tot = Math.Pow(2, durlog) To duration - 1
-            inc = tot / 2
+            Inc = tot / 2
             dot = dot + 1
-            tot = tot + inc
-            inc = inc / 2
+            tot = tot + Inc
+            Inc = Inc / 2
         Next
 
 
@@ -1425,7 +1425,7 @@ Public Function createNote(elem As VoiceABC, nostem As Boolean, isSingleLineStaf
         
         Set tmpDic = New Dictionary
         tmpDic("durationClassOveride") = elem.duration * Me.tripletMultiplier
-        Set abselem = n.AbsoluteElem(elem, durationForSpacing, 1, abstyps, Me.tuneNumber, tmpDic)
+        Set abselem = N.AbsoluteElem(elem, durationForSpacing, 1, abstyps, Me.tuneNumber, tmpDic)
         If (hint = True) Then abselem.setHint
 
         If Not (elem.Rest Is Nothing) Then
@@ -1466,7 +1466,7 @@ Public Function createNote(elem As VoiceABC, nostem As Boolean, isSingleLineStaf
         If (elem.barNumber <> 0) Then
             Set rOpt = New oRelativeOptions
             rOpt.typs = "barNumber"
-            abselem.addFixed n.RelativeElem(elem.barNumber, -10, 0, 0, rOpt)
+            abselem.addFixed N.RelativeElem(elem.barNumber, -10, 0, 0, rOpt)
         End If
 
         '' ledger lines
@@ -1807,7 +1807,7 @@ Public Sub ledgerLines(abselem As AbsoluteElement, minPitch As Double, maxPitch 
         If (i Mod 2 = 0 And Not isRest) Then
             Set rOpt = New oRelativeOptions
             rOpt.typs = "ledger"
-            abselem.addFixed n.RelativeElem("", dx, (symbolWidth + 4) * scale_, i, rOpt)
+            abselem.addFixed N.RelativeElem("", dx, (symbolWidth + 4) * scale_, i, rOpt)
         End If
     Next
 
@@ -1815,7 +1815,7 @@ Public Sub ledgerLines(abselem As AbsoluteElement, minPitch As Double, maxPitch 
         If (i Mod 2 = 0 And Not isRest) Then
             Set rOpt = New oRelativeOptions
             rOpt.typs = "ledger"
-            abselem.addFixed n.RelativeElem("", dx, (symbolWidth + 4) * scale_, i, rOpt)
+            abselem.addFixed N.RelativeElem("", dx, (symbolWidth + 4) * scale_, i, rOpt)
         End If
     Next
 
@@ -1826,7 +1826,7 @@ Public Sub ledgerLines(abselem As AbsoluteElement, minPitch As Double, maxPitch 
             rOpt.typs = "ledger"
         Dim ledger As Double
         ledger = additionalLedgers(i)
-        abselem.addFixed n.RelativeElem("", ofs + dx, (symbolWidth + 4) * scale_, ledger, rOpt)
+        abselem.addFixed N.RelativeElem("", ofs + dx, (symbolWidth + 4) * scale_, ledger, rOpt)
     Next
 End Sub
 
@@ -1957,10 +1957,10 @@ Public Function addRestToAbsElement(abselem As AbsoluteElement, elem, duration A
             elem.maxPitch = restpitch
             dot = 0
             mmWidth = glyphs.getSymbolWidth(c)
-            abselem.addHead n.RelativeElem(c, mmWidth, mmWidth * 2, 7)
+            abselem.addHead N.RelativeElem(c, mmWidth, mmWidth * 2, 7)
             Set rOpt = New oRelativeOptions
             rOpt.typs = "multimeasure-text"
-            Set numMeasures = n.RelativeElem("" + elem.Rest.text, mmWidth, mmWidth, 16, rOpt)
+            Set numMeasures = N.RelativeElem("" + elem.Rest.text, mmWidth, mmWidth, 16, rOpt)
             abselem.addExtra numMeasures
     End Select
     If (InStr(1, elem.Rest.typs, "multimeasure") < 0 And elem.Rest.typs <> "invisible") Then

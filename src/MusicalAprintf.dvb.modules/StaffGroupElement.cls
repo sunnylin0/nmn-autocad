@@ -24,23 +24,23 @@ Private saIs As New Dictionary
 Public spacingUnits As Double   '記錄這行的空白單位
 Public minSpace As Double       '記錄這行的 最小空白單位
 
-Public Property Get sa(Index As Integer) As size
-    If saIs(Index) = True Then
-        sa = sa_(Index)
+Public Property Get sa(index As Integer) As size
+    If saIs(index) = True Then
+        sa = sa_(index)
         Exit Property
-    ElseIf UBound(sa_) >= Index Then
+    ElseIf UBound(sa_) >= index Then
         sa = Empty
     End If
 End Property
 
-Public Property Let sa(Index As Integer, si As size)
-    If UBound(sa_) >= Index Then
-        sa_(Index) = si
-        saIs(Index) = True
+Public Property Let sa(index As Integer, si As size)
+    If UBound(sa_) >= index Then
+        sa_(index) = si
+        saIs(index) = True
     Else
         'ReDim Me.sa_(index * 2)
-        sa_(Index) = si
-        saIs(Index) = True
+        sa_(index) = si
+        saIs(index) = True
     End If
     
 End Property

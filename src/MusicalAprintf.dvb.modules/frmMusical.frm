@@ -13,7 +13,6 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-
 Private Sub CommandButton1_Click()
     '´¡¤J³æ¤@Text
     Dim MusicText As NnmText
@@ -377,7 +376,7 @@ TRYAGAIN:
             SStr = SStr & "nGripMidUp = " & Format(pt(0), "0.00") & ", " & Format(pt(1), "0.00") & vbCrLf
             
             
-            ThisDrawing.Utility.prompt SStr
+            ThisDrawing.Utility.Prompt SStr
         End If
 End Sub
 

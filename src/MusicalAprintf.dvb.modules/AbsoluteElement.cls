@@ -275,7 +275,7 @@ Public Sub unhighlight(klass, color)
     'unhighlight.bind(this)(klass, color)
 End Sub
 
-Public Function Clone() As AbsoluteElement
+Public Function clone() As AbsoluteElement
     Dim cope As New AbsoluteElement
     cope.typs = Me.typs
     cope.duration = Me.duration
@@ -310,6 +310,6 @@ Set cope.Beam = Me.Beam
     cope.startTie = Me.startTie
     cope.klass = Me.klass
     
-    Set Clone = cope
+    Set clone = cope
     
 End Function

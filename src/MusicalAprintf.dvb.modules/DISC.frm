@@ -13,7 +13,6 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-
 Private Sub cbLoad_Click()
   
     Dim TrackingDictionary As AcadDictionary, TrackingXRecord As AcadXRecord
@@ -318,10 +317,10 @@ Public Sub AddEntXRecord()
       10, point
  
   If xRecord.HasXRecord(ent, "EX02") Then
-    ThisDrawing.Utility.prompt vbNewLine & "實體已經包含指定名稱的擴展記錄 "
+    ThisDrawing.Utility.Prompt vbNewLine & "實體已經包含指定名稱的擴展記錄 "
   Else
     xRecord.AddXRecord ent, "EX02", DataType, data
-    ThisDrawing.Utility.prompt vbNewLine & "成功為實體添加擴展記錄 "
+    ThisDrawing.Utility.Prompt vbNewLine & "成功為實體添加擴展記錄 "
   End If
  
  

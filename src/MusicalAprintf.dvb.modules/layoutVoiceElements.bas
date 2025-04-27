@@ -25,7 +25,14 @@ End Function
 
 '' number of spacing units expected for next positioning
 Function getSpacingUnits(voice As VoiceElement)
-   getSpacingUnits = Sqrt(voice.spacingduration# / 1000 * 8)
+    If (G.IsBarAlign) Then
+        getSpacingUnits = voice.spacingduration# / 384
+    Else
+        getSpacingUnits = Sqrt(voice.spacingduration# / 384)
+    End If
+   
+   'getSpacingUnits = Sqrt(Sqrt(voice.spacingduration# / 384))
+   'getSpacingUnits = voice.spacingduration# / 384
 End Function
 
 '**
@@ -52,10 +59,10 @@ Function layoutOneItem(x As Double, spacing As Double, voice As VoiceElement, mi
     er = x - voice.minX
     '' pad : only add padding To the items that aren't fixed to the left edge.
     '' pad : 僅在未固定到左邊緣的項目新增填滿。
-    If child.duration > 0 Then
-        pad = voice.durationIndex / 1000 + minPadding
+    If voice.durationIndex + child.duration > 0 Then
+        pad = minPadding
     Else
-        pad = voice.durationIndex / 1000
+        pad = 0
     End If
         '' See if this item overlaps the item in the first voice. If firstVoice Is undefined then there's nothing to compare.
         '' 查看該項目是否與第一個語音中的項目重疊。 如果 firstVoice 未定義，則沒有什麼可比較的。
@@ -95,6 +102,10 @@ Function layoutOneItem(x As Double, spacing As Double, voice As VoiceElement, mi
     '    End If
     'End If
 
+    If child.typs = Cg.meter Then
+        voice.meteA = child.mete
+        voice.meteB = child.mete2
+    End If
     Dim extraWidth As Double
     extraWidth = getExtraWidth(child, pad)
     If (er < extraWidth) Then  '' shift right by needed amount 右移所需數量
@@ -107,13 +118,14 @@ Function layoutOneItem(x As Double, spacing As Double, voice As VoiceElement, mi
         End If
     End If
     child.setX x
-
-    voice.spacingduration = child.duration
-    ''update minx
-    voice.minX = x + getMinWidth(child) '' add necessary layout space 新增必要的佈局空間
-    If (voice.i <> voice.children.Count - 1) Then
-        voice.minX = voice.minX + child.minspacing '' add minimumspacing except On last elem 新增除最後一個元素之外的最小間距
+    If child.duration > 0 Then
+        voice.spacingduration = child.duration
+    Else
+        voice.spacingduration = 1
     End If
+    
+    ''updateMinx
+    Call updateMinX(x, voice)
 
     '' 計算下一個元件的位置
     Call updateNextX(x, spacing, voice)
@@ -128,19 +140,104 @@ End Function
 Sub shiftRight(dx As Double, voice As VoiceElement)
     Dim child As voiceItem
     Set child = voice.children(voice.i)
-    If (child = Empty) Then Exit Sub
+    If IsEmpty(child) Then Exit Sub
     child.setX (child.x + dx)
     voice.minX = voice.minX + dx
     voice.nextX = voice.nextX + dx
 End Sub
+'' call when spacingduration has been updated
+Sub updateMinX(x As Double, voice As VoiceElement)
+    Dim child As MusicItem 'voiceItem
+    Dim barDurAll As Double
+    Dim currDur As Double
+    Dim nextTyps As Cg
+    
+    barDurAll = voice.barDurationIndex
+    currDur = voice.children(voice.i).duration
+    Set child = voice.children(voice.i)
+    
+    voice.minX = x + getMinWidth(child) '' add necessary layout space 新增必要的佈局空間
+    If (voice.i <> voice.children.Count - 1) Then
+        voice.minX = voice.minX + child.minspacing '' add minimumspacing except On last elem 新增除最後一個元素之外的最小間距
+    End If
 
+
+    If voice.children.Count > voice.i + 1 Then
+        nextTyps = voice.children(voice.i + 1).typs
+    Else
+        nextTyps = Cg.Other
+    End If
+    
+      
+    If (barDurAll + currDur) > 0 And _
+    (barDurAll + currDur) Mod (Cg.BLEN / voice.meteB) = 0 And _
+    nextTyps <> Cg.bar Then
+        ''Debug.Print "all_" & voice.durationIndex & "   x_" & x
+        voice.minX = x + getMinWidth(child) + child.minspacing + amt.wNote2note
+    Else
+        voice.minX = x + getMinWidth(child) + child.minspacing
+    End If
+End Sub '' call when spacingduration has been updated
 '' call when spacingduration has been updated
 Sub updateNextX(x As Double, spacing As Double, voice As VoiceElement)
-    voice.nextX = x + (spacing * Math.Sqrt(voice.spacingduration / 1000 * 8))
+
+    ''voice.nextX = x + (spacing * Math.Sqrt(voice.spacingduration / 384 / 1000 * 8))
+    Dim barDurAll As Double
+    Dim currDur As Double
+    Dim nextTyps As Cg
+    barDurAll = voice.barDurationIndex
+    currDur = voice.children(voice.i).duration
+
+    If voice.children.Count > voice.i + 1 Then
+        nextTyps = voice.children(voice.i + 1).typs
+    Else
+        nextTyps = Cg.Other
+    End If
+    
+      
+    If (barDurAll + currDur) > 0 And _
+    (barDurAll + currDur) Mod (Cg.BLEN / voice.meteB) = 0 And _
+    nextTyps <> Cg.bar Then
+        ''Debug.Print "all_" & voice.durationIndex & "   x_" & x
+        voice.nextX = x + spacing * getSpacingUnits(voice) + amt.wNote2note
+    Else
+        voice.nextX = x + spacing * getSpacingUnits(voice)
+    End If
+End Sub '' call when spacingduration has been updated
+Sub updateOtherNextX(x As Double, spacing As Double, voice As VoiceElement)
+
+    ''voice.nextX = x + (spacing * Math.Sqrt(voice.spacingduration / 384 / 1000 * 8))
+    Dim barDurAll As Double
+    Dim currDur As Double
+    Dim nextTyps As Cg
+    barDurAll = voice.barDurationIndex
+    currDur = voice.children(voice.i).duration
+
+    If voice.children.Count > voice.i + 1 Then
+        nextTyps = voice.children(voice.i + 1).typs
+    Else
+        nextTyps = Cg.Other
+    End If
+
+    
+    If (barDurAll) > 0 And _
+    (barDurAll) Mod (Cg.BLEN / voice.meteB) = 0 And _
+    nextTyps <> Cg.bar Then
+        ''Debug.Print "all_" & voice.durationIndex & "   x_" & x
+        voice.nextX = x + spacing * getSpacingUnits(voice) + amt.wNote2note
+    Else
+        'voice.nextX = x + spacing * getSpacingUnits(voice)
+    End If
 End Sub
 
 Sub updateIndices(voice As VoiceElement)
     If (layoutEnded(voice) = False) Then
+        If voice.children(voice.i).typs = Cg.bar Then
+            voice.barDurationIndex = 0
+        Else
+            voice.barDurationIndex = voice.barDurationIndex + voice.children(voice.i).duration
+        End If
+    
         voice.durationIndex = voice.durationIndex + voice.children(voice.i).duration
         If (voice.children(voice.i).typs = Cg.bar) Then
             '' everytime we meet a barline, do rounding to nearest 64th

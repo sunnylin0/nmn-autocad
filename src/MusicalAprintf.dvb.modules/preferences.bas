@@ -1,6 +1,7 @@
 Attribute VB_Name = "preferences"
 Option Explicit
 
+
 Type AMusicType
     DEFINE_FontFileName  As String          '預設字型的名字
     DEFINE_TEXT_SIZE As Double          '預設字型的大小
@@ -55,12 +56,19 @@ Type AMusicType
     bkMidUpHight As Double    '物件中間上點的高度
     
     bkInster_Line_H As Double    '物件原點跟拍線的高度
+    barInsterNumberSize As Double   '小節號字大小
     
+    
+    wBar As Double          '小節線的寬度
+    wMete As Double         '拍號的寬度
+    wNote As Double         '音符的寬度
+    wOther As Double
+    wNote2note As Double    '每拍到每拍的間距
 
 End Type
 
 Public amt As AMusicType
-
+Public rTime As runTime
 
 'MusicTextBlock  畫圖塊用資料
 
@@ -115,6 +123,7 @@ Public Type Glode
     LineToLine As Double
     MIN_X As Double
     Beat_MIN_X As Double
+    IsBarAlign As Boolean       '小節是否對齊
     
     lastRightPoint As New point '計錄最後一個元素的 右邊點
 End Type
@@ -130,15 +139,15 @@ Sub AMT_LOAD()
     amt.A_TEXT_WIDTH = 726# / DEFINE_TEXT_SIZE               '預設一個字的寬度  字形的 百分比
     
     amt.LINE_PASE = 592.2 / DEFINE_TEXT_SIZE            '這是從原點 要高 字形的 百分比
-    amt.LINE_JUMP = 139.7 / DEFINE_TEXT_SIZE            '每一個拍線和拍線的間格 字形的 百分比
-    amt.LINE_THICKNESS = 55.9 / DEFINE_TEXT_SIZE            '這是拍線的厚度 字形的 百分比
+    amt.LINE_JUMP = 155 / DEFINE_TEXT_SIZE            '每一個拍線和拍線的間格 字形的 百分比
+    amt.LINE_THICKNESS = 65 / DEFINE_TEXT_SIZE            '這是拍線的厚度 字形的 百分比
     amt.LINE_LEN = 723.5 / DEFINE_TEXT_SIZE            '這是拍線的長度 字形的 百分比
     
     amt.DROP_UP = 1950# / DEFINE_TEXT_SIZE             '高八度的位置  字形的 百分比
     amt.DROP_DOWN = 500# / DEFINE_TEXT_SIZE             '低八度的位置  字形的 百分比
     amt.DROP_CIRCLE_RADIUS_SIZE = 200# / DEFINE_TEXT_SIZE / 2           '圓的 直徑 SIZE 字形的 百分比
     amt.DROP_INTERVAL = 290# / DEFINE_TEXT_SIZE             '每八度的間距 字形的 百分比
-    amt.DROP_ADD_LINE_INTERVAL = 150# / DEFINE_TEXT_SIZE               '下點 多一條線點要下去多少  字形的 百分比
+    amt.DROP_ADD_LINE_INTERVAL = 170# / DEFINE_TEXT_SIZE               '下點 多一條線點要下去多少  字形的 百分比
     
     amt.BAR_WITCH = 340 / DEFINE_TEXT_SIZE                '小節線的粗細
 
@@ -176,6 +185,14 @@ Sub AMT_LOAD()
     amt.bkMidHight = 690# / DEFINE_TEXT_SIZE      '物件中間下點的高度
     amt.bkMidUpHight = 1690# / DEFINE_TEXT_SIZE     '物件中間上點的高度
     amt.bkInster_Line_H = 97.8 / DEFINE_TEXT_SIZE    '物件原點跟拍線的高度
+    amt.barInsterNumberSize = 0.6
+    
+    
+    amt.wBar = 1    '小節線的寬度
+    amt.wMete = 1      '拍號的寬度
+    amt.wNote = 0.75        '音符的寬度
+    amt.wOther = 1
+    amt.wNote2note = 0.5 '每拍到每拍的間距
 End Sub
     
     

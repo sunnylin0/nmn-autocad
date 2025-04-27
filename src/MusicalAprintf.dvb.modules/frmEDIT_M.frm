@@ -15,7 +15,6 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
 
-
 Option Explicit
 '2024.03.30  ­n¥[¤J ©ç¸¹ M:3/8 M:4/4 ¡A¤j§ï­µ²Å±Æ§Ç¤è¦¡
 '2024.03.29  ­×§ï 4/4 3/8 ©ç¼Æ¹ï¦ì°ÝÃD
@@ -24,7 +23,7 @@ Option Explicit
 '2013.03.17  V3 ¥¿­n­×§ï ¤G­Jªºª©¥»¡A¦]µ{¦¡¤§«e¬O¥Î¥jºåªº«üªk¹Ï¡A²{¦b§ï¦¨¤G­Jªº«üªk¹Ï
 
 Const version  As String = "v2.0" '³nÅé¸¹½X
-Const C1 As Integer = 60   'C½Õ1ªºÁä¦W­È
+Const c1 As Integer = 60   'C½Õ1ªºÁä¦W­È
 'Const FOURPAINUM   As Integer = 64 '1/4­µ²Å­p¼Æ
 'Const MIDICLOCK As Integer = 24   '¨C1/64­µ²ÅªºMIDICLOCK¼Æ
 'Const TEMPO_DEF As Integer = 90   '¹w³]¨C¤ÀÄÁ90©ç
@@ -49,7 +48,7 @@ Dim tune As TuneData
 
 '1 ¦bvb¤uµ{¤¤¤Þ¥Îautocadªºƒ·
 '2 ©w…óautocad†Á¶H
-Private acadApp As AcadApplication
+Private acadapp As AcadApplication
 Private acadDoc As AcadDocument
 '3 ‡À¥´…{‹×„¸autocadªº¨ç‡Û¡A¥H¤U¬O§Ú‡Àªº
 '--------------------------------------------------------------
@@ -58,11 +57,11 @@ Private acadDoc As AcadDocument
 Private Function AcadConnect() As Boolean
 Dim flag As Boolean
 On Error Resume Next
-    Set acadApp = GetObject(, "AutoCAD.Application")
+    Set acadapp = GetObject(, "AutoCAD.Application")
     flag = True
     If err Then
        err.Clear
-       Set acadApp = CreateObject("AutoCAD.Application")
+       Set acadapp = CreateObject("AutoCAD.Application")
        flag = True
        If err Then
           flag = False
@@ -71,7 +70,7 @@ On Error Resume Next
        End If
     End If
     AcadConnect = flag
-    Set acadDoc = acadApp.ActiveDocument
+    Set acadDoc = acadapp.ActiveDocument
     'acadDoc.Close False
 End Function
 
@@ -137,12 +136,12 @@ Private Sub CommandButton2_Click()
     
     Set tune = New TuneData
     Set gTuneLine = New TuneLine
-    Set gTuneLine.StaffGroup = New StaffGroupElement
+    Set gTuneLine.staffGroup = New StaffGroupElement
     Set gTuneLine.Staffs = getToStaffList(m_buf)
     ''GTuneLine..Staffs getInitABCElement
     
-    Dim V As VoiceABCList
-    Set V = gTuneLine.Staffs(0).voices(0)
+    Dim v As VoiceABCList
+    Set v = gTuneLine.Staffs(0).voices(0)
     
     ''v.AddArrayAfter , m_Buf.getToVoiceABCs
     Dim eg As New EngraverController
@@ -1339,20 +1338,20 @@ Function layoutMusicItem(spacing As Double, musicGroup()) As Double
     
     minSpace = 1000
     '³o°j°é¬O³]©w X ¶b¦V
-    Do While (finished(StaffGroup.voices) = False)   ' Inner loop.
+    Do While (finished(staffGroup.voices) = False)   ' Inner loop.
        Dim currVoice As VoiceElement
-       Set currVoice = StaffGroup.voices(1)
+       Set currVoice = staffGroup.voices(1)
        Debug.Print currVoice.i
        
         
         '' §ä¨ì­n¦b¸óÁn­µªº­Ô¿ïªÌ¤§¶¡§G¸mªº²Ä¤@­Ó«ùÄò®É¶¡¯Å§O
         currentduration = Empty '' candidate smallest duration level
-        For i = 0 To StaffGroup.voices.Count - 1
+        For i = 0 To staffGroup.voices.Count - 1
             If currentduration = Empty Then
-                currentduration = getDurationIndex(StaffGroup.voices(i))
+                currentduration = getDurationIndex(staffGroup.voices(i))
             Else
-                If getDurationIndex(StaffGroup.voices(i)) < currentduration Then
-                    currentduration = getDurationIndex(StaffGroup.voices(i))
+                If getDurationIndex(staffGroup.voices(i)) < currentduration Then
+                    currentduration = getDurationIndex(staffGroup.voices(i))
                 End If
             End If
         Next
@@ -1366,15 +1365,15 @@ Function layoutMusicItem(spacing As Double, musicGroup()) As Double
         Dim othervoices As New iArray ' VoiceElement[] = []
         currentvoices.Clear
         othervoices.Clear
-        For i = 0 To StaffGroup.voices.Count - 1
-            durationIndex = getDurationIndex(StaffGroup.voices(i))
+        For i = 0 To staffGroup.voices.Count - 1
+            durationIndex = getDurationIndex(staffGroup.voices(i))
             '' PER: Because of the inexactness of JS floating point math, we just get close.
             '' PER¡G¥Ñ©ó JS ¯BÂI¼Æ¾Çªº¤£ºë½T©Ê¡A§Ú­Ì¥u¬O±µªñ¦Ó¤w¡C
             If (durationIndex - currentduration > Epsilon) Then
-                othervoices.Push StaffGroup.voices(i)
+                othervoices.Push staffGroup.voices(i)
                 ''console.log("out: voice ",i)
              Else
-                currentvoices.Push StaffGroup.voices(i)
+                currentvoices.Push staffGroup.voices(i)
                 ''if (debug) console.log("in: voice ",i)
             
             End If
@@ -1402,19 +1401,19 @@ Function layoutMusicItem(spacing As Double, musicGroup()) As Double
 
         Dim lastTopVoice
         For i = 0 To currentvoices.Count - 1
-            Dim V As VoiceElement
+            Dim v As VoiceElement
             Dim topVoice As VoiceElement
             Dim voicechildx As Double
             Dim dx As Double
-            Set V = currentvoices(i)
-            If (V.voicenumber = 0) Then lastTopVoice = i
-            If lastTopVoice <> Empty And currentvoices(lastTopVoice).voicenumber <> V.voicenumber Then
+            Set v = currentvoices(i)
+            If (v.voicenumber = 0) Then lastTopVoice = i
+            If lastTopVoice <> Empty And currentvoices(lastTopVoice).voicenumber <> v.voicenumber Then
                 Set topVoice = currentvoices(lastTopVoice)
             Else
                 Set topVoice = Nothing
             End If
             ''line ¤£ª¾¨ì if (~isSameStaff(v, topVoice)) then   Set topVoice = Empty
-            voicechildx = layoutVoiceElement.layoutOneItem(x, spacing, V, 0, topVoice)
+            voicechildx = layoutVoiceElement.layoutOneItem(x, spacing, v, 0, topVoice)
             dx = voicechildx - x
             ''³o¬O¬Ý¬O§_¦³«e­Ê­µ
             ''¦pªG¦³¡A¥þ³¡ªº­µ²Å´N¦b¥[«e­Ê­µªº¶ZÂ÷

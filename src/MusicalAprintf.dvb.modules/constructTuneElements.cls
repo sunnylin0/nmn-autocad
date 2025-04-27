@@ -30,10 +30,19 @@ Private barConfig(1000) As aBarConfig
 
 
 Function translate2Staffs(mBuf As DataBuffer) As TuneLineList
-    On Error Resume Next
+ 
     Dim abcLines As TuneLineList
+    Dim rr As runTime
+    Set rr = rTime
+    
+    rr ("tidyDataToRow")
     Set groupVoices123 = tidyDataToRow(mBuf)
+    rr ("tidyDataToRow")
+    Dim i As Integer
+
+    rr ("create2TuneLines")
     Set abcLines = create2TuneLines(groupVoices123)
+    rr ("create2TuneLines")
     'layoutxy abcLines, 30
     
     
@@ -56,8 +65,8 @@ Function layoutxy(abcLines As TuneLineList, spaceing As Double)
     Dim calW As Double
     For i = 0 To abcLines.Count - 1
         Set aLine = abcLines(i)
-        For j = 0 To aLine.StaffGroup.voices.Count - 1
-            Set vo = aLine.StaffGroup.voices(j)
+        For j = 0 To aLine.staffGroup.voices.Count - 1
+            Set vo = aLine.staffGroup.voices(j)
             currSpace = spaceing
             For num = 0 To 7
                 spaceUnit = layoutOneItem(vo, currSpace)
@@ -95,16 +104,16 @@ Function layoutOneItem(vele As VoiceElement, spacing As Double) As Double
         Select Case mus.typs
            Case Cg.bar:
                 mus.x = vele.nextX
-                mus.w = 0.3
+                mus.w = amt.wBar * G.fontName
            Case Cg.meter:
                 mus.x = vele.nextX
-                mus.w = 1.8
+                mus.w = amt.wMete * G.fontName
            Case Cg.Rest, Cg.note:
                 mus.x = vele.nextX
-                mus.w = 2.6
+                mus.w = amt.wNote * G.fontName
            Case Else
                 mus.x = vele.nextX
-                mus.w = 1
+                mus.w = amt.wOther * G.fontName
         End Select
         vele.w = vele.nextX
         If (mus.duration > 0) Then
@@ -129,7 +138,7 @@ Function create2TuneLines(groupVoices As VoiceElementList) As TuneLineList
     Dim vo As VoiceElement
     Dim sff As Staff
     Dim i As Integer
-    Dim n As Integer
+    Dim N As Integer
     Dim posLine As Integer
     Dim currVoiceNumber As Integer
        
@@ -157,11 +166,11 @@ Function create2TuneLines(groupVoices As VoiceElementList) As TuneLineList
 
         
         ''寫入 abcLines.StaffGroup
-        If (abcLines(posLine).StaffGroup Is Nothing) Then
-            Set abcLines(posLine).StaffGroup = New StaffGroupElement
-            Set abcLines(posLine).StaffGroup.voices = New VoiceElementList
+        If (abcLines(posLine).staffGroup Is Nothing) Then
+            Set abcLines(posLine).staffGroup = New StaffGroupElement
+            Set abcLines(posLine).staffGroup.voices = New VoiceElementList
         End If
-        abcLines(posLine).StaffGroup.voices.Push vo
+        abcLines(posLine).staffGroup.voices.Push vo
         posLine = posLine + 1
         
 
@@ -174,13 +183,14 @@ Function create2TuneLines(groupVoices As VoiceElementList) As TuneLineList
     Set create2TuneLines = abcLines
 End Function
 Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
-'資料整理成一行一行的array
+'資料整理成小節數 一行一行的array
 
 
     Dim tmp_track As Integer
     Dim tmp_track_item As Long
 
     Dim s1 As MusicItem
+    Dim s2 As MusicItem
     
     
      Call mBuf.init
@@ -190,6 +200,9 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
     Dim vo As VoiceElement
     Dim trackIndex As Integer
     Dim barId As Integer
+    Dim barEle As MusicItem
+    Dim isMeasureOne As Boolean  '是否小節第一個
+    
 
         For tmp_track = 0 To mBuf.GetTrackSize() - 1
 
@@ -202,71 +215,36 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
             barId = 0
             Set vo = New VoiceElement
             Call vo.init(tmp_track, mBuf.GetTrackSize() - 1)
-            
-            If (tmp_track > 0 And (mBuf.GetTrackSize() - 1) >= 1) Then
-                '取得第一軌的 第 0 小節設定
-                read2BarGold 0, vo
-            End If
+            isMeasureOne = True
+                        
+
             
             For tmp_track_item = 0 To mBuf.GetTrackBufferSize(tmp_track) - 1
-
-                Debug.Print "track : " & tmp_track & "  " & tmp_track_item
+                
                 Set s1 = mBuf.GetData(tmp_track, tmp_track_item)
                 If (s1 Is Nothing) Then
                     Exit For
                 End If
                 
-                Select Case s1.typs
-                    Case Cg.Config:
-                        If (s1.barsperstaff >= 1 And tmp_track = 0) Then
-                            G.barsperstaff = s1.barsperstaff
-                            Set barConfig(barId) = New aBarConfig
-                            barConfig(barId).barId = barId
-                            barConfig(barId).barLineQuantity = s1.barsperstaff
-                        End If
-                    Case Cg.bar:
-                        barId = barId + 1
-                    Case Cg.meter:
-                        
-                        
-                        If (tmp_track = 0) Then
-                            G.mete = s1.mete
-                            G.mete2 = s1.mete2
-                            barConfig(barId).barId = barId
-                            barConfig(barId).mete = s1.mete
-                            barConfig(barId).mete2 = s1.mete2
-                            s1.w = 1.8
-                            vo.children.Push s1
-                        End If
-                        
-                   Case Cg.Rest, Cg.note:
-                        s1.w = 2.6
-                        vo.children.Push s1
-                        G.durationIndex = G.durationIndex + s1.duration
-                   Case Else
-                End Select
-                
-                '是否以到小節長度
+
                 If (G.durationIndex >= (Cg.BLEN / G.mete2) * G.mete) Then
+                    '是否以到小節長度
                 
                     G.currMeasure = G.currMeasure + 1
                     G.durationIndex = 0
-                    Dim barEle As MusicItem
-                    Set barEle = New MusicItem
-                    barEle.typs = Cg.bar
-                    barEle.w = 0.3
-                    vo.children.Push barEle
+                        
+                    If s1.typs <> Cg.bar Then vo.insterBar barId
+                    
                     barId = barId + 1
                     If barConfig(barId) Is Nothing Then
                         Set barConfig(barId) = New aBarConfig
+                        barConfig(barId).barId = barId
                     End If
 
-                    If (tmp_track > 0 And (mBuf.GetTrackSize() - 1) >= 1) Then
-                        '取得第一軌的 第 barId 小節設定
-                        read2BarGold barId, vo
-                    End If
+
                     
-                    If G.currMeasure >= G.barsperstaff Then  '看每行小節數有沒有超過
+                    If G.currMeasure >= G.barsperstaff Then  '看是否以到一行小節個數了
+                        isMeasureOne = True
                         G.currMeasure = 0
                         G.currLine = G.currLine + 1
                         
@@ -276,16 +254,86 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
                         Call vo.init(tmp_track, mBuf.GetTrackSize() - 1)
                     End If
                 End If
+
+                If isMeasureOne = True Then
+                    '這是看第一小節 ，是否要加入小節元素
+                    If (G.durationIndex = 0 And (s1.typs = Cg.note Or s1.typs = Cg.meter)) Then
+                        Set s2 = vo.insterBar(barId)
+                        s2.remark = "t" & tmp_track & "_i" & tmp_track_item
+                        isMeasureOne = False
+                    End If
+                End If
+                
+                If (isMeasureOne = False And tmp_track > 0 And G.durationIndex = 0) Then
+                    If Not barConfig(barId) Is Nothing Then
+                        '取得第一軌的 第 barId 小節設定
+                        If barConfig(barId).mete > 0 Then
+                            Set s2 = vo.insterMete(barConfig(barId).mete, barConfig(barId).mete2)
+                            s2.remark = "t" & tmp_track & "_i" & tmp_track_item
+                            G.mete = barConfig(barId).mete
+                            G.mete2 = barConfig(barId).mete2
+                            G.durationIndex = G.durationIndex + 0.000005
+                        End If
+                        If barConfig(barId).barLineQuantity > 0 Then
+                            G.barsperstaff = barConfig(barId).barLineQuantity
+                        End If
+                    End If
+                End If
+
+                Select Case s1.typs
+                    Case Cg.Config:
+                        If (s1.barsperstaff >= 1 And tmp_track = 0) Then
+                            G.barsperstaff = s1.barsperstaff
+                            If barConfig(barId) Is Nothing Then
+                                Set barConfig(barId) = New aBarConfig
+                            End If
+                            barConfig(barId).barId = barId
+                            barConfig(barId).barLineQuantity = s1.barsperstaff
+                        End If
+                    Case Cg.bar:
+                        s1.w = amt.wBar * G.FONTSIZE
+                        s1.barNumber = barId
+                        s1.remark = "t" & tmp_track & "_i" & tmp_track_item
+                        vo.children.Push s1
+                        isMeasureOne = False
+                        
+                    Case Cg.meter:
+                        
+                        
+                        If (tmp_track = 0) Then
+                            G.mete = s1.mete
+                            G.mete2 = s1.mete2
+                            Set s2 = vo.insterMete(s1.mete, s1.mete2)
+                            s2.remark = "t" & tmp_track & "_i" & tmp_track_item
+                            Set barConfig(barId) = New aBarConfig
+                            barConfig(barId).barId = barId
+                            barConfig(barId).mete = s1.mete
+                            barConfig(barId).mete2 = s1.mete2
+                        End If
+                        
+                   Case Cg.Rest, Cg.note:
+                        s1.w = amt.wNote * G.FONTSIZE
+                        If s1.dots > 0 Then
+                            s1.w = 2 * amt.wNote * G.FONTSIZE
+                        End If
+                        s1.remark = "t" & tmp_track & "_i" & tmp_track_item
+                        vo.children.Push s1
+                        G.durationIndex = G.durationIndex + s1.duration
+                   Case Else
+                End Select
+                
+
                 
             Next
             If vo.children.Count >= 1 Then '看有無資料
                 G.currMeasure = 0
                 G.currLine = G.currLine + 1
                 
-'                Set barEle = New MusicItem
-'                barEle.typs = Cg.bar
-'                barEle.w = 0.3
-'                vo.children.Push barEle
+                If (vo.children.Last.typs <> bar) Then
+                    '看最後一個是否是 bar
+                    '如不是增加
+                    vo.insterBar barId
+                End If
                 voiceList.Push vo
                 
                 Set vo = New VoiceElement
@@ -295,29 +343,23 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
         Next
     Set tidyDataToRow = voiceList
 End Function
-Public Sub read2BarGold(measure As Integer, voice As VoiceElement)
-    '取得第 0 軌的 第 measure 小節設定
-    Dim staffn As Integer
-    Dim m1 As Integer
-    Dim m2 As Integer
-    staffn = barConfig(measure).barLineQuantity
-    m1 = barConfig(measure).mete
-    m2 = barConfig(measure).mete2
-    G.barsperstaff = IIf(staffn > 0, staffn, G.barsperstaff)
-    If (m1 >= 1 And m2 >= 1) Then
-        G.mete = m1
-        G.mete2 = m2
-        
-        '還要插入一個 mete
-        Dim meteObj As MusicItem
-        Set meteObj = New MusicItem
-        meteObj.typs = meter
-        meteObj.mete = m1
-        meteObj.mete2 = m2
-        meteObj.w = 1.8
-        voice.children.Push meteObj
-    End If
-    
-End Sub
-
-    
+'Public Sub read2BarGold(measure As Integer, voice As VoiceElement)
+'    '取得第 0 軌的 第 measure 小節設定
+'    Dim staffn As Integer
+'    Dim m1 As Integer
+'    Dim m2 As Integer
+'    staffn = barConfig(measure).barLineQuantity
+'    m1 = barConfig(measure).mete
+'    m2 = barConfig(measure).mete2
+'    G.barsperstaff = IIf(staffn > 0, staffn, G.barsperstaff)
+'    If (m1 >= 1 And m2 >= 1) Then
+'        G.mete = m1
+'        G.mete2 = m2
+'
+'        '還要插入一個 mete
+'        voice.insterMete m1, m2
+'    End If
+'
+'End Sub
+'
+'

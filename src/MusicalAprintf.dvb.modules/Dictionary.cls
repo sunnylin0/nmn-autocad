@@ -267,7 +267,7 @@ Attribute AddBulk.VB_Description = "Adds key value pairs from a 2D array."
 '       get with a Range, e.g., Range("A1:B10").Value = (1 To 10, 1 To 2).
 '
         ' Dictionary key
-    Dim V As Variant    ' Dictionary value
+    Dim v As Variant    ' Dictionary value
     
     If OptionCountKeys Then mOptionNoItemFail = True
 
@@ -293,19 +293,19 @@ Attribute AddBulk.VB_Description = "Adds key value pairs from a 2D array."
 '       Determine the value and add it.
         Select Case True
             Case Is = OptionCountKeys:
-                V = Me.GetValue(k, 0) + 1
+                v = Me.GetValue(k, 0) + 1
             Case Is = colCount = 2:
-                V = ValueArray2D(i, 2)
+                v = ValueArray2D(i, 2)
             Case Is = colCount > 2:
-                V = GetDataValues(ValueArray2D, i, HeadersIndex)
+                v = GetDataValues(ValueArray2D, i, HeadersIndex)
             Case Else:
                 If IsObject(DefaultValue) Then
-                    Set V = DefaultValue
+                    Set v = DefaultValue
                 Else
-                    V = DefaultValue
+                    v = DefaultValue
                 End If
         End Select
-        Me.Add k, V
+        Me.Add k, v
     Next i
 End Sub
 
@@ -332,14 +332,14 @@ Attribute Items.VB_Description = "Returns all values in the dictionary."
     Items = mBaseDict.Items
 End Function
 
-Public Function Keys() As Variant
-Attribute Keys.VB_Description = "Returns all keys in the dictionary."
+Public Function keys() As Variant
+Attribute keys.VB_Description = "Returns all keys in the dictionary."
 '   Returns all keys in the dictionary.
 '
 '   Returns:
 '       An array of keys.
 '
-    Keys = mBaseDict.Keys
+    keys = mBaseDict.keys
 End Function
 
 Public Function GetData(Optional OptionUseRowMode As Boolean) As Variant
@@ -355,7 +355,7 @@ Attribute GetData.VB_Description = "Returns the dictionary data as a 2D array wi
 '
 '   Set up the metadata to work with.
     Dim arrKeys As Variant
-    arrKeys = mBaseDict.Keys()
+    arrKeys = mBaseDict.keys()
 
     Dim arrVals As Variant
     arrVals = mBaseDict.Items()

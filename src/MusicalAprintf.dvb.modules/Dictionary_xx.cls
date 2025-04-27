@@ -204,16 +204,16 @@ End Function
 '
 ' @return {Variant}
 ' --------------------------------------------- '
-Public Function Keys() As Variant
+Public Function keys() As Variant
 #If Mac Or Not UseScriptingDictionaryIfAvailable Then
     If Me.Count > 0 Then
-        Keys = pKeys
+        keys = pKeys
     Else
         ' Split("") creates initialized empty array that matches Dictionary Keys and Items
-        Keys = Split("")
+        keys = Split("")
     End If
 #Else
-    Keys = pDictionary.Keys
+    keys = pDictionary.keys
 #End If
 End Function
 
@@ -264,7 +264,7 @@ Private Function GetKeyValue(key As Variant) As Variant
     err.Clear
 End Function
 
-Private Sub AddKeyValue(key As Variant, value As Variant, Optional Index As Long = -1)
+Private Sub AddKeyValue(key As Variant, value As Variant, Optional index As Long = -1)
     If Me.Count = 0 Then
         ReDim pKeys(0 To 0)
         ReDim pItems(0 To 0)
@@ -276,9 +276,9 @@ Private Sub AddKeyValue(key As Variant, value As Variant, Optional Index As Long
     Dim FormattedKey As String
     FormattedKey = GetFormattedKey(key)
     
-    If Index > 0 And Index <= pKeyValues.Count Then
+    If index > 0 And index <= pKeyValues.Count Then
         Dim i As Long
-        For i = UBound(pKeys) To Index Step -1
+        For i = UBound(pKeys) To index Step -1
             pKeys(i) = pKeys(i - 1)
             If IsObject(pItems(i - 1)) Then
                 Set pItems(i) = pItems(i - 1)
@@ -287,14 +287,14 @@ Private Sub AddKeyValue(key As Variant, value As Variant, Optional Index As Long
             End If
         Next i
         
-        pKeys(Index - 1) = key
+        pKeys(index - 1) = key
         If IsObject(value) Then
-            Set pItems(Index - 1) = value
+            Set pItems(index - 1) = value
         Else
-            pItems(Index - 1) = value
+            pItems(index - 1) = value
         End If
         
-        pKeyValues.Add Array(FormattedKey, key, value), FormattedKey, before:=Index
+        pKeyValues.Add Array(FormattedKey, key, value), FormattedKey, before:=index
     Else
         pKeys(UBound(pKeys)) = key
         If IsObject(value) Then
@@ -308,37 +308,37 @@ Private Sub AddKeyValue(key As Variant, value As Variant, Optional Index As Long
 End Sub
 
 Private Sub ReplaceKeyValue(KeyValue As Variant, key As Variant, value As Variant)
-    Dim Index As Long
+    Dim index As Long
     Dim i As Integer
     
     For i = 0 To UBound(pKeys)
         If pKeys(i) = KeyValue(1) Then
-            Index = i + 1
+            index = i + 1
             Exit For
         End If
     Next i
     
     ' Remove existing value
-    RemoveKeyValue KeyValue, Index
+    RemoveKeyValue KeyValue, index
     
     ' Add new key value back
-    AddKeyValue key, value, Index
+    AddKeyValue key, value, index
 End Sub
 
-Private Sub RemoveKeyValue(KeyValue As Variant, Optional ByVal Index As Long = -1)
+Private Sub RemoveKeyValue(KeyValue As Variant, Optional ByVal index As Long = -1)
     Dim i As Long
-    If Index = -1 Then
+    If index = -1 Then
         For i = 0 To UBound(pKeys)
             If pKeys(i) = KeyValue(1) Then
-                Index = i
+                index = i
             End If
         Next i
     Else
-        Index = Index - 1
+        index = index - 1
     End If
     
-    If Index >= 0 And Index <= UBound(pKeys) Then
-        For i = Index To UBound(pKeys) - 1
+    If index >= 0 And index <= UBound(pKeys) Then
+        For i = index To UBound(pKeys) - 1
             pKeys(i) = pKeys(i + 1)
             
             If IsObject(pItems(i + 1)) Then

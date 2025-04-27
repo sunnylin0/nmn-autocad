@@ -9,7 +9,8 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-
+ Public typs As Cg
+ Public configText As String
  Public mtone As String               '升降記號
  Public mfingering As String          '指法
  Public mnote As String               '高低音
@@ -18,5 +19,6 @@ Option Explicit
  Public duration As Integer              '拍子的延遲長度
  Public mtow_fingering As String      '指法 第二個
  Public mslur As String               '連音符
- Public mand As Boolean               '記錄合音 true為跟後面一音合音 ,false為沒有
+ Public mand As String
+ Public isAnd As Boolean              '記錄合音 true為跟後面一音合音 ,false為沒有
  Public what As Integer               '記錄一些不一樣的指法

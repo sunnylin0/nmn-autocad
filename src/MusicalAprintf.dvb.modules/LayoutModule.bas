@@ -14,11 +14,11 @@ Function layout(abcTuneLines As TuneLineList, width As Double, space As Double) 
     For i = 0 To abcTuneLines.Count - 1
         Set abcLine = abcTuneLines(i)
         If Not (abcLine.Staffs Is Nothing) Then
-        
-            Call setXSpacing(New RendererModule, width, space, abcLine.StaffGroup, New vFormatting, i = abcTuneLines.Count - 1, False)
+            debugVoices abcLine.staffGroup
+            Call setXSpacing(New RendererModule, width, space, abcLine.staffGroup, New vFormatting, i = abcTuneLines.Count - 1, False)
             
-            If (abcLine.StaffGroup.w > maxWidth) Then
-                maxWidth = abcLine.StaffGroup.w
+            If (abcLine.staffGroup.w > maxWidth) Then
+                maxWidth = abcLine.staffGroup.w
             End If
         End If
     Next
@@ -54,7 +54,7 @@ End Function
 ' * Do the x-axis positioning for a single line (a group of related staffs)
 ' * 對單線（一組相關人員）進行x軸定位
 ' */
-Public Sub setXSpacing(renderer As RendererModule, width As Double, space As Double, StaffGroup As StaffGroupElement, formatting As vFormatting, isLastLine As Boolean, isDebug As Boolean)
+Public Sub setXSpacing(renderer As RendererModule, width As Double, space As Double, staffGroup As StaffGroupElement, formatting As vFormatting, isLastLine As Boolean, isDebug As Boolean)
     Dim leftEdge As Double
     Dim newspace As Double
     Dim lastSpace As Double
@@ -66,9 +66,9 @@ Public Sub setXSpacing(renderer As RendererModule, width As Double, space As Dou
     Dim it As Integer
     
     For it = 0 To 7
-        Call layoutStaffGroup2(newspace, New RendererModule, isDebug, StaffGroup, leftEdge)
-        newspace = calcHorizontalSpacing(isLastLine, formatting.stretchLast, width - G.LeftSpace - G.RightSpace, StaffGroup.w, newspace, StaffGroup.spacingUnits, StaffGroup.minSpace, G.LeftSpace + G.RightSpace) ', renderer.padding.left + renderer.padding.right)
-        If newspace <> lastSpace Then
+        Call layoutStaffGroup2(newspace, New RendererModule, isDebug, staffGroup, leftEdge)
+        newspace = calcHorizontalSpacing(isLastLine, formatting.stretchLast, width - G.LeftSpace - G.RightSpace, staffGroup.w, newspace, staffGroup.spacingUnits, staffGroup.minSpace, G.LeftSpace + G.RightSpace) ', renderer.padding.left + renderer.padding.right)
+        If Round(newspace, 3) <> Round(lastSpace, 3) Then
             lastSpace = newspace
         Else
             Exit For
@@ -99,7 +99,7 @@ Function calcHorizontalSpacing(isLastLine As Boolean, stretchLast As Double, tar
             If Not (stretch) Then calcHorizontalSpacing = 0 '' don't stretch last line too much
         End If
     End If
-    If (Abs(targetWidth - lineWidth) < 2) Then calcHorizontalSpacing = 0 '' if we are already near the target width, we're done.
+    If (Abs(targetWidth - lineWidth) < 0.01) Then calcHorizontalSpacing = 0 '' if we are already near the target width, we're done.
     Dim relSpace As Double
     Dim constSpace As Double
     relSpace = spacingUnits * spacing
@@ -216,6 +216,6 @@ Function setBraceLocation(brace, x, ofs) As Double
 
 End Function
 
-Function setLocation(x, Element)
-    Element.x = x
+Function setLocation(x, element)
+    element.x = x
 End Function

@@ -131,7 +131,7 @@ Private Function calcAverage(total As Double, numElements As Double) As Double
 End Function
 
 
-Public Function Clone() As BeamElem
+Public Function clone() As BeamElem
     Dim cope As New BeamElem
     cope.typs = Me.typs
     cope.duration = Me.duration
@@ -152,5 +152,5 @@ Set cope.beams = Me.beams
     cope.hint = Me.hint
     cope.Count = Me.Count
 Set cope.mainNote = Me.mainNote
-    Set Clone = cope
+    Set clone = cope
 End Function

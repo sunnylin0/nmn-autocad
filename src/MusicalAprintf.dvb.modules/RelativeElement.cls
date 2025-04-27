@@ -147,7 +147,7 @@ Public Function getChordDim() As Rect
     If Me.typs = "debug" Then
         Exit Function
     End If
-    If Me.chordHeightAbove = Empty And Me.chordHeightBelow = Empty Then
+    If IsEmpty(Me.chordHeightAbove) And IsEmpty(Me.chordHeightBelow) Then
         Exit Function
     End If
     '' Chords are centered, annotations are left justified.
@@ -180,7 +180,7 @@ End Sub
 Public Sub putChordInLane(i As Integer)
     Me.lane = i
     '' Add some extra space to account for the character's descenders.
-    If Me.chordHeightAbove = Empty Then
+    If IsEmpty(Me.chordHeightAbove) Then
         Me.chordHeightAbove = (Me.height * 1.25) * Me.lane
     Else
         Me.chordHeightBelow = (Me.height * 1.25) * Me.lane
@@ -195,7 +195,7 @@ Public Sub setX(x As Double)
 End Sub
 
 
-Public Function Clone() As RelativeElement
+Public Function clone() As RelativeElement
     Dim cope As New RelativeElement
     
                                
@@ -229,6 +229,6 @@ Set cope.dim_ = Me.dim_
     cope.lyricHeightAbove = Me.lyricHeightAbove
     cope.lyricHeightBelow = Me.lyricHeightBelow
     cope.lane = Me.lane
-    Set Clone = cope
+    Set clone = cope
 End Function
 

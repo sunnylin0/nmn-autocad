@@ -19,10 +19,12 @@ Option Explicit
     'mtow_fingering As String  '指法 第二個
  Public accidental As String    '升降記號
  Public a_deco As iArray        '動態指法
- Public slurStart As Boolean                '連音符
- Public slurEnd As Boolean                '連音符
+ Public slurStart As Boolean           '連音符
+ Public slurEnd As Boolean             '連音符
  Public tripStart As Boolean           '3 連音開始
  Public tripEnd As Boolean             '3 連音結束
+ Public tripCount As Integer           '是幾連音
+ 
  Public mand As Boolean                  '記錄合音 true為跟後面一音合音 ,false為沒有
  Public what As Integer                 '記錄一些不一樣的指法
  Public nflags As Integer    '下拍線個數
@@ -32,6 +34,7 @@ Option Explicit
  Public mete As Integer     '拍號設定改變
  Public mete2 As Integer     '拍號設定改變
  Public barsperstaff  As Integer    '設定每行幾小節
+ Public barNumber As Integer    '這小節號碼
   
  Public ln As Integer       '要記錄讀進來的資料是在文件裡的第幾 "行"
  Public WD As Integer      '要記錄貢進來的資料是在文件要的第幾 "字"
@@ -40,6 +43,8 @@ Option Explicit
  Public y As Double
  Public w As Double     '正位的寬度
  Public extce As Double '這是前置的位置
+ Public oX As Double   '最終的位置
+ Public oY As Double   '最終的位置
  
 
 
@@ -76,6 +81,7 @@ Public endChar As Double
 Public hint As Boolean
 Public startTie As Boolean
 Public klass As String
+Public remark As String
 
 
 '/**
@@ -83,6 +89,8 @@ Public klass As String
 ' * 取得一段時間內的頭類型、點、音符 / 休息標誌
 ' */
 Public Function identify_Duration(dur_o As Double)
+    
+    If dur_o <= 0 Then Exit Function
     Dim flags As Integer
     Dim dots As Long
     Dim dur As Long
@@ -90,11 +98,11 @@ Public Function identify_Duration(dur_o As Double)
         dur = dur_o
 
     If (dur Mod 12 <> 0) Then
-       Debug.Print "Invalid note duration " & dur
+       Debug.Print Me.typs, "Invalid note duration $1", dur
     End If
     
     dur = dur / 12         ''/* see C.BLEN for values */
-    If (dur <= 1) Then Debug.Print "Note too short"
+    If (dur <= 1) Then Debug.Print 1, Me.typs, "Note too short"
     
 '    For flags = 5 To 0 Step -1
 '        dur = Math.BitMoveRight(dur, 1)
@@ -265,5 +273,23 @@ End Sub
 
 Public Sub unhighlight(klass, color)
     'unhighlight.bind(this)(klass, color)
+End Sub
+
+Public Sub calMeWidth()
+
+        Select Case Me.typs
+           Case Cg.bar:
+                Me.w = amt.wBar * G.fontName
+           Case Cg.meter:
+                Me.w = amt.wMete * G.fontName
+           Case Cg.Rest, Cg.note:
+                If Me.dots > 0 Then
+                    Me.w = 3 * amt.wNote * G.FONTSIZE
+                Else
+                    Me.w = amt.wNote * G.FONTSIZE
+                End If
+           Case Else
+        End Select
+
 End Sub
 

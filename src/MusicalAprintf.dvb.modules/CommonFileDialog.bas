@@ -71,7 +71,7 @@ Private Sub Class_Initialize()
     strDir = CurDir
     strTitle = "Llamas Rule"
     strFilter = "All Files" _
-    & chr$(0) & "*.*" & chr$(0)
+    & Chr$(0) & "*.*" & Chr$(0)
     lngHwnd = FindWindow(vbNullString, Application.Caption)
     'None of the flags are set here!
 End Sub
@@ -117,12 +117,12 @@ Public Property Let Filter(ByVal FilterString As String)
     intPos = InStr(FilterString, "|")
     If intPos > 0 Then
         FilterString = left$(FilterString, intPos - 1) _
-        & chr$(0) & right$(FilterString, _
+        & Chr$(0) & right$(FilterString, _
         Len(FilterString) - intPos)
     End If
     Loop
-    If right$(FilterString, 2) <> chr$(0) & chr$(0) Then
-        FilterString = FilterString & chr$(0)
+    If right$(FilterString, 2) <> Chr$(0) & Chr$(0) Then
+        FilterString = FilterString & Chr$(0)
     End If
     strFilter = FilterString
 End Property
@@ -133,8 +133,8 @@ Public Property Get Filter() As String
     Dim intPos As Integer
     Dim strTemp As String
     strTemp = strFilter
-    Do While InStr(strTemp, chr$(0)) > 0
-    intPos = InStr(strTemp, chr$(0))
+    Do While InStr(strTemp, Chr$(0)) > 0
+    intPos = InStr(strTemp, Chr$(0))
     If intPos > 0 Then
         strTemp = left$(strTemp, intPos - 1) _
         & "|" & right$(strTemp, _

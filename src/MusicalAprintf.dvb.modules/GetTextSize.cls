@@ -58,7 +58,7 @@ Public Function calc(text, typs, klass, Optional el As Dictionary) As size
         calc = si
 End Function
 
-Public Function baselineToCenter(text As String, typs As String, klass As String, Index As Integer, total As Double) As Double
+Public Function baselineToCenter(text As String, typs As String, klass As String, index As Integer, total As Double) As Double
         '' This is for the case where SVG wants to use the baseline of the first line as the Y coordinate.
         '' If there are multiple lines of text or there is an array of text then that will not be centered so this adjusts it.
         Dim height  As Double
@@ -66,5 +66,5 @@ Public Function baselineToCenter(text As String, typs As String, klass As String
         height = Me.calc(text, typs, klass).height
         fontHeight = Me.attr(typs, klass).font.size
 
-        baselineToCenter = height * 0.5 + (total - Index - 2) * fontHeight
+        baselineToCenter = height * 0.5 + (total - index - 2) * fontHeight
 End Function

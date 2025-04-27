@@ -35,8 +35,8 @@ Public Z As Double
 'End Property
 
 '@DefaultMember
-Public Property Let Element(ByVal tmp As Variant)
-Attribute Element.VB_UserMemId = 0
+Public Property Let element(ByVal tmp As Variant)
+Attribute element.VB_UserMemId = 0
     'add Attribute element.VB_UserMemId = 0
     If TypeOf tmp Is point Then
         x = tmp.x
@@ -93,11 +93,11 @@ Function at() As Double()
     dd(2) = Z
      at = dd
 End Function
-Function Clone() As point
+Function clone() As point
     Dim pp As point
     Set pp = New point
     pp.c x, y, Z
-    Set Clone = pp
+    Set clone = pp
 End Function
 
 Function ToArray()

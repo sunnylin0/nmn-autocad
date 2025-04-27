@@ -124,11 +124,11 @@ Public Sub iArrayPointTest()
     Set iArr = New iArray
     Dim pt As New point
     Call pt.c(3, 2)
-    iArr.Push pt.Clone
+    iArr.Push pt.clone
     Call pt.c(13, 12)
-    iArr.Push pt.Clone
+    iArr.Push pt.clone
     Call pt.c(23, 22)
-    iArr.Push pt.Clone
+    iArr.Push pt.clone
     Dim tmp
     Set tmp = iArr.head
 
@@ -140,11 +140,11 @@ Public Sub iArrTest2()
     Dim llpt As New PointList
     Dim pt As New point
     Call pt.c(3, 2)
-    llpt.Push pt.Clone
+    llpt.Push pt.clone
     Call pt.c(13, 12)
-    llpt.Push pt.Clone
+    llpt.Push pt.clone
     Call pt.c(23, 22)
-    llpt.Push pt.Clone
+    llpt.Push pt.clone
     
     Dim tttmp
     tttmp = llpt.AddArrayAfter(1, llpt)
@@ -250,9 +250,9 @@ aa.c 3, 4, 5
   iArr.Unshift 123456
   iArr.UnshiftArray Array(aa, 3.1415, Empty, vbNullString, bb, "a")
   Call validate("UnshiftArray", Array("{3.1415  """" ""a"" 123456 ""...""}", "{3,1415  """" ""a"" 123456 ""...""}"), iArr.ToString)
-  iArr.Shift
-  iArr.Shift
-  iArr.Shift
+  iArr.shift
+  iArr.shift
+  iArr.shift
   Call validate("Shift", "{""a"" 123456 ""...""}", iArr.ToString)
 
   ' ##### ENQUEUE / DEQUEUE TEST
@@ -348,7 +348,7 @@ aa.c 3, 4, 5
   Set iArr = New iArray
   iArr.PushArray Array("3", 4, 1, 2, 3, 4, 5, "a", "b", "c", True, aa, bb)
   Dim arrCloned As New iArray
-  Set arrCloned = iArr.Clone
+  Set arrCloned = iArr.clone
   iArr.Clear
   Call validate("Clone", "{""3"" 4 1 2 3 4 5 ""a"" ""b"" ""c"" True [Object] [Array]}", arrCloned.ToString)
 
@@ -475,7 +475,7 @@ Private Sub validate(Name As String, Expected, Actual As String)
   End If
 End Sub
 
-Public Function ToString(self, Optional ByVal Delimiter As String = " ") As String
+Public Function ToString(self, Optional ByVal delimiter As String = " ") As String
     Dim j As Long
      If (VarType(self) And vbArray) = vbArray Then
      ElseIf TypeOf self Is iArray Then
@@ -485,13 +485,13 @@ Public Function ToString(self, Optional ByVal Delimiter As String = " ") As Stri
   ToString = vbNullString
   For i = 0 To Me.Count - 1
     If i = 0 Then ToString = ToString + "{"
-    If i > 0 Then ToString = ToString + Delimiter
+    If i > 0 Then ToString = ToString + delimiter
     If VarType(Me(i)) = vbString Then
-        ToString = ToString + chr$(34)
+        ToString = ToString + Chr$(34)
         ToString = ToString + CStr(Me(i))
-        ToString = ToString + chr$(34)
+        ToString = ToString + Chr$(34)
     ElseIf TypeOf Me(i) Is iArray Then
-        ToString = ToString + Me(i).ToString(Delimiter)
+        ToString = ToString + Me(i).ToString(delimiter)
     ElseIf (VarType(Me(i)) And vbArray) = vbArray Then
         ToString = ToString + "[Array]"
     ElseIf VarType(Me(i)) = vbObject Then

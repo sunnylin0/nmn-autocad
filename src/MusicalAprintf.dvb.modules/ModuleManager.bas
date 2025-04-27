@@ -71,7 +71,7 @@ Public Sub ImportModules(FromDirectory As String, Optional ShowMsgBox As Boolean
         Dim i As Integer
         Dim msg As String: msg = numFiles & " modules imported:" & vbCrLf & vbCrLf
         For i = 0 To imports.Count - 1
-            msg = msg & "    " & imports.Keys()(i) & imports.Items()(i) & vbCrLf
+            msg = msg & "    " & imports.keys()(i) & imports.Items()(i) & vbCrLf
         Next i
         Dim result As VbMsgBoxResult: result = MsgBox(msg, vbOKOnly)
     End If

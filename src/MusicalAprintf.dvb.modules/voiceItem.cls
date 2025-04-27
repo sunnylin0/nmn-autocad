@@ -13,7 +13,7 @@ Option Explicit
 Public TS_pos As String
 
 Public typs As Integer
-Public V As Integer        ''琌材碭羘场
+Public v As Integer        ''琌材碭羘场
 Public soln As Boolean     ''传︽ ︽挡
 Public nl As Boolean       ''传︽ 穝︽秨﹍
 Public row As Integer      ''–羘场材碭︽
@@ -202,7 +202,7 @@ Public noplay As Boolean
  'public   type as 12 | Double
  'Public fname As String
  'Public st As Double
- Public sy As Object
+ Public sY As Object
  '{
  '       voices as {
  '           st as Double
@@ -368,7 +368,7 @@ Public Sub ConvertVarName(key, value)
             Case "text":        Me.text = value 'text As String
             Case "time":        Me.time = value 'time As Double
             Case "tpe":         Me.tpe = value 'tpe As Double
-            Case "v":           Me.V = value 'v As Double
+            Case "v":           Me.v = value 'v As Double
             Case "wl":          Me.wl = value 'wl As Double
             Case "wmeasure":    Me.wmeasure = value 'wmeasure As Double
             Case "wr":          Me.wr = value 'wr As Double

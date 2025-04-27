@@ -251,7 +251,7 @@ Public Sub avoidCollisionAbove()
             End If
         End If
 End Sub
-Public Function Clone() As TieElem
+Public Function clone() As TieElem
     Dim cope As New TieElem
     
     cope.typs = Me.typs
@@ -276,5 +276,5 @@ Set cope.endLimitX = Me.endLimitX
 Set cope.elemset = Me.elemset
     cope.hint = Me.hint
     
-    Set Clone = cope
+    Set clone = cope
 End Function

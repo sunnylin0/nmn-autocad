@@ -14,14 +14,13 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
-
 Option Explicit
 '2013.11.21  ­×§ï DataBuffer ¬°¤¸¯À
 '            ¦h¥[ iAdd ¦X­µ¦æ
 '2013.03.17  V3 ¥¿­n­×§ï ¤G­Jªºª©¥»¡A¦]µ{¦¡¤§«e¬O¥Î¥jºåªº«üªk¹Ï¡A²{¦b§ï¦¨¤G­Jªº«üªk¹Ï
 
 Const version  As String = "v2.0" '³nÅé¸¹½X
-Const C1 As Integer = 60   'C½Õ1ªºÁä¦W­È
+Const c1 As Integer = 60   'C½Õ1ªºÁä¦W­È
 'Const FOURPAINUM   As Integer = 64 '1/4­µ²Å­p¼Æ
 'Const MIDICLOCK As Integer = 24   '¨C1/64­µ²ÅªºMIDICLOCK¼Æ
 'Const TEMPO_DEF As Integer = 90   '¹w³]¨C¤ÀÄÁ90©ç
@@ -44,7 +43,7 @@ Dim m_buf As New DataBuffer
 
 '1 ¦bvb¤uµ{¤¤¤Þ¥Îautocadªºƒ·
 '2 ©w…óautocad†Á¶H
-Private acadApp As AcadApplication
+Private acadapp As AcadApplication
 Private acadDoc As AcadDocument
 '3 ‡À¥´…{‹×„¸autocadªº¨ç‡Û¡A¥H¤U¬O§Ú‡Àªº
 '--------------------------------------------------------------
@@ -53,11 +52,11 @@ Private acadDoc As AcadDocument
 Private Function AcadConnect() As Boolean
 Dim flag As Boolean
 On Error Resume Next
-    Set acadApp = GetObject(, "AutoCAD.Application")
+    Set acadapp = GetObject(, "AutoCAD.Application")
     flag = True
     If err Then
        err.Clear
-       Set acadApp = CreateObject("AutoCAD.Application")
+       Set acadapp = CreateObject("AutoCAD.Application")
        flag = True
        If err Then
           flag = False
@@ -66,7 +65,7 @@ On Error Resume Next
        End If
     End If
     AcadConnect = flag
-    Set acadDoc = acadApp.ActiveDocument
+    Set acadDoc = acadapp.ActiveDocument
     'acadDoc.Close False
 End Function
 

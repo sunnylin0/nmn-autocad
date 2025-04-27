@@ -39,7 +39,7 @@ Function checkLastBarX(voices As VoiceElementList)
     Next
 End Function
 
-Public Function layoutStaffGroup2(spaci As Double, renderer As RendererModule, debug_ As Boolean, StaffGroup As StaffGroupElement, leftEdge As Double) As Dictionary
+Public Function layoutStaffGroup2(spaci As Double, renderer As RendererModule, debug_ As Boolean, staffGroup As StaffGroupElement, leftEdge As Double) As Dictionary
 
     Dim currentduration
     Dim durationIndex   As Double
@@ -52,15 +52,15 @@ Public Function layoutStaffGroup2(spaci As Double, renderer As RendererModule, d
     
     
     
-    For i = 0 To StaffGroup.voices.Count - 1
-        layoutVoiceElements.beginLayout x, StaffGroup.voices(i)
+    For i = 0 To staffGroup.voices.Count - 1
+        layoutVoiceElements.beginLayout x, staffGroup.voices(i)
     Next
     
     
     Dim errCount As Long
     minSpace = 1000
     '這迴圈是設定 X 軸向
-    Do While (finished(StaffGroup.voices) = False And errCount < 500)  ' Inner loop.
+    Do While (finished(staffGroup.voices) = False And errCount < 500)  ' Inner loop.
 '       Dim currVoice As VoiceElement
 '       Set currVoice = StaffGroup.voices(1)
 '       Debug.Print "layoutStaffGroup loop :" & currVoice.i
@@ -68,12 +68,14 @@ Public Function layoutStaffGroup2(spaci As Double, renderer As RendererModule, d
         
         '' 找到要在跨聲音的候選者之間佈置的第一個持續時間級別
         currentduration = Empty '' candidate smallest duration level
-        For i = 0 To StaffGroup.voices.Count - 1
-            If currentduration = Empty Then
-                currentduration = getDurationIndex(StaffGroup.voices(i))
-            ElseIf getDurationIndex(StaffGroup.voices(i)) < currentduration Then
-                currentduration = getDurationIndex(StaffGroup.voices(i))
-                
+        For i = 0 To staffGroup.voices.Count - 1
+            If Not layoutVoiceElements.layoutEnded(staffGroup.voices(i)) Then
+                If IsEmpty(currentduration) Then
+                    currentduration = getDurationIndex(staffGroup.voices(i))
+                ElseIf getDurationIndex(staffGroup.voices(i)) < currentduration Then
+                    currentduration = getDurationIndex(staffGroup.voices(i))
+                    
+                End If
             End If
         Next
         
@@ -86,28 +88,17 @@ Public Function layoutStaffGroup2(spaci As Double, renderer As RendererModule, d
         Dim othervoices As New iArray ' VoiceElement[] = []
         currentvoices.Clear
         othervoices.Clear
-        For i = 0 To StaffGroup.voices.Count - 1
-            durationIndex = getDurationIndex(StaffGroup.voices(i))
+        For i = 0 To staffGroup.voices.Count - 1
+            durationIndex = getDurationIndex(staffGroup.voices(i))
             '' PER: Because of the inexactness of JS floating point math, we just get close.
             '' PER：由於 JS 浮點數學的不精確性，我們只是接近而已。
             If (durationIndex - currentduration > Epsilon) Then
-                othervoices.Push StaffGroup.voices(i)
-             Else
-                currentvoices.Push StaffGroup.voices(i)
+                othervoices.Push staffGroup.voices(i)
+            Else
+                currentvoices.Push staffGroup.voices(i)
             End If
-'            If i = 0 Then
-'                Debug.Print "out tracks :" & i & " " & StaffGroup.voices(i).i & "/" & StaffGroup.voices(i).children.Count & _
-'                " allDur: " & StaffGroup.voices(i).durationIndex & "<+ " & StaffGroup.voices(i).children(StaffGroup.voices(i).i).duration;
-'            Else
-'                Debug.Print "   " & i & " " & StaffGroup.voices(i).i & "/" & StaffGroup.voices(i).children.Count & _
-'                " allDur: " & StaffGroup.voices(i).durationIndex & " <+ " & StaffGroup.voices(i).children(StaffGroup.voices(i).i).duration
-'            End If
             
         Next
-        
-         
-        
-
         
         '' among the current duration level find the one which needs starting furthest right
         '' 在目前持續時間級別中找到需要從最右邊開始的持續時間級別
@@ -127,19 +118,20 @@ Public Function layoutStaffGroup2(spaci As Double, renderer As RendererModule, d
 
         Dim lastTopVoice
         For i = 0 To currentvoices.Count - 1
-            Dim V As VoiceElement
+            Dim v As VoiceElement
             Dim topVoice As VoiceElement
             Dim voicechildx As Double
             Dim dx As Double
-            Set V = currentvoices(i)
-            If (V.voicenumber = 0) Then lastTopVoice = i
-            If lastTopVoice <> Empty And currentvoices(lastTopVoice).voicenumber <> V.voicenumber Then
+            Set v = currentvoices(i)
+            If (v.voicenumber = 0) Then lastTopVoice = i
+            If lastTopVoice <> Empty And currentvoices(lastTopVoice).voicenumber <> v.voicenumber Then
                 Set topVoice = currentvoices(lastTopVoice)
             Else
                 Set topVoice = Nothing
             End If
             ''line 不知到 if (~isSameStaff(v, topVoice)) then   Set topVoice = Empty
-            voicechildx = layoutVoiceElements.layoutOneItem(x, spaci, V, 0, topVoice)
+            'Debug.Print v.children(v.I).notes(0).mnote
+            voicechildx = layoutVoiceElements.layoutOneItem(x, spaci, v, 0, topVoice)
             dx = voicechildx - x
             ''這是看是否有前倚音
             ''如果有，全部的音符就在加前倚音的距離
@@ -160,7 +152,7 @@ Public Function layoutStaffGroup2(spaci As Double, renderer As RendererModule, d
         '' 測試後不需要
         For i = 0 To othervoices.Count - 1
             othervoices(i).spacingduration = othervoices(i).spacingduration - spacingduration
-            Call layoutVoiceElements.updateNextX(x, spaci, othervoices(i))   '' adjust other voices expectations
+            Call layoutVoiceElements.updateOtherNextX(x, spaci, othervoices(i))   '' adjust other voices expectations
         Next
         
                     
@@ -182,33 +174,33 @@ Public Function layoutStaffGroup2(spaci As Double, renderer As RendererModule, d
 
     '' find the greatest remaining x as a base for the width
     '' 找出最大的剩餘 x 作為寬度的基數
-    For i = 0 To i < StaffGroup.voices.Count - 1
-        If (layoutVoiceElements.getNextX(StaffGroup.voices(i)) > x) Then
-            x = layoutVoiceElements.getNextX(StaffGroup.voices(i))
-            spacingunit = layoutVoiceElements.getSpacingUnits(StaffGroup.voices(i))
+    For i = 0 To i < staffGroup.voices.Count - 1
+        If (layoutVoiceElements.getNextX(staffGroup.voices(i)) > x) Then
+            x = layoutVoiceElements.getNextX(staffGroup.voices(i))
+            spacingunit = layoutVoiceElements.getSpacingUnits(staffGroup.voices(i))
         End If
     Next
 
     '' adjust lastBar when needed (multi staves)
-    Call checkLastBarX(StaffGroup.voices)
+    Call checkLastBarX(staffGroup.voices)
     ''console.log("greatest remaining",spacingunit,x)
     spacingUnits = spacingUnits + spacingunit
     ''把一組的 V 寬度設定 最寬
-    StaffGroup.setWidth (x)
+    staffGroup.setWidth (x)
     
     
-    StaffGroup.spacingUnits = spacingUnits
-    StaffGroup.minSpace = minSpace
+    staffGroup.spacingUnits = spacingUnits
+    staffGroup.minSpace = minSpace
     
 End Function
 
 
 Public Function finished(voices As VoiceElementList) As Boolean
     Dim i As Integer
-    Dim V As VoiceElement
+    Dim v As VoiceElement
     For i = 0 To voices.Count - 1
-        Set V = voices(i)
-        If (layoutVoiceElements.layoutEnded(V) = False) Then
+        Set v = voices(i)
+        If (layoutVoiceElements.layoutEnded(v) = False) Then
             finished = False
             Exit Function
         End If
@@ -217,16 +209,16 @@ Public Function finished(voices As VoiceElementList) As Boolean
     finished = True
 End Function
 
-Function getDurationIndex(Element As VoiceElement) As Double
+Function getDurationIndex(element As VoiceElement) As Double
     '' if the ith element doesn't have a duration (is not a note), its duration index is fractionally before.
     '' This enables CLEF KEYSIG TIMESIG PART, etc.to be laid out before we get to the first note of other voices
     '' 如果第 i 個元素沒有持續時間（不是音符），則其持續時間索引在前面。
     '' 這使得 CLEF KEYSIG TIMESIG PART 等能夠在我們到達其他聲音的第一個音符之前進行佈局
     Dim getItemDuration As Double
     
-    If Not (Element.children(Element.i) Is Nothing) Then
-        If TypeOf Element.children(Element.i) Is MusicItem Then
-            If Element.children(Element.i).duration > 0 Then
+    If Not (element.children(element.i) Is Nothing) Then
+        If TypeOf element.children(element.i) Is MusicItem Then
+            If element.children(element.i).duration > 0 Then
                 getItemDuration = 0
             Else
                 getItemDuration = 0.0000005
@@ -239,15 +231,15 @@ Function getDurationIndex(Element As VoiceElement) As Double
         getItemDuration = 0.0000005
     End If
     
-    getDurationIndex = Element.durationIndex - getItemDuration
+    getDurationIndex = element.durationIndex - getItemDuration
 End Function
 
 Public Function isSameStaff(voice1 As VoiceElement, voice2 As VoiceElement) As Boolean
-    If (voice1 = Empty Or voice1.Staff = Empty Or voice1.Staff.voices = Empty Or voice1.Staff.voices.Count = 0) Then
+    If (IsEmpty(voice1) Or IsEmpty(voice1.Staff) Or IsEmpty(voice1.Staff.voices) Or voice1.Staff.voices.Count = 0) Then
         isSameStaff = False
         Exit Function
     End If
-    If (voice2 = Empty Or voice2.Staff = Empty Or voice2.Staff.voices = Empty Or voice2.Staff.voices.Count = 0) Then
+    If (IsEmpty(voice2) Or IsEmpty(voice2.Staff) Or IsEmpty(voice2.Staff.voices) Or voice2.Staff.voices.Count = 0) Then
         isSameStaff = False
         Exit Function
     End If

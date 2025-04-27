@@ -49,41 +49,41 @@ End Sub
 'Attribute Element.VB_UserMemId = 0 saved in both procedures
 
 '@DefaultMember
-Public Property Get Element(ByVal Index As Long) As point
-Attribute Element.VB_UserMemId = 0
-    If Index + 1 < 1 Or Index + 1 > iArray.Count Then
-        Set Element = Nothing
+Public Property Get element(ByVal index As Long) As point
+Attribute element.VB_UserMemId = 0
+    If index + 1 < 1 Or index + 1 > iArray.Count Then
+        Set element = Nothing
         Exit Property
     End If
-    If VarType(iArray(Index + 1)) = vbObject Then
-       Set Element = iArray(Index + 1)
-    ElseIf VarType(iArray(Index + 1)) = vbVariant Then
-       Set Element = iArray(Index + 1)
-    ElseIf VarType(iArray(Index + 1)) = vbArray Then
-       Set Element = iArray(Index + 1)
+    If VarType(iArray(index + 1)) = vbObject Then
+       Set element = iArray(index + 1)
+    ElseIf VarType(iArray(index + 1)) = vbVariant Then
+       Set element = iArray(index + 1)
+    ElseIf VarType(iArray(index + 1)) = vbArray Then
+       Set element = iArray(index + 1)
     Else
-        Element = iArray(Index + 1)
+        element = iArray(index + 1)
     End If
  
 End Property
 
 '@DefaultMember
-Public Property Let Element(ByVal Index As Long, ByVal val As point)
-Attribute Element.VB_UserMemId = 0
-  If Index = 0 And mainArray.Count = 0 Then
+Public Property Let element(ByVal index As Long, ByVal val As point)
+Attribute element.VB_UserMemId = 0
+  If index = 0 And mainArray.Count = 0 Then
     Me.Push val
     Exit Property
   End If
-  If Index + 1 > iArray.Count Then
+  If index + 1 > iArray.Count Then
     Dim eMsg As String
     eMsg = IIf(iArray.Count > 0, _
-               "Index (" & Index + 1 & ") out of iArray bounds (1-" & iArray.Count & ")", _
+               "Index (" & index + 1 & ") out of iArray bounds (1-" & iArray.Count & ")", _
                "iArray doesn't have any indexes")
     err.Raise Number:=9, Description:=eMsg
     Exit Property
   End If
-  iArray.Remove Index + 1
-  iArray.Add val, before:=Index + 1
+  iArray.Remove index + 1
+  iArray.Add val, before:=index + 1
 End Property
 
 ' #############################
@@ -103,8 +103,8 @@ Public Sub Add(ByVal val As point, Optional ByVal bef As Variant = Empty, Option
     iArray.Add val, , bef, aft
   End If
 End Sub
-Public Sub Remove(Index As Long)
-  iArray.Remove Index + 1
+Public Sub Remove(index As Long)
+  iArray.Remove index + 1
 End Sub
 
 ' ####################
@@ -119,13 +119,13 @@ End Sub
 ' @param Long index | Index after which will be added an element
 ' @param Variant val | One element (String, number, ...) to add into iArray
 ' @return Long | Count of elements inside iArray
-Public Function AddAfter(ByVal Index As Long, ByVal val As Variant) As Long
-  If Me.Count < 1 Or Index + 1 >= Me.Count Then
+Public Function AddAfter(ByVal index As Long, ByVal val As Variant) As Long
+  If Me.Count < 1 Or index + 1 >= Me.Count Then
     Me.Push val
-  ElseIf Index + 1 < 1 Then
+  ElseIf index + 1 < 1 Then
     Me.Unshift val
   Else
-    Me.Add val, aft:=Index + 1
+    Me.Add val, aft:=index + 1
   End If
   AddAfter = Me.Count
 End Function
@@ -138,21 +138,21 @@ End Function
 ' @param Long index | Index after which will be added an element
 ' @param Variant val | Array() or iArray of elements to add into iArray
 ' @return Long | Count of elements inside iArray
-Public Function AddArrayAfter(ByVal Index As Long, ByVal val As Variant) As Long
-  If Me.Count < 1 Or Index + 1 >= Me.Count Then
+Public Function AddArrayAfter(ByVal index As Long, ByVal val As Variant) As Long
+  If Me.Count < 1 Or index + 1 >= Me.Count Then
     Me.PushArray val
-  ElseIf Index + 1 < 1 Then
+  ElseIf index + 1 < 1 Then
     Me.UnshiftArray val
   Else
     If TypeOf val Is PointList Then
       For i = 0 To val.Count - 1
-        Me.Add val(i), aft:=Index + 1
-        inc Index
+        Me.Add val(i), aft:=index + 1
+        Inc index
       Next i
     Else
       For i = LBound(val) To UBound(val)
-        Me.Add val(i), aft:=Index + 1
-        inc Index
+        Me.Add val(i), aft:=index + 1
+        Inc index
       Next i
     End If
   End If
@@ -167,19 +167,19 @@ End Function
 ' @param Long index | Index after which will be added an element
 ' @param Variant val | Array() or iArray of elements to add into iArray
 ' @return Long | Count of elements inside iArray
-Public Function AddArrayBefore(ByVal Index As Long, ByVal val As Variant) As Long
-  If Me.Count < 1 Or Index + 1 > Me.Count Then
+Public Function AddArrayBefore(ByVal index As Long, ByVal val As Variant) As Long
+  If Me.Count < 1 Or index + 1 > Me.Count Then
     Me.PushArray val
-  ElseIf Index <= 0 Then
+  ElseIf index <= 0 Then
     Me.UnshiftArray val
   Else
     If TypeOf val Is iArray Then
       For i = val.Count - 1 To 0 Step -1
-        Me.Add val(i), bef:=Index + 1
+        Me.Add val(i), bef:=index + 1
       Next i
     Else
       For i = UBound(val) To LBound(val) Step -1
-        Me.Add val(i), bef:=Index + 1
+        Me.Add val(i), bef:=index + 1
       Next i
     End If
   End If
@@ -194,13 +194,13 @@ End Function
 ' @param Long index | Index before which will be added an element
 ' @param Variant val | One element (String, number, ...) to add into iArray
 ' @return Long | Count of elements inside iArray
-Public Function AddBefore(ByVal Index As Long, ByVal val As Variant) As Long
-  If Me.Count < 1 Or Index + 1 > Me.Count Then
+Public Function AddBefore(ByVal index As Long, ByVal val As Variant) As Long
+  If Me.Count < 1 Or index + 1 > Me.Count Then
     Me.Push val
-  ElseIf Index + 1 <= 1 Then
+  ElseIf index + 1 <= 1 Then
     Me.Unshift val
   Else
-    Me.Add val, bef:=Index + 1
+    Me.Add val, bef:=index + 1
   End If
   AddBefore = Me.Count
 End Function
@@ -225,10 +225,10 @@ End Function
 'Clone
 ' Makes a hard copy of the iArray
 ' @return iArray | Return exact copy of itself
-Public Function Clone() As PointList
-  Set Clone = New PointList
+Public Function clone() As PointList
+  Set clone = New PointList
   For i = 0 To Me.Count - 1
-    Clone.Push Me(i)
+    clone.Push Me(i)
   Next i
 End Function
 
@@ -251,20 +251,20 @@ End Function
 Public Function ContainsAll(ByVal val As Variant) As Boolean
   ContainsAll = False
   Dim foundOccurrences As Integer: foundOccurrences = 0
-  Dim Values As New iArray
+  Dim values As New iArray
   If Not TypeOf val Is iArray Then
     If IsArray(val) Then
-      Values.PushArray (val)
+      values.PushArray (val)
     Else
-      Values.Push (val)
+      values.Push (val)
     End If
   Else
-    Set Values = val
+    Set values = val
   End If
-  For i = 0 To Values.Count - 1
-    If Me.Contains(Values(i)) Then inc foundOccurrences
+  For i = 0 To values.Count - 1
+    If Me.Contains(values(i)) Then Inc foundOccurrences
   Next i
-  If foundOccurrences = Values.Count Then ContainsAll = True
+  If foundOccurrences = values.Count Then ContainsAll = True
 End Function
 
 'CountOccurrences
@@ -275,7 +275,7 @@ Public Function CountOccurrences(val As Variant) As Long
   CountOccurrences = 0
   Dim el As Variant
   For Each el In iArray
-    If el = val Then inc CountOccurrences
+    If el = val Then Inc CountOccurrences
   Next el
 End Function
 
@@ -283,7 +283,7 @@ End Function
 ' Removes an element from the begining of the iArray.
 ' @return Variant | Removed element or Empty, if iArray is empty
 Public Function Dequeue() As Variant
-  Dequeue = Shift()
+  Dequeue = shift()
 End Function
 
 'Difference
@@ -319,13 +319,13 @@ End Function
 ' Remove n elements from the beginning of the iArray. If n > count of iArray elements, all elements are removed.
 ' @param Long n | Number of elements to be removed
 ' @return iArray | Array of the removed elements
-Public Function DropLeft(ByRef n As Long) As iArray
+Public Function DropLeft(ByRef N As Long) As iArray
   Set DropLeft = New iArray
-  If n > Me.Count Then n = Me.Count
-  For i = 0 To n - 1
+  If N > Me.Count Then N = Me.Count
+  For i = 0 To N - 1
     DropLeft.Push Me(i)
   Next i
-  For i = n - 1 To 0 Step -1
+  For i = N - 1 To 0 Step -1
     Me.Remove (i)
   Next i
 End Function
@@ -334,13 +334,13 @@ End Function
 ' Remove n elements from the end of the iArray. If n > count of iArray elements, all elements are removed.
 ' @param Long n | Number of elements to be removed
 ' @return iArray | Array of the removed elements
-Public Function DropRight(ByRef n As Long) As iArray
+Public Function DropRight(ByRef N As Long) As iArray
   Set DropRight = New iArray
-  If n > Me.Count Then n = Me.Count
-  For i = Me.Count - n To Me.Count - 1
+  If N > Me.Count Then N = Me.Count
+  For i = Me.Count - N To Me.Count - 1
     DropRight.Push Me(i)
   Next i
-  For i = Me.Count - 1 To Me.Count - n Step -1
+  For i = Me.Count - 1 To Me.Count - N Step -1
     Me.Remove (i)
   Next i
 End Function
@@ -365,14 +365,14 @@ End Function
 ' Returns value of the first element of the iArray.
 ' @return Variant | Value of the first element or Empty if iArray is Empty
 Public Function First() As point
-  First = IIf(Me.Count > 0, Me(1), Empty)
+  Set First = IIf(Me.Count > 0, Me(1), Empty)
 End Function
 
 'Head
 ' Returns all elements of iArray, except last one.
 ' @return iArray | Copy of original array, without last element
 Public Function head() As PointList
-  Set head = Me.Clone
+  Set head = Me.clone
   head.Pop
 End Function
 
@@ -415,7 +415,7 @@ End Function
 ' Returns value of the last element of the iArray.
 ' @return Variant | Value of the last element or Empty if iArray is Empty
 Public Function Last() As point
-  Last = IIf(Me.Count > 0, Me(Me.Count), Empty)
+  Set Last = IIf(Me.Count > 0, Me(Me.Count), Empty)
 End Function
 
 'OccurrenceIndexes
@@ -476,7 +476,7 @@ Public Function RemoveDuplicates() As Long
   For i = Me.Count To 1 Step -1
     If Me.CountOccurrences(Me(i)) > 1 Then
       Me.Remove i
-      inc RemoveDuplicates
+      Inc RemoveDuplicates
     End If
   Next i
 End Function
@@ -494,10 +494,10 @@ End Function
 'Shift
 ' Removes an element from the begining of the iArray.
 ' @return Variant | Removed element or Empty, if iArray is empty
-Public Function Shift() As Variant
-  Shift = Empty
+Public Function shift() As Variant
+  shift = Empty
   If iArray.Count > 0 Then
-    Shift = Me(0)
+    shift = Me(0)
     iArray.Remove 1
   End If
 End Function
@@ -507,15 +507,15 @@ End Function
 ' @return iArray | Shuffled iArray
 Public Function Shuffle() As iArray
   Set Shuffle = New iArray
-  Dim Keys As New iArray
+  Dim keys As New iArray
   For i = 1 To Me.Count
-    Keys.Push (i)
+    keys.Push (i)
   Next i
   Dim rndNo As Long
-  Do While Keys.Count > 0
-    rndNo = randomFromTo(1, Keys.Count)
-    Shuffle.Push Me(Keys(rndNo))
-    Keys.Remove (rndNo)
+  Do While keys.Count > 0
+    rndNo = randomFromTo(1, keys.Count)
+    Shuffle.Push Me(keys(rndNo))
+    keys.Remove (rndNo)
   Loop
 End Function
 
@@ -535,7 +535,7 @@ End Function
 ' Returns all elements of iArray, except first one.
 ' @return iArray | Copy of original array, without first element
 Public Function Tail() As iArray
-  Set Tail = Me.Clone
+  Set Tail = Me.clone
   Tail.Dequeue
 End Function
 
@@ -578,18 +578,18 @@ End Function
 ' Creates string representation of the iArray.
 ' @param String delimiter | Optional character to separate the iArray's elements (default = " ")
 ' @return String | Formated representation of tha iArray
-Public Function ToString(Optional ByVal Delimiter As String = " ") As String
+Public Function ToString(Optional ByVal delimiter As String = " ") As String
   If Me.Count = 0 Then ToString = "{}": Exit Function
   ToString = vbNullString
   For i = 0 To Me.Count - 1
     If i = 0 Then ToString = ToString + "{"
-    If i > 0 Then ToString = ToString + Delimiter
+    If i > 0 Then ToString = ToString + delimiter
     If VarType(Me(i)) = vbString Then
-        ToString = ToString + chr$(34)
+        ToString = ToString + Chr$(34)
         ToString = ToString + CStr(Me(i))
-        ToString = ToString + chr$(34)
+        ToString = ToString + Chr$(34)
     ElseIf TypeOf Me(i) Is iArray Then
-        ToString = ToString + Me(i).ToString(Delimiter)
+        ToString = ToString + Me(i).ToString(delimiter)
     ElseIf VarType(Me(i)) = vbObject Then
         ToString = ToString + "[Object]"
     Else
@@ -605,7 +605,7 @@ End Function
 ' @param iArray uArray | iArray to be unioned with current iArray
 ' @return iArray | Combined values without duplicities
 Public Function Union(ByRef uArr As iArray) As iArray
-  Set Union = Me.Clone
+  Set Union = Me.clone
   Union.PushArray uArr
   Union.RemoveDuplicates
 End Function
@@ -655,7 +655,7 @@ End Function
 ' #####################
 ' # PRIVATE FUNCTIONS #
 ' #####################
-Sub inc(ByRef i)
+Sub Inc(ByRef i)
    i = i + 1
 End Sub
 

@@ -33,11 +33,11 @@ Sub SetMusicTextToolsBar()
         Set newToolBar = currMenuGroup.Toolbars.Add("MenuToolsBar")
     End If
 
-    ShowMusicEdit = chr(3) & chr(3) & chr(95) & "-vbarun frmMusicEdit" & vbCr
+    ShowMusicEdit = Chr(3) & Chr(3) & Chr(95) & "-vbarun frmMusicEdit" & vbCr
     Set newToolBarButton = newToolBar.AddToolbarButton(newToolBar.Count + 1, "開起 MusicEdit 介面", "開起 MusicEdit 介面", ShowMusicEdit, False)
     
 
-    ShowABCEdit = chr(3) & chr(3) & chr(95) & "-vbarun Baidu_appition" & vbCr
+    ShowABCEdit = Chr(3) & Chr(3) & Chr(95) & "-vbarun Baidu_appition" & vbCr
     Set newToolBarButton = newToolBar.AddToolbarButton(newToolBar.Count + 1, "ABC 介面 Chrome", "ABC 介面 Chrome", ShowABCEdit, False)
     
    
@@ -119,26 +119,26 @@ Sub Example_SetTools()
     
     ' Add an item to the new Toolbar and assign an Open macro
     ' (VBA equivalent of: "ESC ESC _open ")
-    loadMusic = chr(3) & chr(3) & chr(95) & "_arx l " & """Z:/download/備份簡譜/Musical/debug/AsdkMusicalDb.dbx""" & chr(32)
+    loadMusic = Chr(3) & Chr(3) & Chr(95) & "_arx l " & """Z:/download/備份簡譜/Musical/debug/AsdkMusicalDb.dbx""" & Chr(32)
 
     Set newToolBarButton = newToolBar.AddToolbarButton(newToolBar.Count + 1, "載入 Musical.dbx", "載入 Musical.dbx", loadMusic, False)
    
-    unloadMusic = chr(3) & chr(3) & chr(95) & "_arx U asdkmusicaldb.dbx" & vbCr
+    unloadMusic = Chr(3) & Chr(3) & Chr(95) & "_arx U asdkmusicaldb.dbx" & vbCr
     Set newToolBarButton = newToolBar.AddToolbarButton(newToolBar.Count + 1, "釋放 Musical.dbx", "釋放 Musical.dbx", unloadMusic, False)
     
-    loadMusicdvb = chr(3) & chr(3) & chr(95) & "-vbaload " & """Z:/download/備份簡譜/Musical/debug/MusicalAprintf.dvb""" & chr(32)
+    loadMusicdvb = Chr(3) & Chr(3) & Chr(95) & "-vbaload " & """Z:/download/備份簡譜/Musical/debug/MusicalAprintf.dvb""" & Chr(32)
     Set newToolBarButton = newToolBar.AddToolbarButton(newToolBar.Count + 1, "截入 MusicalAprintf.dvb", "截入 MusicalAprintf.dvb", loadMusicdvb, False)
     
-    ShowMusic = chr(3) & chr(3) & chr(95) & "-vbarun frmMusic" & vbCr
+    ShowMusic = Chr(3) & Chr(3) & Chr(95) & "-vbarun frmMusic" & vbCr
     Set newToolBarButton = newToolBar.AddToolbarButton(newToolBar.Count + 1, "開起 Music 介面", "開起 Music 介面", ShowMusic, False)
     
-    ShowMusicEdit = chr(3) & chr(3) & chr(95) & "-vbarun frmMusicEdit" & vbCr
+    ShowMusicEdit = Chr(3) & Chr(3) & Chr(95) & "-vbarun frmMusicEdit" & vbCr
     Set newToolBarButton = newToolBar.AddToolbarButton(newToolBar.Count + 1, "開起 MusicEdit 介面", "開起 MusicEdit 介面", ShowMusicEdit, False)
     
-    SetWindowSaveWmf = chr(3) & chr(3) & chr(95) & "-vbarun Ch4_MaximizeApplicationWindow" & vbCr
+    SetWindowSaveWmf = Chr(3) & Chr(3) & Chr(95) & "-vbarun Ch4_MaximizeApplicationWindow" & vbCr
     Set newToolBarButton = newToolBar.AddToolbarButton(newToolBar.Count + 1, "將當前圖形縮放至兩點定義的窗口", "將當前圖形縮放至兩點定義的窗口", SetWindowSaveWmf, False)
    
-    ToBWMFWmf = chr(3) & chr(3) & chr(95) & "bwmfout" & vbCr
+    ToBWMFWmf = Chr(3) & Chr(3) & Chr(95) & "bwmfout" & vbCr
     Set newToolBarButton = newToolBar.AddToolbarButton(newToolBar.Count + 1, "BWMF 兩點定義的窗口", "BWMF 兩點定義的窗口", ToBWMFWmf, False)
    
    
@@ -203,7 +203,7 @@ Sub Example_exTools()
     For i = 1 To newToolBar.Count - 1
         help1 = newToolBar.item(i).Name
         code = newToolBar.item(i).Macro
-        ThisDrawing.Utility.prompt "\n第" & i & "個," & help1 & "," & code
+        ThisDrawing.Utility.Prompt "\n第" & i & "個," & help1 & "," & code
     Next
 '
 '    loadMusic = Chr(3) & Chr(3) & Chr(95) & "_arx l " & """E:/games/AutoCad_Arx/samples/entity/Musical/debug/AsdkMusicalDb.dbx""" & Chr(32)
@@ -283,15 +283,15 @@ Marco(6, 0) = "移除連結"
 Marco(7, 0) = "IsSet"
 Marco(8, 0) = "SelectDraw"
 
-Marco(0, 1) = chr(3) & chr(3) & chr(95) & "_arx u AsdkMusicText.arx" & vbCr
-Marco(1, 1) = chr(3) & chr(3) & chr(95) & "_arx l " & """AsdkMusicText.arx""" & chr(32)
-Marco(2, 1) = chr(3) & chr(3) & chr(95) & "_musicsample "
-Marco(3, 1) = chr(3) & chr(3) & chr(95) & "_addmusictext "
-Marco(4, 1) = chr(3) & chr(3) & chr(95) & "_addMusicTextPage "
-Marco(5, 1) = chr(3) & chr(3) & chr(95) & "_addMusicJoinMany "
-Marco(6, 1) = chr(3) & chr(3) & chr(95) & "_addMusicEraseMany "
-Marco(7, 1) = chr(3) & chr(3) & chr(95) & "_IsSet "
-Marco(8, 1) = chr(3) & chr(3) & chr(95) & "_-vbarun ThisDrawing.Example_SelectOnScreen "
+Marco(0, 1) = Chr(3) & Chr(3) & Chr(95) & "_arx u AsdkMusicText.arx" & vbCr
+Marco(1, 1) = Chr(3) & Chr(3) & Chr(95) & "_arx l " & """AsdkMusicText.arx""" & Chr(32)
+Marco(2, 1) = Chr(3) & Chr(3) & Chr(95) & "_musicsample "
+Marco(3, 1) = Chr(3) & Chr(3) & Chr(95) & "_addmusictext "
+Marco(4, 1) = Chr(3) & Chr(3) & Chr(95) & "_addMusicTextPage "
+Marco(5, 1) = Chr(3) & Chr(3) & Chr(95) & "_addMusicJoinMany "
+Marco(6, 1) = Chr(3) & Chr(3) & Chr(95) & "_addMusicEraseMany "
+Marco(7, 1) = Chr(3) & Chr(3) & Chr(95) & "_IsSet "
+Marco(8, 1) = Chr(3) & Chr(3) & Chr(95) & "_-vbarun ThisDrawing.Example_SelectOnScreen "
 
     vbaPATH = ThisDrawing.Application.vbe.ActiveVBProject.FileName
     pos = InStrRev(vbaPATH, "\")

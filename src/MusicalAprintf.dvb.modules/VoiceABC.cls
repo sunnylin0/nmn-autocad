@@ -154,7 +154,7 @@ Public rel_position As point
 Public dots As Integer
 
 
-Public Function Clone() As VoiceABC
+Public Function clone() As VoiceABC
     Dim cope As New VoiceABC
     cope.averagepitch = Me.averagepitch
     cope.barNumber = Me.barNumber
@@ -213,6 +213,6 @@ Public Function Clone() As VoiceABC
  Set cope.value = Me.value
     cope.verticalPos = Me.verticalPos
         
-    Set Clone = cope
+    Set clone = cope
     
 End Function

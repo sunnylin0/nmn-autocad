@@ -157,17 +157,17 @@ Public Function LCM(ByVal a As Long, ByVal B As Long) As Long
 End Function
 
 
-Public Function Fact(ByVal n As Long, Optional ByVal StepValue As Long = 1) As Long
+Public Function Fact(ByVal N As Long, Optional ByVal StepValue As Long = 1) As Long
     Fact = 1
-    For n = n To 1 Step -Abs(StepValue)
-        Fact = Fact * n
+    For N = N To 1 Step -Abs(StepValue)
+        Fact = Fact * N
     Next
 End Function
 
 
-Public Function Fibonacci(ByVal n As Long) As Long
-    If n <= 0 Then Exit Function
-    Fibonacci = IIf(n = 1, 1, Fibonacci(n - 1) + Fibonacci(n - 2))
+Public Function Fibonacci(ByVal N As Long) As Long
+    If N <= 0 Then Exit Function
+    Fibonacci = IIf(N = 1, 1, Fibonacci(N - 1) + Fibonacci(N - 2))
 End Function
 
 
@@ -187,8 +187,8 @@ Public Function Median(ParamArray x() As Variant) As Double
 End Function
 
 
-Public Function Variance(ByVal N1#, ByVal N2#) As Double
-    Variance = (Mean(N1, N2) - N1) ^ 2 + (Mean(N1, N2) - N2) ^ 2
+Public Function Variance(ByVal N1#, ByVal n2#) As Double
+    Variance = (Mean(N1, n2) - N1) ^ 2 + (Mean(N1, n2) - n2) ^ 2
 End Function
 
 
@@ -357,29 +357,29 @@ Public Function LawCos(ByVal B As Double, ByVal c As Double, ByVal Angle As Doub
 End Function
 
 
-Function BitMoveLeft(ByRef V As Long, num As Long) As Long
+Function BitMoveLeft(ByRef v As Long, num As Long) As Long
 '左移位元 , 需要注意乘2的時候是否會溢出:
     Dim i As Long
     Dim flag As Boolean '是否要把第32位轉換為1
     
     For i = 1 To num
         '判斷第31位是否=1
-        If V >= &H40000000 Then
+        If v >= &H40000000 Then
             flag = True
             '把第31位置換為 0
-            V = V And &H3FFFFFFF
+            v = v And &H3FFFFFFF
         Else
             flag = False
         End If
         
-        V = V * 2
+        v = v * 2
     Next
     
     If flag Then
-        V = V Or &H80000000
+        v = v Or &H80000000
     End If
     
-    BitMoveLeft = V
+    BitMoveLeft = v
 End Function
 
 

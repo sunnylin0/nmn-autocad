@@ -40,11 +40,11 @@ Function at() As Double()
     dd(2) = Z
      at = dd
 End Function
-Function Clone() As point
+Function clone() As point
     Dim pp As point
     Set pp = New point
     pp.c x, y, Z
-    Set Clone = pp
+    Set clone = pp
 End Function
 
 Function ToArray()
