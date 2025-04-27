@@ -322,7 +322,7 @@ Public Function InsterEnt() As AcadBlockReference '插入音附
                 End If
             End If
             Set TheObj = ThisDrawing.ModelSpace.InsertBlock(aligPoint, MFS.sScale, gTextSize, gTextSize, gTextSize, 0)
-            
+            TheObj.Layer = MAINLAYER
         End If
         If frmEDIT.chkOption1.Value = True Then
             '古箏指法
@@ -335,7 +335,7 @@ Public Function InsterEnt() As AcadBlockReference '插入音附
                 
                 
                 Set TheObj = ThisDrawing.ModelSpace.InsertBlock(aligPoint, MFS.sFinge, gTextSize, gTextSize, gTextSize, 0)
-                
+                TheObj.Layer = MAINLAYER
             End If
             
             towPos = 0
@@ -358,7 +358,7 @@ Public Function InsterEnt() As AcadBlockReference '插入音附
                 End If
                 
                 Set TheObj = ThisDrawing.ModelSpace.InsertBlock(aligPoint, MFS.sTowFinge, gTextSize, gTextSize, gTextSize, 0)
-                
+                TheObj.Layer = MAINLAYER
             End If
             
         '*****畫特疏指法*******************************************

@@ -48,6 +48,17 @@ Public Type NEWTEXTMETRIC
         ntmAveWidth As Long
 End Type
 
+#If VBA7 Then
+Public Declare PtrSafe Function EnumFontFamilies Lib "gdi32" Alias "EnumFontFamiliesA" (ByVal hDC As Long, ByVal lpszFamily As String, ByVal lpEnumFontFamProc As Long, lParam As Any) As Long
+Public Declare PtrSafe Function GetDC Lib "user32" (ByVal hWnd As Long) As Long
+Public Declare PtrSafe Function ReleaseDC Lib "user32" (ByVal hWnd As Long, ByVal hDC As Long) As Long
+    
+'複製以下代碼到一模塊中
+Public Declare PtrSafe Function GetWindowsDirectory Lib "kernel32" Alias "GetWindowsDirectoryA" (ByVal lpBuffer As String, ByVal nSize As Long) As Long
+Public Declare PtrSafe Function GetSystemDirectory Lib "kernel32" Alias "GetSystemDirectoryA" (ByVal lpBuffer As String, ByVal nSize As Long) As Long
+
+#Else
+
 Public Declare Function EnumFontFamilies Lib "gdi32" Alias "EnumFontFamiliesA" (ByVal hDC As Long, ByVal lpszFamily As String, ByVal lpEnumFontFamProc As Long, lParam As Any) As Long
 Public Declare Function GetDC Lib "user32" (ByVal hWnd As Long) As Long
 Public Declare Function ReleaseDC Lib "user32" (ByVal hWnd As Long, ByVal hDC As Long) As Long
@@ -55,6 +66,8 @@ Public Declare Function ReleaseDC Lib "user32" (ByVal hWnd As Long, ByVal hDC As
 '複製以下代碼到一模塊中
 Public Declare Function GetWindowsDirectory Lib "kernel32" Alias "GetWindowsDirectoryA" (ByVal lpBuffer As String, ByVal nSize As Long) As Long
 Public Declare Function GetSystemDirectory Lib "kernel32" Alias "GetSystemDirectoryA" (ByVal lpBuffer As String, ByVal nSize As Long) As Long
+
+#End If
 
 Public Enum FontType
     ShxFont = 0

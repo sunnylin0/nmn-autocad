@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmEDIT 
    Caption         =   "圖塊用 EDIT"
-   ClientHeight    =   6120
+   ClientHeight    =   5844
    ClientLeft      =   48
    ClientTop       =   336
    ClientWidth     =   9660
@@ -14,12 +14,10 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
-
-
 Option Explicit
 '2013.03.17  V3 正要修改 二胡的版本，因程式之前是用古箏的指法圖，現在改成二胡的指法圖
-
-
+'2017.09.28  V8 寫入要midi 檔的
+Const VERSION  As String = "v1.65" '軟體號碼
 Const C1 As Integer = 60   'C調1的鍵名值
 Const FOURPAINUM   As Integer = 64 '1/4音符計數
 Const MIDICLOCK As Integer = 24   '每1/64音符的MIDICLOCK數
@@ -118,7 +116,7 @@ Private Sub cmOK_Click()
 
     m_Buf.clear
     Call m_Buf.GetDataToBuf(Me.TextBox8.text)
-    MsgBox Me.TextBox8.text
+    'MsgBox Me.TextBox8.text
     Me.Hide
     database
     Call put_many_text3
@@ -151,9 +149,10 @@ Private Sub database()
     Dim i As Integer
     
     Dim color(0 To 8) As AcadAcCmColor
+    
     For i = 1 To 8
         Set layerObj = ThisDrawing.Layers.add(datalayer(i, 1))
-        Set color(i) = AcadApplication.GetInterfaceObject("AutoCAD.AcCmColor.17")
+        Set color(i) = AcadApplication.GetInterfaceObject("AutoCAD.AcCmColor." & ACAD_Ver)
         
 
 
@@ -222,7 +221,7 @@ Private Sub inst_G(the_G As Glode, pt As Variant)
     Dim height As Double
     
     ' Define the text object
-    textString = "v0.0.1.5" & vbCrLf
+    textString = VERSION & vbCrLf
     textString = textString & "size " & the_G.FontSize & vbCrLf
     
     textString = textString & "左空白 " & the_G.LeftSpace & "mm" & vbCrLf
@@ -245,8 +244,7 @@ Private Sub inst_G(the_G As Glode, pt As Variant)
 End Sub
 
 Private Sub put_many_text3()
-    
-
+  
     '放置文字本
     Dim pt As Variant
     
@@ -254,16 +252,17 @@ Private Sub put_many_text3()
     pt = ThisDrawing.Utility.GetPoint(, "\n選擇要插入的點 ：Enter insertion point: ")
     Call inst_G(G, pt)
 '***********************************************************************************
-    '畫出定位線;
+    '畫出定位線-畫框;
     
     Dim plineObj As AcadPolyline
     Dim Pnt As New PointList
     
-    Call Pnt.add(pt(0), pt(1) - 100, 0)
-    Call Pnt.add(pt(0), pt(1) + G.FontSize * 6, 0)
-    Call Pnt.add(pt(0) + G.PageWidth, pt(1) + G.FontSize * 6, 0)
-    Call Pnt.add(pt(0) + G.PageWidth, pt(1) - 100, 0)
+    Call Pnt.add(pt(0), pt(1) - 200, 0)
+    Call Pnt.add(pt(0), pt(1) + G.FontSize * 9, 0)
+    Call Pnt.add(pt(0) + G.PageWidth, pt(1) + G.FontSize * 9, 0)
+    Call Pnt.add(pt(0) + G.PageWidth, pt(1) - 200, 0)
     Set plineObj = ThisDrawing.ModelSpace.AddPolyline(Pnt.list())
+    plineObj.Layer = "Defpoints"
 '*********************************************************************************
     '插入單一標題
     Dim objText As AcadText
@@ -271,7 +270,7 @@ Private Sub put_many_text3()
     Dim ooPt As Variant
     inPT = pt
     inPT(0) = inPT(0) + (G.PageWidth / 2)
-    inPT(1) = inPT(1) + G.FontSize * 4.6
+    inPT(1) = inPT(1) + G.FontSize * 5.5
     Set objText = ThisDrawing.ModelSpace.AddText(m_Buf.getTITLE, inPT, 6)
     ooPt = objText.insertionPoint
     objText.Layer = "TEXT"
@@ -396,9 +395,6 @@ Private Sub put_many_text3()
                     
                 ElseIf Me.chkOption2 = True Then
 
-                                   
-                                            
-                        
                 '(二胡用)
                 '這是沒有指法的
 '                    AMT.iTONE = 1        ' * 行
@@ -463,7 +459,7 @@ Private Sub put_many_text3()
                     
                     '插入指法 附號(二胡用)
                     InsertErhuFinge ppnt, tmp_erhu_fing, G.FontSize
-            
+                    
                 End If
                     
 '*******插入圓滑線'**************************************************************************************'
@@ -572,9 +568,8 @@ Private Sub put_many_text3()
                 End If
                 
                 '連結線用
-                    tmp_joinIds.add BNewObj
-                    Set BNewObj = Nothing
-    
+                tmp_joinIds.add BNewObj
+                Set BNewObj = Nothing
 
                 Select Case Mid(cst, amt.iNote, 1)
                 Case "|"
@@ -621,10 +616,10 @@ Private Function InsertMusicText(insertionPoint() As Double, cst As String, size
     Dim height As Double
     Dim midDownPt(0 To 2) As Double
     
+    
     insertionPoint (0)
     insertionPoint (1)
     insertionPoint (2)
-    
     
     Dim ipos As Integer
     Dim yAdd As Double
@@ -683,10 +678,10 @@ Private Function InsertErhuFinge(midDownPt As point, this_ef As ErhuFing, size A
     Dim insertionPoint(0 To 2) As Double, alignmentPoint(0 To 2) As Double
     Dim height As Double
     
+
     insertionPoint(0) = midDownPt.x
     insertionPoint(1) = midDownPt.Y
     insertionPoint(2) = midDownPt.z
-    
     
     Dim ipos As Integer
     Dim yAdd As Double

@@ -1,6 +1,63 @@
 Attribute VB_Name = "ToolsSet"
 Option Explicit
 
+Sub SetMusicTextToolsBar()
+    ' This example uses MenuGroups to obtain a reference to the AutoCAD main menu.
+    ' It then creates a new Toolbar (TestMenu) and inserts a ToolBarButton
+    ' with a custom icon. The menu is automatically shown.
+    '
+    ' * NOTE: The paths of the icons for the new toolbar should be updated
+    ' before running this example.
+        
+    Dim currMenuGroup As AcadMenuGroup
+    Dim newToolBar As AcadToolbar, newToolBarButton As AcadToolbarItem
+    Dim loadMusic As String
+    Dim unloadMusic As String
+    Dim loadMusicdvb As String
+    Dim ShowMusic As String
+    Dim ShowMusicEdit As String
+    Dim SetWindowSaveWmf As String
+    Dim ToBWMFWmf As String
+    Dim SmallBitmapName  As String, LargeBitmapName  As String
+    
+    On Error GoTo ERRORTRAP
+    
+    ' Use MenuGroups property to obtain reference to main AutoCAD menu
+    Set currMenuGroup = ThisDrawing.Application.MenuGroups.item("ACAD")
+    
+    ' Create the new Toolbar in this group
+    Set newToolBar = currMenuGroup.Toolbars.add("MenuToolsBar")
+    
+
+    ShowMusicEdit = Chr(3) & Chr(3) & Chr(95) & "-vbarun frmMusicEdit" & vbCr
+    Set newToolBarButton = newToolBar.AddToolbarButton(newToolBar.count + 1, "開起 MusicEdit 介面", "開起 MusicEdit 介面", ShowMusicEdit, False)
+    
+
+   
+    ' Read icon paths for this Toolbar button
+'    GoSub READPATHS
+    
+'    ' Change the default icon (smile face) for the new toolbar button
+'    SmallBitmapName = "c:\images\16x16.bmp"     ' Use a 16x16 pixel .BMP image
+'    LargeBitmapName = "c:\images\32x32.bmp"     ' Use a 32x32 pixel .BMP image
+'    newToolBarButton.SetBitmaps SmallBitmapName, LargeBitmapName
+'
+    ' Read icon paths for this Toolbar button
+'    GoSub READPATHS
+    
+    Exit Sub
+    
+READPATHS:
+    ' Read icon paths for this Toolbar button
+    newToolBarButton.GetBitmaps SmallBitmapName, LargeBitmapName
+'    MsgBox "The new Toolbar uses the following icon files: " & _
+'           vbCrLf & vbCrLf & "Small Bitmap: " & SmallBitmapName & vbCrLf & _
+'           "Large Bitmap: " & LargeBitmapName
+    Return
+
+ERRORTRAP:
+'    MsgBox "The following error has occurred: " & Err.Description
+End Sub
 
 Sub Example_SetTools()
     ' This example uses MenuGroups to obtain a reference to the AutoCAD main menu.

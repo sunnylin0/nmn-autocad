@@ -1,4 +1,7 @@
 Option Explicit
+Sub sq()
+    MsgBox square(21)
+End Sub
 Sub AllLineAdd()
 '計算線的總長度
 ' Have the user enter a point
@@ -468,10 +471,73 @@ Sub Ch4_FilterXdata()
 End Sub
 
 
-Private Sub AcadDocument_Activate()
+Sub Day15_1_FIX()
+    
+    Dim Rng As Object
+    Dim strData
+    
+    Dim dvbPath As String
+    Dim acadPath As String
+    acadPath = ThisDrawing.Application.Path
+    dvbPath = GetDVBThis("MusicalAprintf")
+    
+    '使用 Open 陳述式，配合Print寫入資料
+    '使用&連接自訂的「相隔符號」，取代內建的功能
+    
+    Open "c:\temp\acad.lsp" For Output As #1
+    
+    Print #1, "(defun S::STARTUP ()"
+    Print #1, "(command ""_vbaload"" "
+    Print #1, """" & dvbPath & """"
+    Print #1, ")"
+    
+    
 
-    Example_SetTools
-    Example_SetMusicTextTools
+    Print #1, acadPath
+    Close #1
+'(load "Lispfile1" "nLispfile1 not loaded")
+'(load "Lispfile2" "nLispfile2 not loaded")
+'(load "Lispfile3" "nLispfile3 not loaded")
+    
+End Sub
+Public Function GetDVBThis(DVBFileName As String) As String
+    Dim i As Integer
+    Dim strFileName As String
+    
+    For i = 1 To ThisDrawing.Application.vbe.VBprojects.count
+        strFileName = ThisDrawing.Application.vbe.VBprojects.item(i).FileName
+        If InStr(UCase(strFileName), UCase(DVBFileName)) > 0 Then
+            GetDVBThis = strFileName
+            Exit For
+        End If
+    
+    Next i
+
+End Function
+Public Function GetDVBPath(DVBFileName As String) As String
+    Dim i As Integer
+    Dim strFileName As String
+    
+    For i = 1 To ThisDrawing.Application.vbe.VBprojects.count
+        strFileName = ThisDrawing.Application.vbe.VBprojects.item(i).FileName
+        If InStr(UCase(strFileName), UCase(DVBFileName)) > 0 Then
+            GetDVBPath = GetPath(strFileName)
+            Exit For
+        End If
+    
+    Next i
+
+End Function
+Function GetPath(strFileName As String) As String
+    Dim CPath As String
+    CPath = Left(strFileName, InStrRev(strFileName, "\") - 1)
+    GetPath = CPath '< sure wish it was return, I like that better, this makes me think it is redefining the function
+End Function
+
+Private Sub AcadDocument_Activate()
+    SetMusicTextToolsBar
+    'Example_SetTools
+    'Example_SetMusicTextTools
 End Sub
 
 Private Sub AcadDocument_BeginLisp(ByVal FirstLine As String)
@@ -699,8 +765,8 @@ End Sub
 
 Private Sub AcadDocument_Deactivate()
 
-    Example_SetTools
-    Example_SetMusicTextTools
+    'Example_SetTools
+    'Example_SetMusicTextTools
 End Sub
 
 Sub Load_TTF_QuGin()
@@ -989,3 +1055,5 @@ Public Sub GetAttribute()
     'attVars(0).textString = "New Value"
     'ThisDrawing.Regen True
 End Sub
+
+

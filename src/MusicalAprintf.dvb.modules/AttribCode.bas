@@ -1,6 +1,14 @@
 Attribute VB_Name = "AttribCode"
 Option Explicit
-
+Function ACAD_Ver() As Integer
+'傳回AutoCAD 的版本號碼
+    ' This example returns AutoCAD version as a string
+    
+    Dim VERSION As String
+    VERSION = ThisDrawing.Application.VERSION
+    ACAD_Ver = Val(VERSION)
+    
+End Function
 Function GetAttribTextString(entAttrib As AcadEntity, title As String) As String
 '找 屬性(titile)的文字
     Dim Array1 As Variant

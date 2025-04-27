@@ -10,16 +10,18 @@ Attribute VB_Name = "CommonFileDialog"
 'Snippet Code: - Common File Dialog Class
 
 Option Explicit
+#If VBA7 Then
 '//The Win32 API Functions///
-Private Declare Function GetSaveFileName Lib _
-"comdlg32.dll" Alias "GetSaveFileNameA" _
-(pOpenfilename As OPENFILENAME) As Long
-Private Declare Function GetOpenFileName Lib _
-"comdlg32.dll" Alias "GetOpenFileNameA" _
-(pOpenfilename As OPENFILENAME) As Long
-Private Declare Function FindWindow Lib "user32" _
-Alias "FindWindowA" (ByVal lpClassName As String, _
-ByVal lpWindowName As String) As Long
+Private Declare PtrSafe Function GetSaveFileName Lib "comdlg32.dll" Alias "GetSaveFileNameA" (pOpenfilename As OPENFILENAME) As Long
+Private Declare PtrSafe Function GetOpenFileName Lib "comdlg32.dll" Alias "GetOpenFileNameA" (pOpenfilename As OPENFILENAME) As Long
+Private Declare PtrSafe Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+#Else
+Private Declare Function GetSaveFileName Lib "comdlg32.dll" Alias "GetSaveFileNameA" (pOpenfilename As OPENFILENAME) As Long
+Private Declare Function GetOpenFileName Lib "comdlg32.dll" Alias "GetOpenFileNameA" (pOpenfilename As OPENFILENAME) As Long
+Private Declare Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+#End If
+
+
 '//A few of the available Flags///
 Private Const OFN_FILEMUSTEXIST = &H1000
 Private Const OFN_ALLOWMULTISELECT = &H200
