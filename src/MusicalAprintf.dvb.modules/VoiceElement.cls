@@ -164,12 +164,12 @@ End Sub
 Public Sub setWidth(width As Double)
         Me.w = width
 End Sub
-Public Function insterBar(barId As Integer) As MusicItem
+Public Function insterBar(barId As Integer, barCalNumber As Integer) As MusicItem
     
     Dim barEle As New MusicItem
     barEle.typs = Cg.bar
     barEle.w = amt.wBar * G.fontsize
-    barEle.barNumber = barId
+    barEle.barNumber = barId + barCalNumber
     Me.children.Push barEle
     Set insterBar = barEle
 End Function

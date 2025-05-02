@@ -15,4 +15,5 @@ Public mete As Integer
 Public mete2 As Integer
 Public keyMain As String
 Public barLineQuantity As Integer '一行的小節數量
-Public linebreak As Boolean  'true 小節後換行
+Public barlinebreak As Boolean  'true 小節後換行
+Public barpagebreak As Boolean

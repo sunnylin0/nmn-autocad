@@ -203,8 +203,9 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
     Dim barId As Integer
     Dim barEle As MusicItem
     Dim isMeasureOne As Boolean  '是否小節第一個
+    Dim barCalNumber As Integer
     ReDim barConfig(2000)
-
+    barCalNumber = 0
         For tmp_track = 0 To mBuf.GetTrackSize() - 1
 
             Call mBuf.init
@@ -234,7 +235,7 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
                     G.currMeasure = G.currMeasure + 1
                     G.durationIndex = 0
                         
-                    If s1.typs <> Cg.bar Then vo.insterBar barId
+                    If s1.typs <> Cg.bar Then vo.insterBar barId, barCalNumber
                     
                     barId = barId + 1
                     If barConfig(barId) Is Nothing Then
@@ -246,12 +247,17 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
 
 
                     
-                    If G.currMeasure >= G.barsperstaff Then  '看是否以到一行小節個數了
+                    If G.currMeasure >= G.barsperstaff _
+                    Or barConfig(barId).barlinebreak _
+                    Or barConfig(barId).barpagebreak Then  '看是否以到一行小節個數了
                         isMeasureOne = True
                         G.currMeasure = 0
                         G.currLine = G.currLine + 1
-                        
                         voiceList.Push vo
+                        
+                        If barConfig(barId).barpagebreak Then
+                            barCalNumber = -barId
+                        End If
                         
                         Set vo = New VoiceElement
                         Call vo.init(tmp_track, mBuf.GetTrackSize() - 1)
@@ -261,7 +267,7 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
                 If isMeasureOne = True Then
                     '這是看第一小節 ，是否要加入小節元素
                     If (G.durationIndex = 0 And (s1.typs = Cg.note Or s1.typs = Cg.meter)) Then
-                        Set s2 = vo.insterBar(barId)
+                        Set s2 = vo.insterBar(barId, barCalNumber)
                         s2.remark = "t" & tmp_track & "_i" & tmp_track_item
                         isMeasureOne = False
                     End If
@@ -302,15 +308,21 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
                         End If
                         
                         If (s1.barlinebreak > 1) Then
-                            If barConfig(setbarstaffid) Is Nothing Then
-                                Set barConfig(setbarstaffid) = New aBarConfig
+                            If barConfig(s1.barlinebreak) Is Nothing Then
+                                Set barConfig(s1.barlinebreak) = New aBarConfig
                             End If
-                            barConfig(setbarstaffid).barId = setbarstaffid
-                            barConfig(setbarstaffid).barLineQuantity = s1.setbarstaff
+                            barConfig(s1.barlinebreak).barlinebreak = True
+                        End If
+                        
+                        If (s1.barpagebreak > 1) Then
+                            If barConfig(s1.barpagebreak) Is Nothing Then
+                                Set barConfig(s1.barpagebreak) = New aBarConfig
+                            End If
+                            barConfig(s1.barpagebreak).barpagebreak = True
                         End If
                     Case Cg.bar:
                         s1.w = amt.wBar * G.fontsize
-                        s1.barNumber = barId
+                        s1.barNumber = barId + barCalNumber
                         s1.remark = "t" & tmp_track & "_i" & tmp_track_item
                         vo.children.Push s1
                         isMeasureOne = False
@@ -352,7 +364,7 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
                 If (vo.children.Last.typs <> bar) Then
                     '看最後一個是否是 bar
                     '如不是增加
-                    vo.insterBar barId
+                    vo.insterBar barId, barCalNumber
                 End If
                 voiceList.Push vo
                 
