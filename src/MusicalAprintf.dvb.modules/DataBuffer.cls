@@ -155,6 +155,7 @@ Private Sub SetMusicNoteFormation(moeList() As MusicNoteItemList)
     Dim sc As MusicNoteItem
     Dim isAdd As Boolean
     Dim isDots As Boolean
+    Dim isRest As Boolean
     
     
     Dim extraList As MusicNoteItemList
@@ -181,6 +182,10 @@ Private Sub SetMusicNoteFormation(moeList() As MusicNoteItemList)
             Select Case c.mnote  '這是音階
                 Case "."
                     isDots = True
+                Case "Z"
+                    '合併小節 Z
+                    restConfigSet nTrack, c
+                    GoTo nogood
                 Case "|"
                         GoTo nogood
                 Case " ", ""
@@ -245,6 +250,7 @@ Private Sub SetMusicNoteFormation(moeList() As MusicNoteItemList)
                     mMusic(nTrack).Push objMusic
                 End If
             End If
+            
             If Not objMusic Is Nothing And isExtra = True Then
                 '這是看如有前墜字物件後，有產生 MusicItem
                 '就加入前墜字 給 MusicItem
@@ -361,6 +367,24 @@ Private Sub noteConfigSet(nTrack As Integer, c As MusicNoteItem)
 
 
 End Sub
+Private Sub restConfigSet(nTrack As Integer, c As MusicNoteItem)
+'休子符,小節合併
+    Dim rMusicItem As MusicItem
+    Set rMusicItem = New MusicItem
+    
+    
+    If c.mnote = "Z" Then
+        rMusicItem.typs = Cg.rest
+        Set rMusicItem.rest = New aRestItem
+        rMusicItem.rest.typs = "multimeasure"
+        rMusicItem.rest.text = CharToValue(c.mtempo)
+        rMusicItem.rest.barNumber = CharToValue(c.mtempo)
+    End If
+    
+    mMusic(nTrack).Push rMusicItem
+            
+End Sub
+
 
 
 Private Function getChars(mTextnote() As String, pos As Integer) As String()
@@ -908,11 +932,11 @@ End Function
 Private Function converMITABC(GroupABCs As VoiceABCList, vABC As VoiceABC, kf As KeyFormat) As VoiceABC
         Select Case kf.mnote     '這是音階
             Case "0"
-                If (vABC.Rest Is Nothing) Then
-                    Set vABC.Rest = New vrestNote
+                If (vABC.rest Is Nothing) Then
+                    Set vABC.rest = New vrestNote
                 End If
                 vABC.el_typs = "note"
-                vABC.Rest.typs = "rest"
+                vABC.rest.typs = "rest"
                 vABC.duration = getTempoConverDuration(kf.mtempo)
                 
             Case "1", "2", "3", "4", "5", "6", "7"

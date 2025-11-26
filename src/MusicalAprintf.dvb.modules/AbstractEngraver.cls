@@ -898,8 +898,8 @@ Public Function addGraceNotes(elem As VoiceABC, voice As VoiceElement, abselem A
             '' there is no slur if it is bagpipes.
             '' there is not a slur if the element is a spacer or invisible rest.
             Dim isInvisibleRest As Boolean
-            If Not elem.Rest Is Nothing Then
-                isInvisibleRest = (elem.Rest.typs = "spacer" Or elem.Rest.typs = "invisible")
+            If Not elem.rest Is Nothing Then
+                isInvisibleRest = (elem.rest.typs = "spacer" Or elem.rest.typs = "invisible")
             Else
                 isInvisibleRest = False
             End If
@@ -1413,26 +1413,26 @@ Public Function createNote(elem As VoiceABC, nostem As Boolean, isSingleLineStaf
         Dim tmpRelem As RelativeElement
         
         durationForSpacing = duration * Me.tripletMultiplier
-        If Not (elem.Rest Is Nothing) Then
-            If (elem.Rest.typs = "multimeasure") Then
+        If Not (elem.rest Is Nothing) Then
+            If (elem.rest.typs = "multimeasure") Then
                 durationForSpacing = 1
-            ElseIf (elem.Rest.typs = "invisible-multimeasure") Then
-                durationForSpacing = Me.measureLength * elem.Rest.text
+            ElseIf (elem.rest.typs = "invisible-multimeasure") Then
+                durationForSpacing = Me.measureLength * elem.rest.text
             End If
         End If
         
-        abstyps = IIf(Not elem.Rest Is Nothing, "rest", "note")
+        abstyps = IIf(Not elem.rest Is Nothing, "rest", "note")
         
         Set tmpDic = New Dictionary
         tmpDic("durationClassOveride") = elem.duration * Me.tripletMultiplier
         Set abselem = N.AbsoluteElem(elem, durationForSpacing, 1, abstyps, Me.tuneNumber, tmpDic)
         If (hint = True) Then abselem.setHint
 
-        If Not (elem.Rest Is Nothing) Then
-            If (Me.measureLength = duration And elem.Rest.typs <> "invisible" And elem.Rest.typs <> "spacer" And InStr(1, elem.Rest.typs, "multimeasure") = 0) Then
+        If Not (elem.rest Is Nothing) Then
+            If (Me.measureLength = duration And elem.rest.typs <> "invisible" And elem.rest.typs <> "spacer" And InStr(1, elem.rest.typs, "multimeasure") = 0) Then
                 '' If the rest is exactly a measure, always use a whole rest
                 '' 如果休止符恰好是一個度量，則始終使用整個休止符
-                elem.Rest.typs = "whole"  '' If the rest is exactly a measure, always use a whole rest
+                elem.rest.typs = "whole"  '' If the rest is exactly a measure, always use a whole rest
             End If
             Set ret1 = addRestToAbsElement(abselem, elem, duration, dot, voice.voicetotal > 1, Me.stemdir, isSingleLineStaff, durlog, Me.voiceScale)
             Set notehead = ret1.notehead
@@ -1470,7 +1470,7 @@ Public Function createNote(elem As VoiceABC, nostem As Boolean, isSingleLineStaf
         End If
 
         '' ledger lines
-        ledgerLines abselem, elem.minPitch, elem.maxPitch, Not (elem.Rest Is Nothing), symbolWidth, additionalLedgers, dir, -2, 1
+        ledgerLines abselem, elem.minPitch, elem.maxPitch, Not (elem.rest Is Nothing), symbolWidth, additionalLedgers, dir, -2, 1
 
         If Not (elem.chord Is Nothing) Then
             Set ret3 = addChord(Me.gTextSize, abselem, elem, roomTaken, roomTakenRight, symbolWidth, Me.jazzchords, Me.germanAlphabet)
@@ -1488,8 +1488,8 @@ Public Function createNote(elem As VoiceABC, nostem As Boolean, isSingleLineStaf
             'line Me.triplet.setCloseAnchor (notehead)
         End If
         '' 結束圓滑線後加入
-        If Not (Me.triplet Is Nothing) And Not elem.startTriplet And Not elem.endTriplet And Not (elem.Rest Is Nothing) Then
-            If (elem.Rest.typs = "spacer") Then
+        If Not (Me.triplet Is Nothing) And Not elem.startTriplet And Not elem.endTriplet And Not (elem.rest Is Nothing) Then
+            If (elem.rest.typs = "spacer") Then
                 Me.triplet.middleNote notehead
             End If
         End If
@@ -1927,9 +1927,9 @@ Public Function addRestToAbsElement(abselem As AbsoluteElement, elem, duration A
             restpitch = 5  '' whole rest
         End If
     End If
-    Select Case (elem.Rest.typs)
+    Select Case (elem.rest.typs)
         Case "whole":
-            c = chartable.Rest(0)
+            c = chartable.rest(0)
             elem.averagepitch = restpitch
             elem.minPitch = restpitch
             elem.maxPitch = restpitch
@@ -1938,7 +1938,7 @@ Public Function addRestToAbsElement(abselem As AbsoluteElement, elem, duration A
             If (elem.style = "rhythm") Then '' special case for rhythm: rests are a handy way to express the rhythm.
                 c = chartable.rhythm(-durlog)
             Else
-                c = chartable.Rest(-durlog)
+                c = chartable.rest(-durlog)
             End If
             elem.averagepitch = restpitch
             elem.minPitch = restpitch
@@ -1951,7 +1951,7 @@ Public Function addRestToAbsElement(abselem As AbsoluteElement, elem, duration A
             elem.minPitch = restpitch
             elem.maxPitch = restpitch
         Case "multimeasure":
-            c = chartable.Rest("multi")
+            c = chartable.rest("multi")
             elem.averagepitch = restpitch
             elem.minPitch = restpitch
             elem.maxPitch = restpitch
@@ -1960,10 +1960,10 @@ Public Function addRestToAbsElement(abselem As AbsoluteElement, elem, duration A
             abselem.addHead N.RelativeElem(c, mmWidth, mmWidth * 2, 7)
             Set rOpt = New oRelativeOptions
             rOpt.typs = "multimeasure-text"
-            Set numMeasures = N.RelativeElem("" + elem.Rest.text, mmWidth, mmWidth, 16, rOpt)
+            Set numMeasures = N.RelativeElem("" + elem.rest.text, mmWidth, mmWidth, 16, rOpt)
             abselem.addExtra numMeasures
     End Select
-    If (InStr(1, elem.Rest.typs, "multimeasure") < 0 And elem.Rest.typs <> "invisible") Then
+    If (InStr(1, elem.rest.typs, "multimeasure") < 0 And elem.rest.typs <> "invisible") Then
         Dim ret As Dictionary
         Dim noteOpt As New oNoteHeadOptions
         Dim pitchOpt As New vpitchesNote

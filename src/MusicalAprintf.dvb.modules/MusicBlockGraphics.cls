@@ -166,6 +166,9 @@ Sub setDataText(position As point, musItem As MusicItem, TextSize As Double)
             "# MT-SHARP", _
             "b MT-FLAT", _
             "o MT-NATURAL")
+    If MData.typs = Cg.rest Then
+        Exit Sub
+    End If
     
     ReDim MFS(MData.notes.Count - 1)
     For currenCount = 0 To MData.notes.Count - 1
@@ -714,6 +717,36 @@ Public Function draw_Scale(isOneItem As Boolean, iScale As Integer, iTempo As In
     End If
     
 End Function
+Public Function InsterRest() As AcadBlockReference '插入 Rest
+    Dim x As Double, y As Double, Z As Double
+    Dim lastOctave As Integer
+    Dim scY As Double
+    Dim bottomY As Double
+    
+    x = Grippt.gptMid.x
+    y = Grippt.gptMid.y
+    Z = Grippt.gptMid.Z
+        '寫上數字
+    Dim textObj As AcadText
+    Dim textString As String
+    Dim insertionPoint(0 To 2) As Double
+    Dim centerPt(0 To 2) As Double
+    Dim height As Double
+    
+
+    insertionPoint(0) = 0: insertionPoint(1) = 0: insertionPoint(2) = 0
+    height = 0.63 * gTextSize
+    centerPt(0) = x: centerPt(1) = y: centerPt(2) = 0
+    ' Create the text object in model space
+    Set textObj = ThisDrawing.ModelSpace.AddText(MData.rest.text, insertionPoint, height)
+    textObj.Alignment = acAlignmentMiddleCenter
+    textObj.Move insertionPoint, centerPt   'bug 還要移動 1 次
+    textObj.styleName = "音符_數字"
+    textObj.Layer = "TEXT"
+    
+    
+End Function
+
 
 Public Function InsterEnt() As AcadBlockReference '插入音附
     Dim textObj As AcadText

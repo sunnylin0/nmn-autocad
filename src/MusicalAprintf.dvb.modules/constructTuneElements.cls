@@ -108,7 +108,7 @@ Function layoutOneItem(vele As VoiceElement, spacing As Double) As Double
            Case Cg.meter:
                 mus.x = vele.nextX
                 mus.w = amt.wMete * G.fontName
-           Case Cg.Rest, Cg.note:
+           Case Cg.rest, Cg.note:
                 mus.x = vele.nextX
                 mus.w = amt.wNote * G.fontName
                 calExtraw mus   '計算前綴元素
@@ -222,6 +222,7 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
 
             
             For tmp_track_item = 0 To mBuf.GetTrackBufferSize(tmp_track) - 1
+   
                 
                 Set s1 = mBuf.GetData(tmp_track, tmp_track_item)
                 If (s1 Is Nothing) Then
@@ -231,13 +232,14 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
 
                 If (G.durationIndex >= (Cg.BLEN / G.mete2) * G.mete) Then
                     '是否以到小節長度
-                
+                    Dim barAddNum As Integer
+                    barAddNum = G.durationIndex / ((Cg.BLEN / G.mete2) * G.mete)
                     G.currMeasure = G.currMeasure + 1
                     G.durationIndex = 0
                         
                     If s1.typs <> Cg.bar Then vo.insterBar barId, barCalNumber
                     
-                    barId = barId + 1
+                    barId = barId + barAddNum
                     If barConfig(barId) Is Nothing Then
                         Set barConfig(barId) = New aBarConfig
                         barConfig(barId).barId = barId
@@ -266,7 +268,7 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
 
                 If isMeasureOne = True Then
                     '這是看第一小節 ，是否要加入小節元素
-                    If (G.durationIndex = 0 And (s1.typs = Cg.note Or s1.typs = Cg.meter)) Then
+                    If (G.durationIndex = 0 And (s1.typs = Cg.note Or s1.typs = Cg.rest Or s1.typs = Cg.meter)) Then
                         Set s2 = vo.insterBar(barId, barCalNumber)
                         s2.remark = "t" & tmp_track & "_i" & tmp_track_item
                         isMeasureOne = False
@@ -340,8 +342,18 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
                             barConfig(barId).mete = s1.mete
                             barConfig(barId).mete2 = s1.mete2
                         End If
-                        
-                   Case Cg.Rest, Cg.note:
+                   Case Cg.rest:
+                        If s1.rest.typs = "multimeasure" Then
+                            '合併小節計算
+                            s1.w = amt.wNote * G.fontsize * G.mete
+                            Dim tolen As Integer
+                            tolen = Cg.BLEN / G.mete2
+                            tolen = tolen * G.mete * s1.rest.barNumber
+                            s1.duration = (Cg.BLEN / G.mete2) * G.mete * 0.7 '只要畫出 1 小節的寬度 *.7
+                            vo.children.Push s1
+                            G.durationIndex = G.durationIndex + tolen
+                        End If
+                   Case Cg.note:
                         s1.w = amt.wNote * G.fontsize
                         If s1.dots > 0 Then
                             s1.w = 2 * amt.wNote * G.fontsize
@@ -350,7 +362,7 @@ Function tidyDataToRow(mBuf As DataBuffer) As VoiceElementList
                         s1.remark = "t" & tmp_track & "_i" & tmp_track_item
                         vo.children.Push s1
                         G.durationIndex = G.durationIndex + s1.duration
-          
+                        
                    Case Else
                 End Select
                 

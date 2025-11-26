@@ -60,7 +60,7 @@ Public gracenotes As vgraceNotes
 '        vocalPosition as 'above' | 'below' | 'hidden'
 '        volumePosition as 'above' | 'below' | 'hidden'
 '    }
-    Public Rest As vrest
+    Public rest As vrest
     
     Public startBeam As Boolean
     Public startSlur As iArray

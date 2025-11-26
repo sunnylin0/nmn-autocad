@@ -2,9 +2,9 @@ VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmInsText 
    Caption         =   "«üªk¿é¤J"
    ClientHeight    =   3255
-   ClientLeft      =   48
-   ClientTop       =   336
-   ClientWidth     =   2568
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   2565
    OleObjectBlob   =   "frmInsText.frx":0000
    StartUpPosition =   1  'CenterOwner
 End

@@ -72,7 +72,7 @@ Public Sub Add(abselem)
         pitch = abselem.abcelem.averagepitch
         If (pitch = 0) Then Exit Sub  '' don't include elements like spacers in beams
         If Not (abselem.abcelem Is Nothing) Then
-            If Not (abselem.abcelem.Rest Is Nothing) Then
+            If Not (abselem.abcelem.rest Is Nothing) Then
                 Me.allrests = False
             End If
         End If

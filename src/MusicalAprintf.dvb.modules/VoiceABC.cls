@@ -123,7 +123,7 @@ Public positioning As Dictionary
 '        vocalPosition as  'above' | 'below' | 'hidden'
 '        volumePosition as  'above' | 'below' | 'hidden'
 '    }
-Public Rest As vrestNote
+Public rest As vrestNote
 '{
 '        type as  'invisible' | 'spacer' | 'rest' | 'multimeasure' | 'invisible-multimeasure' | 'whole'
 ' text As Double
@@ -191,7 +191,7 @@ Public Function clone() As VoiceABC
     cope.postString = Me.postString
     cope.preString = Me.preString
   Set cope.rel_position = Me.rel_position
-  Set cope.Rest = Me.Rest
+  Set cope.rest = Me.rest
     cope.size = Me.size
     cope.stafflines = Me.stafflines
     cope.staffscale = Me.staffscale

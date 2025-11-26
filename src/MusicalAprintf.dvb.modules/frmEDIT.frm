@@ -2,8 +2,8 @@ VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmEDIT 
    Caption         =   "¹Ï¶ô¥Î EDIT"
    ClientHeight    =   5844
-   ClientLeft      =   48
-   ClientTop       =   336
+   ClientLeft      =   45
+   ClientTop       =   330
    ClientWidth     =   9660
    OleObjectBlob   =   "frmEDIT.frx":0000
    StartUpPosition =   1  'CenterOwner
@@ -16,6 +16,7 @@ Attribute VB_Exposed = False
 
 
 Option Explicit
+'2025.11.26  v2.14 ¥[¤J rest{ type: "multimeasure"} ¦X¨Ö¤p¸` (Z4)
 '2025.04.25  ¥[¤J I:pagebreak 44 '³]©w²Ä x ¤p¸`±j¨î´«­¶¡A¤p¸`¼Æ­« 1 ¶}©l
 '2025.04.25  ¥[¤J I:linebreak 44 '³]©w²Ä x ¤p¸`±j¨î´«¦æ
 '2024.11.28  isVirtualChar As Boolean '³]©wªÅ¤ß¦r²Å  v2.13
@@ -29,7 +30,7 @@ Option Explicit
 '            ¦h¥[ iAdd ¦X­µ¦æ
 '2013.03.17  V3 ¥¿­n­×§ï ¤G­Jªºª©¥»¡A¦]µ{¦¡¤§«e¬O¥Î¥jºåªº«üªk¹Ï¡A²{¦b§ï¦¨¤G­Jªº«üªk¹Ï
 
-Const version  As String = "v2.13" '³nÅé¸¹½X
+Const version  As String = "v2.14" '³nÅé¸¹½X
 Const c1 As Integer = 60   'C½Õ1ªºÁä¦W­È
 'Const FOURPAINUM   As Integer = 64 '1/4­µ²Å­p¼Æ
 'Const MIDICLOCK As Integer = 24   '¨C1/64­µ²ÅªºMIDICLOCK¼Æ
@@ -53,13 +54,12 @@ Dim m_buf As New DataBuffer
 Dim TuneLines As New TuneLineList
 Private constTE As New constructTuneElements
 
-'1 ¦bvb¤uµ{¤¤¤Þ¥Îautocadªºƒ·
-'2 ©w…óautocad†Á¶H
+
 Private acadapp As AcadApplication
 Private acadDoc As AcadDocument
-'3 ‡À¥´…{‹×„¸autocadªº¨ç‡Û¡A¥H¤U¬O§Ú‡Àªº
+
 '--------------------------------------------------------------
-'„²±µCad
+'³s±µCad
 '-------------------------------------------------------------
 Private Function AcadConnect() As Boolean
 Dim flag As Boolean
@@ -72,7 +72,7 @@ On Error Resume Next
        flag = True
        If err Then
           flag = False
-          MsgBox "¤£¯à†b¦æAutoCAD,ˆ[‰ä¬d¬O§_¦w†E¡I", vbOKCancel, "Äµ§i¡I"
+          MsgBox "¤£¯à¹B¦æAutoCAD,½ÐÀË¬d¬O§_¦w†E¡I", vbOKCancel, "Äµ§i¡I"
           Exit Function
        End If
     End If
@@ -594,7 +594,16 @@ Private Sub drawLayoutStaff(abcTuneLines As TuneLineList)
                         s1.oY = metePt2.y
                         G.mete = s1.mete
                         G.mete2 = s1.mete2
-                   Case Cg.Rest, Cg.note:
+                   Case Cg.rest:
+                        
+                        startPt.x = currX + s1.x
+                        startPt.y = currY
+                        s1.oX = startPt.x
+                        s1.oY = startPt.y
+                        MBG.setDataText startPt, s1, G.fontsize
+                        MBG.nowPartLayer = partLayer
+                        Set BNewObj = MBG.InsterRest '´¡¤J­µ²Å¤Î«üªk
+                   Case Cg.note:
                         'Ã¸»s­µ²Å********************************
                         Dim N As Integer
                         startPt.x = currX + s1.x
@@ -829,7 +838,7 @@ Private Sub draw_many_text1()
                         End If
                         
                         GoTo CallBackFor
-                   Case Cg.Rest, Cg.note:
+                   Case Cg.rest, Cg.note:
                    Case Else
                 End Select
 
@@ -1664,7 +1673,7 @@ Sub setLayoutMusicItem()
                         G.mete = s1.mete
                         G.mete2 = s1.mete2
                         GoTo CallBackFor
-                   Case Cg.Rest, Cg.note:
+                   Case Cg.rest, Cg.note:
                    Case Else
                 End Select
 

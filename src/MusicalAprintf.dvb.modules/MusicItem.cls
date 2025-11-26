@@ -10,7 +10,9 @@ Attribute VB_Exposed = False
 Option Explicit
 
  Public typs As Cg
+ 
  Public notes As MusicNoteItemList
+ Public rest As aRestItem
     'mfingering As String  '指法
     'mnote As String           '高低音
     'mscale As String          '音階
@@ -288,7 +290,7 @@ Public Sub calMeWidth()
                 Me.w = amt.wBar * G.fontsize
            Case Cg.meter:
                 Me.w = amt.wMete * G.fontsize
-           Case Cg.Rest, Cg.note:
+           Case Cg.rest, Cg.note:
                 If Me.dots > 0 Then
                     Me.w = 3 * amt.wNote * G.fontsize
                 Else

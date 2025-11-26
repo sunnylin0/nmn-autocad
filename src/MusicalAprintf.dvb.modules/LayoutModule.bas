@@ -134,8 +134,8 @@ Public Sub centerWholeRests(voices As VoiceElementList)
         '' Look through all of the elements except for the first and last. If the whole note appears there then there isn't anything to center it between anyway.
         For j = 1 To voice.children.Count - 1
             Set abselem = voice.children(j)
-            If Not (abselem.abcelem.Rest Is Nothing) Then
-                If (abselem.abcelem.Rest.typs = "whole" Or abselem.abcelem.Rest.typs = "multimeasure") Then
+            If Not (abselem.abcelem.rest Is Nothing) Then
+                If (abselem.abcelem.rest.typs = "whole" Or abselem.abcelem.rest.typs = "multimeasure") Then
                 Set before = voice.children(j - 1)
                 Set after = voice.children(j + 1)
                 abselem.center before, after

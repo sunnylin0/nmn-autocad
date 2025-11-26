@@ -2210,33 +2210,33 @@ Attribute ConcatDelegate.VB_Description = "Concatenates Passed Arrays. Do not us
     Dim i As Long
     Dim Cursor As Long
     Dim NewLength As Long
-    Dim Rest() As Variant
+    Dim rest() As Variant
     Dim result() As Variant
     Dim Current() As Variant
     
-    Rest = Args(0)
+    rest = Args(0)
     Cursor = This.LowerBound
     If IsArrayAllocated(First) Then
         Cursor = LBound(First)
-    ElseIf IsArray(Rest(LBound(Rest))) Then
-        If IsArrayAllocated(Rest(LBound(Rest))) Then
-            Cursor = LBound(Rest(LBound(Rest)))
+    ElseIf IsArray(rest(LBound(rest))) Then
+        If IsArrayAllocated(rest(LBound(rest))) Then
+            Cursor = LBound(rest(LBound(rest)))
         End If
     End If
     
-    NewLength = GetArrayLength(First) + GetTotalLengthOfNestedArrays(Rest)
+    NewLength = GetArrayLength(First) + GetTotalLengthOfNestedArrays(rest)
     ReDim result(Cursor To max(Cursor + NewLength - 1, Cursor))
     
     InsertArrayAtIndex result, First, Cursor
-    For i = LBound(Rest) To UBound(Rest)
-        If IsArray(Rest(i)) Then
-            Current = Rest(i)
+    For i = LBound(rest) To UBound(rest)
+        If IsArray(rest(i)) Then
+            Current = rest(i)
             If IsMultidimensionalArray(Current) Then
                 Current = MultiToJagged(Current)
             End If
             InsertArrayAtIndex result, Current, Cursor
         Else
-            LetOrSetElement result(Cursor), Rest(i)
+            LetOrSetElement result(Cursor), rest(i)
             Inc Cursor
         End If
     Next

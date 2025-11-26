@@ -18,7 +18,7 @@ Public Enum Cg
         MREST = 7
         note = 8
         part = 9
-        Rest = 10
+        rest = 10
         space = 11
         staves = 12
         STBRK = 13
@@ -272,3 +272,46 @@ Public Sub debugVoices(staffGroup As StaffGroupElement)
 End Sub
 
 
+' 函數名稱: CharToValue
+' 描述: 將單一字元 (1-9, a-z/A-Z) 轉換為數值 (1-35)
+' 參數: InputChar (String) - 待轉換的字元
+' 返回值: Long - 轉換後的數值 (如果字元不在範圍內，則返回 -1)
+Public Function CharToValue(ByVal InputChar As String) As Long
+
+    Dim sChar As String
+    Dim iAscii As Integer
+    Dim lValue As Long
+    
+    ' 確保只處理單一字元
+    If Len(InputChar) <> 1 Then
+        CharToValue = -1 ' 或您可以拋出錯誤
+        Exit Function
+    End If
+    
+    ' 將輸入字元統一轉為小寫，方便判斷
+    sChar = LCase(InputChar)
+    iAscii = Asc(sChar) ' 取得字元的 ASCII 碼
+    
+    ' --- 處理數字 1 到 9 ---
+    ' ASCII 碼 '1' = 49, '9' = 57
+    If iAscii >= Asc("1") And iAscii <= Asc("9") Then
+        ' 將字元轉換為數字 (例如 "1" 轉為 1)
+        lValue = val(sChar)
+        
+    ' --- 處理字母 a 到 z ---
+    ' ASCII 碼 'a' = 97, 'z' = 122
+    ElseIf iAscii >= Asc("a") And iAscii <= Asc("z") Then
+        ' 轉換邏輯: a=10, b=11, ...
+        ' lValue = (目前字母的 ASCII 碼) - (字母 'a' 的 ASCII 碼) + 10
+        ' 例如: 'a' -> 97 - 97 + 10 = 10
+        '       'b' -> 98 - 97 + 10 = 11
+        lValue = iAscii - Asc("a") + 10
+        
+    ' --- 其他無效字元 ---
+    Else
+        lValue = -1
+    End If
+    
+    CharToValue = lValue
+    
+End Function
